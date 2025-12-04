@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.CvplRceptMapper">
+
+	<sql id="where">
+		<if test="keyword != null and keyword.trim() != ''">
+			AND (C.CVPL_SJ LIKE '%' || #{keyword} || '%' OR C.CVPL_CN LIKE '%' || #{keyword} || '%')
+		</if>
+
+		<if test="startDate != null and startDate.trim() != ''">
+			<![CDATA[
+			AND C.REQST_DT >= TO_DATE(#{startDate}, 'YYYY-MM-DD')
+			]]>
+		</if>
+
+		<if test="endDate != null and endDate.trim() != ''">
+			<![CDATA[
+			AND C.REQST_DT <= TO_DATE(#{endDate}, 'YYYY-MM-DD')
+			]]>
+		</if>
+	</sql>
+	<sql id="where_rceptSttus">
+	    <include refid="where" />
+		<choose>
+			<when test="rceptSttus == -1">
+				AND 1=1
+			</when>
+			<when test="rceptSttus == 0">
+				AND R.CVPL_RCEPT_ID IS NULL
+			</when>
+			<otherwise>
+				AND R.RCEPT_STTUS = #{rceptSttus}
+			</otherwise>
+		</choose>
+	</sql>
+
+	
+	<!--
+	//해당 부서의 민원 리스트
+	List<CvplVO> listDept(CvplVO cvplVO)
+	-->
+	<select id="list" parameterType="hashMap" resultType="cvplVO">
+		WITH S AS (
+			SELECT ROW_NUMBER() OVER (ORDER BY T.CVPL_SN DESC) AS RNUM
+				 , T.CVPL_SN
+				 , T.MBER_ID
+				 , T.CVPL_SJ
+				 , T.CVPL_CN
+				 , T.REQST_DT
+				 , T.DEPT_CODE
+				 , T.RCEPT_STTUS
+				 , T.CVPL_RCEPT_ID
+			  FROM
+				(
+					SELECT
+						   C.CVPL_SN
+						 , C.MBER_ID
+						 , C.CVPL_SJ
+						 , C.CVPL_CN
+						 , C.REQST_DT
+						 , C.DEPT_CODE
+						 , R.RCEPT_STTUS AS RCEPT_STTUS
+						 , R.CVPL_RCEPT_ID AS CVPL_RCEPT_ID
+					  FROM CVPL C
+					  JOIN EMP E ON C.DEPT_CODE = E.DEPT_CODE
+					  LEFT JOIN CVPL_MANAGE M ON C.CVPL_SN = M.CVPL_SN
+					  LEFT JOIN CVPL_RCEPT R ON M.CVPL_RCEPT_ID = R.CVPL_RCEPT_ID
+					 WHERE 1 = 1
+					   AND E.EMP_ID = #{empId}
+					   <include refid="where"/>
+					   <include refid="where_rceptSttus"/>
+				) T
+			)
+		SELECT S.*
+		  FROM S
+		 WHERE S.RNUM BETWEEN((#{currentPage} - 1) * #{size} + 1) AND (#{currentPage} * #{size})
+	</select>
+
+	<!-- 
+	//전체 행의 수
+	int getTotal(Map<String, Object> map)
+	-->
+	<select id="getTotal" parameterType="hashMap" resultType="int">
+		SELECT COUNT(*)
+		  FROM CVPL C
+		  JOIN EMP E ON C.DEPT_CODE = E.DEPT_CODE
+		  LEFT JOIN CVPL_MANAGE M ON C.CVPL_SN = M.CVPL_SN
+		  LEFT JOIN CVPL_RCEPT R ON M.CVPL_RCEPT_ID = R.CVPL_RCEPT_ID
+		 WHERE 1 = 1
+		   AND E.EMP_ID = #{empId}
+		   <include refid="where"/>
+		   <include refid="where_rceptSttus"/>
+	</select>
+	<!--
+	//해당 민원의 상세 + 해당 민원 접수 페이지
+	CvplVO detail(CvplVO cvplVO)
+	-->
+	<select id="detail" parameterType="cvplVO" resultMap="cvplMap">
+		SELECT
+			   C.CVPL_SN
+			 , C.MBER_ID
+			 , C.CVPL_SJ
+			 , C.CVPL_CN
+			 , C.REQST_DT
+			 , C.DEPT_CODE
+			 , F.FILE_GROUP_SN AS FG_SN
+			 , F.REGIST_DT
+			 , D.FILE_NO
+			 , D.FILE_ORGINL_NM
+			 , D.FILE_STRE_NM
+			 , D.FILE_STRELC
+			 , D.FILE_EXTSN
+			 , D.FILE_MIME
+			 , D.FILE_MG
+			 , D.FILE_FANCYSIZE 
+		  FROM CVPL C
+		  LEFT JOIN FILE_GROUP F ON C.FILE_GROUP_SN = F.FILE_GROUP_SN
+		  LEFT JOIN FILE_DETAIL D ON F.FILE_GROUP_SN = D.FILE_GROUP_SN
+		 WHERE C.CVPL_SN = #{cvplSn}
+	</select>
+
+	<!-- CVPL : FILE_GROUP = 1 : 1 -->
+	<resultMap type="cvplVO" id="cvplMap">
+		<result property="cvplSn" column="CVPL_SN"/>
+		<result property="mberId" column="MBER_ID"/>
+		<result property="cvplSj" column="CVPL_SJ"/>
+		<result property="cvplCn" column="CVPL_CN"/>
+		<result property="reqstDt" column="REQST_DT"/>
+		<result property="deptCode" column="DEPT_CODE"/>
+		<result property="fileGroupSn" column="FILE_GROUP_SN" />
+		<association property="fileGroupVO" resultMap="fileGroupMap"></association>
+	</resultMap>
+	
+	<!-- CVPL_RCEPT : FILE_GROUP = 1 : 1 -->
+	<resultMap type="cvplRceptVO" id="cvplRceptMap">
+		<result property="cvplRceptId" column="CVPL_RCEPT_ID" />
+		<result property="empId" column="EMP_ID" />
+		<result property="rceptDt" column="RCEPT_DT" />
+		<result property="rceptCn" column="RCEPT_CN" />
+		<result property="rceptSttus" column="RCEPT_STTUS" />
+		<result property="fileGroupSn" column="FILE_GROUP_SN" />
+		<association property="fileGroupVO" resultMap="fileGroupMap"></association>
+	</resultMap>
+
+	<!-- FILE_GROUP : FILE_DETAIL = 1 : 1 -->
+	<resultMap type="fileGroupVO" id="fileGroupMap">
+		<result property="fileGroupSn" column="FILE_GROUP_SN" />
+		<result property="registDt" column="REGIST_DT" />
+		<collection property="fileDetailVOList" resultMap="fileDetailMap"></collection>
+	</resultMap>
+
+	<!-- FILE_DETAIL : CVPL_RCEPT = 1 : 1 -->
+	<resultMap type="fileDetailVO" id="fileDetailMap">
+		<result property="fileStreNm" column="FILE_STRE_NM" />
+		<result property="fileStrelc" column="FILE_STRELC" />
+		<result property="fileMg" column="FILE_MG" />
+		<result property="fileExtsn" column="FILE_EXTSN" />
+		<result property="fileMime" column="FILE_MIME" />
+		<result property="fileFancysize" column="FILE_FANCYSIZE" />
+		<result property="fileSaveDate" column="FILE_SAVE_DATE" />
+		<result property="fileDowncount" column="FILE_DOWNCOUNT" />
+		<result property="fileGroupSn" column="FILE_GROUP_SN" />
+		<result property="fileNo" column="FILE_NO" />
+		<result property="fileOrginlNm" column="FILE_ORGINL_NM" />
+	</resultMap>
+	<!--
+	//해당 민원 접수 실행
+	int cvplRceptPost(CvplVO cvplVO)
+	-->
+	<insert id="cvplRceptPost" parameterType="cvplRceptVO">
+		INSERT INTO CVPL_RCEPT (
+		<selectKey resultType="int" order="BEFORE" keyProperty="cvplRceptId">
+			SELECT NVL(MAX(CVPL_RCEPT_ID),0) + 1 FROM CVPL_RCEPT
+		</selectKey>
+			   CVPL_RCEPT_ID
+			 , EMP_ID
+			 , RCEPT_DT
+			 , RCEPT_CN
+			 , RCEPT_STTUS
+			 , FILE_GROUP_SN
+		) VALUES (
+			   #{cvplRceptId}
+			 , #{empId}
+			 , SYSDATE
+			 , #{rceptCn}
+			 , 1
+			 , #{fileGroupSn}
+		)
+	</insert>
+	
+	<insert id="insertCvplManage" parameterType="cvplRceptVO">
+		INSERT INTO CVPL_MANAGE (
+			   CVPL_RCEPT_ID
+			 , CVPL_SN
+		) VALUES (
+			   #{cvplRceptId}
+			 , #{cvplSn}
+		)
+	</insert>
+	
+	<!-- 
+	// 해당 민원 종결 실행
+	int cvplEnPost(CvplRceptVO cvplRceptVO)
+	-->
+	<update id="cvplEnPost" parameterType="cvplRceptVO">
+		UPDATE CVPL_RCEPT
+		   SET RCEPT_STTUS = 2
+		 WHERE CVPL_RCEPT_ID = #{cvplRceptId}
+	</update>
+</mapper>

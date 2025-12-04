@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.or.ddit.mapper.ManagectLevyDetailMapper">
+
+    <!-- 청구서의 모든 상세항목 조회 -->
+    <select id="selectDetailByRqestSn" parameterType="string" resultType="kr.or.ddit.vo.ManagectLevyDetailVO">
+        SELECT MANAGECT_LEVY_DETAIL_SN as managectLevyDetailSn,
+               IEM_NM as iemNm,
+               RQEST_AMOUNT as rqestAmount,
+               RQEST_STDR as rqestStdr,
+               RQEST_UNTPC as rqestUntpc,
+               RQEST_SN as rqestSn
+        FROM MANAGECT_LEVY_DETAIL
+        WHERE RQEST_SN = #{rqestSn}
+        ORDER BY MANAGECT_LEVY_DETAIL_SN
+    </select>
+
+    <!-- 상세항목 1건 조회 -->
+    <select id="selectDetailBySn" parameterType="long" resultType="kr.or.ddit.vo.ManagectLevyDetailVO">
+        SELECT MANAGECT_LEVY_DETAIL_SN as managectLevyDetailSn,
+               IEM_NM as iemNm,
+               RQEST_AMOUNT as rqestAmount,
+               RQEST_STDR as rqestStdr,
+               RQEST_UNTPC as rqestUntpc,
+               RQEST_SN as rqestSn
+        FROM MANAGECT_LEVY_DETAIL
+        WHERE MANAGECT_LEVY_DETAIL_SN = #{detailSn}
+    </select>
+
+</mapper>

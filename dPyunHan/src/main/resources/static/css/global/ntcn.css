@@ -1,0 +1,79 @@
+/* 토스트 팝업 전체 스타일 */
+.swal2-toast-custom {
+    width: 320px !important;
+    padding: 10px 5px !important;
+    font-size: 13px !important;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.15) !important;
+    border-radius: 10px !important;
+    cursor: pointer !important;
+
+    /* ★ 핵심: 화면 오른쪽으로 끌어오기 */
+    position: fixed !important;
+
+    /* ★ 헤더 아래 원하는 높이 */
+    top: 70px !important; 
+
+    /* SweetAlert2 기본 위치 무효화 */
+    transform: none !important;
+    margin: 0 !important;
+    padding-left: 25px !important;
+}
+
+/* 아이콘(토스트 안에서만) */
+.swal2-toast-custom .swal2-icon {
+    margin-right: 10px !important;
+    margin-left: 10px !important;
+    transform: scale(1.1) !important;
+}
+
+/* 제목(토스트 안에서만) */
+.swal2-toast-custom .swal2-title {
+    font-size: 16px !important;
+    margin-bottom: 0px !important;
+}
+
+/* 메시지(토스트 안에서만) */
+.swal2-toast-custom .swal2-html-container {
+    font-size: 12px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1.2 !important;
+}
+
+.swal2-toast-custom .swal2-title,
+.swal2-toast-custom .swal2-html-container {
+    text-align: center !important;
+    display: block !important;
+    margin: 0 auto !important;   /* 블록 요소로 가운데 정렬 */
+}
+/* 토스트 스왈 회색바 css 커스터마이징 */
+.swal2-toast .swal2-timer-progress-bar {
+    background: #f2915c !important;  /* 네 포인트 컬러 */
+    animation: pulse 1.5s infinite alternate;
+}
+
+@keyframes pulse {
+    from { opacity: 1; }
+    to { opacity: 0.4; }
+}
+
+/* 진행바를 popup 밖으로 꺼내기 */
+/* 토스트 전체 너비로 progress bar 확장 */
+.swal2-toast .swal2-timer-progress-bar-container {
+    position: absolute !important;
+    bottom: 0 !important;    /* 아래 고정 */
+    top: auto !important;     /* 위 기준 제거 */
+    left: 0 !important;
+    right: 0 !important;
+
+    height: 80px !important;  /* ★ 너가 원하는 두께 */
+    overflow: hidden !important; /* 아래 쪽만 유지 */
+    border-radius: 0 0 8px 8px;  /* 선택: 토스트 모서리랑 맞추기 */
+    z-index: -1 !important;
+}
+
+/* 주황색 바 자체 */
+.swal2-toast .swal2-timer-progress-bar {
+    height: 100% !important;       /* container의 50px을 그대로 차지 */
+    background: #f2915c !important;
+}

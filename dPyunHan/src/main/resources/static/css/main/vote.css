@@ -1,0 +1,157 @@
+@charset "UTF-8";
+
+:root {
+  --vote-point: #648ca4;
+  --vote-point-soft: rgba(100, 140, 164, 0.08);
+}
+  /* ==== 투표 상세 모달 공통 스타일 ==== */
+  #goVoteModal .modal-dialog {
+    max-width: 900px;
+  }
+
+  #goVoteModal .modal-content {
+    border-radius: 20px;
+    border: none;
+    box-shadow: 0 18px 45px rgba(15, 23, 42, .16);
+    background: #f9fafb;
+  }
+
+  #goVoteModal .modal-header {
+    border-bottom: none;
+    padding: 0.75rem 1.25rem;
+    background-color: rgb(100, 140, 164) !important;
+  }
+
+  #goVoteModal .modal-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #111827;
+  }
+
+  #goVoteModal .task-panel {
+    padding: 0.25rem 1.25rem 1rem 1.25rem;
+  }
+
+  /* 제목 + 메타 영역 */
+  #goVoteModal .task-meta-label {
+    font-size: 0.75rem;
+    color: #9ca3af;
+    margin-bottom: 2px;
+    display: block;
+  }
+
+  #goVoteModal .task-meta-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    font-size: .8rem;
+  }
+
+  @media (max-width: 768px) {
+    #goVoteModal .task-meta-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  #goVoteModal .task-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: #eef2ff;
+    font-size: .75rem;
+    color: #4f46e5;
+    font-weight: 500;
+  }
+
+  /* 섹션 카드 공통 */
+  #goVoteModal .task-section {
+    background: var(--vote-point-soft);
+    color: var(--vote-point);
+    border-radius: 14px;
+    padding: 0.85rem 1rem;
+    margin-bottom: 0.75rem;
+    border: 1px solid rgba(100,140,164,0.25);
+  }
+
+  #goVoteModal .task-section-title {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #6b7280;
+    margin-bottom: 0.4rem;
+  }
+
+  #goVoteModal .task-description {
+    font-size: 0.8rem;
+    color: #111827;
+  }
+
+  #goVoteModal .task-section textarea.form-control[readonly],
+  #goVoteModal .task-section .form-control[readonly] {
+    background-color: #f9fafb;
+    border-radius: 10px;
+    border: 1px solid rgba(15, 23, 42, .06);
+    font-size: 0.8rem;
+  }
+
+  /* 내용 / 그래프 2분할 */
+  #goVoteModal .task-split {
+    display: grid;
+    grid-template-columns: minmax(0, 2.1fr) minmax(0, 1.2fr);
+    gap: 0.75rem;
+  }
+
+  @media (max-width: 768px) {
+    #goVoteModal .task-split {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  #goVoteModal #voteGraph {
+    width: 100%;
+    min-height: 210px;
+  }
+
+  /* 항목 테이블 영역 */
+  #goVoteModal .task-table-wrap {
+    background: #ffffff;
+    border-radius: 14px;
+    border: 1px solid rgba(15, 23, 42, .05);
+    margin-top: 0.4rem;
+  }
+
+  #goVoteModal .task-table-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.55rem 1rem .35rem 1rem;
+    border-bottom: 1px solid rgba(15, 23, 42, .06);
+  }
+
+  #goVoteModal .task-table-header h6 {
+    margin: 0;
+    font-size: .85rem;
+    font-weight: 600;
+  }
+
+  #goVoteModal .task-table-header small {
+    font-size: 0.7rem;
+    color: #9ca3af;
+  }
+
+  #goVoteModal .task-table-wrap .table {
+    margin-bottom: 0;
+    font-size: 0.8rem;
+  }
+
+  #goVoteModal .task-table-wrap thead th {
+    background: #f3f4f6;
+    border-bottom: 1px solid rgba(15, 23, 42, .06);
+  }
+
+  #goVoteModal .modal-footer {
+    border-top: none;
+    padding: 0.5rem 1.25rem 1rem;
+  }

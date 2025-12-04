@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.FcltyManageMapper">
+
+<!-- property 는  VO의 필드 이름(소문자) / type 는 클래스명(대문자) -->
+<!--FCLTY(부모) : FCLTY_MANAGE(자식) = 1 : N -->
+
+<resultMap type="FcltyManageVO" id="FcltyManageVOMap">    <!--  VO , 사용자정의(select에서 참조할때 사용) -->
+  <result property="fcltyManageSn" column="FCLTY_MANAGE_SN" />       <!--  VO명, 오라클 컬럼명 -->
+  <result property="empId" column="EMP_ID" />
+  <result property="fcltySn" column="FCLTY_SN" />
+  <result property="cmmntySn" column="CMMNTY_SN" />
+  <result property="fcltymanageCn" column="FCLTYMANAGE_CN" />
+  <result property="fcltymanageRegistDt" column="FCLTYMANAGE_REGIST_DT" />
+  <result property="fcltymanagePrearngePd" column="FCLTYMANAGE_PREARNGE_PD" />
+  <result property="fcltymanageBeginDt" column="FCLTYMANAGE_BEGIN_DT" />
+  <result property="fcltymanageEndDt" column="FCLTYMANAGE_END_DT" />
+  <result property="fcltymanageChcksttus" column="FCLTYMANAGE_CHCKSTTUS" />
+  
+  <association property="empVO" resultMap="empVOMap"></association>
+  
+  <association property="cmmntyVO" resultMap="cmmntyVOMap"></association>
+  
+  <association property="fcltyVO" resultMap="fcltyVOMap"></association>
+</resultMap>
+
+
+ <resultMap type="EmpVO" id="empVOMap">
+ <result property="empId" column="EMP_ID"></result>
+ <result property="empPassword" column="EMP_PASSWORD"></result>
+ <result property="clsf" column="CLSF"></result>
+ <result property="nm" column="NM"></result>
+ <result property="telno" column="TELNO"></result>
+ <result property="email" column="EMAIL"></result>
+ <result property="adres" column="ADRES"></result>
+ <result property="brthdy" column="BRTHDY"></result>
+ <result property="salary" column="SALARY"></result>
+ <result property="deptCode" column="DEPT_CODE"></result> 
+ <result property="suprrId" column="SUPRR_ID"></result> 
+ <result property="enabled" column="ENABLED"></result> 
+</resultMap>
+
+
+
+<resultMap type="FcltyVO" id="fcltyVOMap">
+ <result property="fcltySn" column="FCLTY_SN"></result>
+ <result property="fcltyCl" column="FCLTY_CL"></result>
+ <result property="fcltyNm" column="FCLTY_NM"></result>
+ <result property="fcltyLc" column="FCLTY_LC"></result>
+ <result property="fcltySttus" column="FCLTY_STTUS"></result>
+ <result property="fcltyChckDt" column="FCLTY_CHCK_DT"></result>
+</resultMap>
+
+
+<resultMap type="CmmntyVO" id="cmmntyVOMap">
+ <result property="cmmntySn" column="CMMNTY_SN"></result>
+ <result property="cmmntyNm" column="CMMNTY_NM"></result>
+ <result property="totUsePosblSpce" column="TOT_USE_POSBL_SPCE"></result>
+ <result property="cmmntyOpnVwpoint" column="CMMNTY_OPN_VWPOINT"></result>
+ <result property="cmmntyClosVwpoint" column="CMMNTY_CLOS_VWPOINT"></result>
+ <result property="cmmntyChcksttus" column="CMMNTY_CHCKSTTUS"></result>
+ <result property="cmmntyChckDt" column="CMMNTY_CHCK_DT"></result>
+</resultMap> 
+
+
+<sql id="where">
+  <if test="keyword != null and keyword != ''">
+    AND (
+         NM LIKE '%' || #{keyword} || '%'
+      OR FCLTY_STTUS LIKE '%' || #{keyword} || '%'
+      OR FCLTY_NM LIKE '%' || #{keyword} || '%'
+      OR FCLTY_LC LIKE '%' || #{keyword} || '%'
+      OR CMMNTY_NM LIKE '%' || #{keyword} || '%'
+      OR CMMNTY_CHCKSTTUS LIKE '%' || #{keyword} || '%'
+    )
+  </if>
+</sql>
+
+
+
+<!-- 담당자 db에서 조회 -->
+
+<select id="selectEmpList" resultType="EmpVO">
+ SELECT EMP_ID, NM
+  FROM EMP
+ WHERE DEPT_CODE = 2
+</select>
+
+
+<!-- 시설 일련번호 db에서 조회 -->
+<select id="selectFcltySn" parameterType="int" resultType="FcltyVO">
+ SELECT DISTINCT A.FCLTY_SN, A.FCLTY_NM, A.FCLTY_LC
+   FROM FCLTY A
+  LEFT OUTER JOIN FCLTY_MANAGE B ON A.FCLTY_SN = B.FCLTY_SN
+ WHERE 1 = 1
+ <if test="fcltySn !=null and fcltySn != 0">
+ AND A.FCLTY_SN = #{fcltySn}
+ </if> 
+</select>
+
+
+<!-- 커뮤니티 일련번호 db에서 조회 -->
+<select id="selectCmmnty" parameterType="int" resultType="CmmntyVO">
+SELECT DISTINCT C.CMMNTY_SN, C.CMMNTY_NM
+ FROM CMMNTY C
+ LEFT OUTER JOIN FCLTY_MANAGE D ON C.CMMNTY_SN = D.CMMNTY_SN
+WHERE 1 = 1
+ <if test="cmmntySn != null and cmmntySn != 0">
+ AND C.CMMNTY_SN = #{cmmntySn} 
+ </if>
+</select>
+
+
+
+<!-- 시설 관리 db 삽입 -->
+
+<insert id="registerPost" parameterType="FcltyManageVO">
+
+<selectKey resultType="int" order="BEFORE" keyProperty="fcltyManageSn">
+  SELECT NVL(MAX(FCLTY_MANAGE_SN),0) + 1 FROM FCLTY_MANAGE
+</selectKey>
+
+INSERT INTO FCLTY_MANAGE 
+   <trim prefix="(" suffix=")" suffixOverrides=",">
+	   FCLTY_MANAGE_SN, EMP_ID, 
+	    <if test="fcltySn != null and fcltySn !=0">
+	    FCLTY_SN, 
+	    </if>
+	  
+	    <if test="cmmntySn != null and cmmntySn !=0">
+	    CMMNTY_SN, 
+	    </if>
+	    
+	    FCLTYMANAGE_CN, FCLTYMANAGE_REGIST_DT, FCLTYMANAGE_PREARNGE_PD, FCLTYMANAGE_BEGIN_DT, FCLTYMANAGE_END_DT, FCLTYMANAGE_CHCKSTTUS
+    </trim>
+    <trim prefix="VALUES(" suffix=")" suffixOverrides=",">
+      #{fcltyManageSn},#{empId},
+      <if test="fcltySn != null and fcltySn != 0">
+       #{fcltySn},
+      </if>
+ 
+      <if test="cmmntySn != null and cmmntySn != 0">
+       #{cmmntySn},
+      </if> 
+       #{fcltymanageCn},SYSDATE,#{fcltymanagePrearngePd},#{fcltymanageBeginDt},#{fcltymanageEndDt}, #{fcltymanageChcksttus}
+    </trim>
+</insert>
+    
+    
+ <!-- 시설등록에서 점검상태 값 업데이트(시설) -->  
+ 
+ <update id="updateFcltySttus" parameterType="FcltyManageVO">
+  UPDATE FCLTY
+  SET FCLTY_STTUS = #{fcltySttus}
+  WHERE FCLTY_SN = #{fcltySn}
+ </update>
+ 
+ <!-- 시설등록에 점검상태 값 업데이트(커뮤니티) -->
+ <update id="updateCmmntyChcksttus" parameterType="FcltyManageVO">
+  UPDATE CMMNTY
+  SET CMMNTY_CHCKSTTUS = #{cmmntyChcksttus}
+  WHERE CMMNTY_SN = #{cmmntySn}
+ </update>
+
+<!--  시설관리 등록 화면 부분 끝 -->
+
+
+
+<!-- 시설관리 리스트(목록) 조회  -->
+
+<select id="fclManageAllist" parameterType="map" resultMap="FcltyManageVOMap">
+
+WITH T AS(
+SELECT ROW_NUMBER() OVER(ORDER BY A.fclty_manage_sn DESC) AS row_num,
+     A.fclty_manage_sn,
+     A.fcltymanage_chcksttus,
+     A.emp_id,
+     B.nm,
+     A.fclty_sn,
+     C.fclty_nm,
+     C.fclty_lc,
+     A.cmmnty_sn,
+     D.cmmnty_nm,
+
+     A.fcltymanage_cn,
+     A.fcltymanage_regist_dt,
+     ROUND(A.fcltymanage_prearnge_pd,0) fcltymanage_prearnge_pd,
+     
+     A.fcltymanage_begin_dt,
+     A.fcltymanage_end_dt,
+     C.fclty_sttus,
+     D.cmmnty_chcksttus
+         
+FROM
+    fclty_manage A
+LEFT OUTER JOIN emp B ON A.emp_id = B.emp_id    
+LEFT OUTER JOIN fclty C on A.fclty_sn = C.fclty_sn
+LEFT OUTER JOIN cmmnty D on A.cmmnty_sn = D.cmmnty_sn 
+WHERE 1 = 1
+   <include refid="where"></include>
+) 
+ select T.fclty_manage_sn, T.emp_id, T.nm, T.fclty_sn, T.fclty_nm, T.fclty_lc,
+        T.cmmnty_sn, T.cmmnty_nm, T.fcltymanage_begin_dt, T.fcltymanage_end_dt,
+        T.fcltymanage_prearnge_pd, T.fclty_sttus, T.cmmnty_chcksttus, T.fcltymanage_chcksttus
+ from T
+ WHERE T.row_num BETWEEN ((#{currentPage}*10) - (10 - 1)) AND (#{currentPage} * 10)
+</select>
+
+<!-- 전체 행의 수 -->
+<select id="getTotal" resultType="int">
+ SELECT COUNT(*)
+   FROM FCLTY_MANAGE A
+  LEFT OUTER JOIN EMP B ON A.EMP_ID = B.EMP_ID
+  LEFT OUTER JOIN FCLTY C ON A.FCLTY_SN = C.FCLTY_SN
+  LEFT OUTER JOIN CMMNTY D ON A.CMMNTY_SN = D.CMMNTY_SN
+  WHERE 1 =1
+  <include refid="where"></include>
+</select>
+
+<!-- 시설등록 일자 시설리스트 최근점검일자에 반영 -->
+<update id="updatefcltyChckDt" parameterType="FcltyManageVO">
+UPDATE FCLTY
+SET FCLTY_CHCK_DT = #{fcltymanageBeginDt}
+WHERE FCLTY_SN = #{fcltySn}
+</update>
+
+
+<!-- 시설관리 점검상태 업데이트 -->
+<update id="updatefclmanageChcksttus" parameterType="FcltyManageVO">
+UPDATE FCLTY_MANAGE
+SET FCLTYMANAGE_CHCKSTTUS = #{fcltymanageChcksttus}
+WHERE FCLTY_MANAGE_SN = #{fcltyManageSn}
+</update>
+
+
+
+</mapper>

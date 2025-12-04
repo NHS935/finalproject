@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="commonMapper">
+
+    <sql id="pageHeader">
+        SELECT ROW_TBL.*
+        FROM (
+            SELECT ROWNUM AS RNUM, TBL.*
+            FROM (
+    </sql>
+  
+    <sql id="pageFooter">
+            ) TBL
+        ) ROW_TBL
+        <include refid="commonMapper.pageWhere"></include>
+    </sql>
+    
+    <sql id="pageFooterSm">
+            ) TBL
+        ) ROW_TBL
+        <include refid="commonMapper.pageWhereSm"></include>
+    </sql>
+
+    <sql id="pageWhere">
+    <where>
+        <choose>
+            <when test="size == null or size == 0">
+               ROW_TBL.RNUM BETWEEN ((#{currentPage} - 1) * 10 + 1) AND (#{currentPage} * 10)
+            </when>
+            <otherwise>
+               ROW_TBL.RNUM BETWEEN ((#{currentPage} - 1) * #{size} + 1) AND (#{currentPage} * #{size})
+            </otherwise>
+        </choose>    
+    </where>    
+    </sql>
+    
+    <sql id="pageWhereSm">
+    <where>
+       	<choose>
+            <when test="size == null or size == 0">
+               ROW_TBL.RNUM BETWEEN ((#{currentPage} - 1) * 5 + 1) AND (#{currentPage} * 5)
+            </when>
+            <otherwise>
+               ROW_TBL.RNUM BETWEEN ((#{currentPage} - 1) * #{size} + 1) AND (#{currentPage} * #{size})
+            </otherwise>
+        </choose>	
+    </where>
+    </sql>
+
+</mapper>

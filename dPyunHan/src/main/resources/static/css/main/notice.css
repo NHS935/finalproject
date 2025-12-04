@@ -1,0 +1,515 @@
+@charset "UTF-8";
+
+/* notice/main.css 시작*/
+
+.notice-main-link {
+    color: #0066cc;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.notice-main-link:hover {
+    text-decoration: underline;
+}
+
+.notice-main-container {
+    margin: 8px;
+    border: 3px solid rgba(100, 140, 164, 0.75);
+    border-radius: 6px;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    overflow: hidden;
+}
+
+.notice-main-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #ffe8e8;
+    padding: 0.5rem;
+    border-bottom: 1px solid #ddd;
+}
+
+.notice-main-title {
+    margin: 0;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.notice-main-subtitle {
+    color: #6c757d;
+    font-size: 0.875rem;
+}
+
+.notice-main-body {
+    padding: 0;
+}
+
+.notice-main-table {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+    background-color: white;
+    table-layout: fixed;
+}
+
+.notice-main-thead {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.notice-main-header-row {
+    text-align: center;
+}
+
+.notice-main-header-row th {
+    font-size: 0.95rem;
+    font-weight: 600;
+    padding: 0.8rem;
+    background-color: #f9f9f9;
+    border: none;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.notice-main-col-number {
+    width: 70px;
+    text-align: left;  
+    padding-left: 0.5rem; 
+}
+
+.notice-main-col-title {
+    width: auto;
+    /* text-align: left;  center → left 변경 제목 순번 바로 옆으로 붙게하고싶으면 */
+    text-align: center;
+    padding-left: 7rem !important; 
+}
+
+.notice-main-col-date {
+    width: 180px;
+    text-align: right;
+}
+
+.notice-main-row {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    border: none;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.notice-main-row:last-child {
+    border-bottom: none;
+}
+
+.notice-main-row:hover {
+    background-color: #f5f5f5;
+}
+
+
+.notice-main-cell-number {
+    width: 100px;  /* ← 추가 */
+    text-align: left; 
+    padding: 0.8rem 0.5rem;
+    padding-left: 1rem;
+    font-size: 0.9rem;
+    border: none;
+    font-weight: 600;
+}
+
+.notice-main-cell-title {
+    width: auto;  /* ← 추가 */
+    text-align: left;  /* ← 추가 */
+    padding: 0.8rem 0.5rem;
+    font-size: 0.9rem;
+    border: none;
+}
+
+.notice-main-cell-date {
+    width: 180px;  /* ← 추가 */
+    text-align: right;  /* center → right */
+    padding: 0.8rem 0.5rem;
+    font-size: 0.9rem;
+    border: none;
+}
+
+.notice-main-link-text {
+    color: inherit;
+    text-decoration: none;
+}
+
+.notice-main-link-text:hover {
+    color: #0066cc;
+}
+
+.notice-main-title-text {
+    display: inline-block;
+    max-width: 520px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+    .notice-main-col-number {
+        width: 60px;
+    }
+
+    .notice-main-col-date {
+        width: 120px;
+    }
+
+    .notice-main-cell-number,
+    .notice-main-cell-title,
+    .notice-main-cell-date {
+        padding: 0.6rem 0.3rem;
+        font-size: 0.85rem;
+    }
+
+    .notice-main-title-text {
+        max-width: 300px;
+    }
+}
+
+/* notice/main.css 끝*/
+
+
+.notice-container {
+    margin: 8px;
+    border: 3px solid rgba(100, 140, 164, 0.75);
+    border-radius: 6px;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+/* 카드 본문 */
+.notice-card-body {
+    background-color: #ffe8e8;
+    padding: 0;
+    margin: 0;
+}
+
+/* 제목 */
+.notice-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    text-align: center;
+    line-height: 1.5;
+    padding: 0.3rem;  /* 위아래 3px 여백 */
+    background-color:#ffe8e8;  /* 파란 배경 유지 */
+}
+
+/* 테이블 래퍼 */
+.notice-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+/* 테이블 */
+.notice-table {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    border-collapse: collapse;
+    font-size: 1rem;
+    background-color: white;
+}
+
+/* 테이블 헤더 */
+.notice-table-head {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.notice-header-row {
+    text-align: center;
+}
+
+.notice-header-row th {
+    font-size: 1.05rem;
+    font-weight: 600;
+    padding: 0.8rem;
+    background-color: #f9f9f9;
+    border: none;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+/* 테이블 컬럼 너비 */
+.notice-col-number {
+    width: 60px;
+}
+
+.notice-col-title {
+    width: auto;
+}
+
+.notice-col-date {
+    width: 110px;
+}
+
+/* 테이블 행 */
+.notice-table-row {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    border: none;
+    border-bottom: 1px solid #e0e0e0;
+}
+.notice-table-row:last-child {
+    border-bottom: none;  /* 마지막 행은 아래 선 제거 */
+}
+
+.notice-table-row:hover {
+    background-color: #f5f5f5;
+}
+
+/* 테이블 셀 */
+.notice-cell-number,
+.notice-cell-title,
+.notice-cell-date {
+    padding: 1rem 0.5rem;
+    font-size: 0.95rem;
+    vertical-align: middle;
+    border: none;
+}
+
+.notice-cell-number {
+    text-align: center;
+}
+
+.notice-cell-date {
+    text-align: right;
+    padding-right: 20px;
+}
+
+/* 카드 푸터 (페이징) */
+.notice-card-footer {
+    padding: 1rem;
+    text-align: center;
+    background: #f9f9f9;
+    border-top: 1px solid #ddd;
+    border-radius: 0 0 14px 14px;
+}
+
+/* ==================================== 슬라이드 섹션 ========================================*/
+.notice-line-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 16px; /* ← 0px에서 16px로 변경 (버튼과 간격) */
+    padding: 4px 12px 4px 20px;
+    background: #abbeca;
+    border-top: 1px solid rgba(100,140,164,.3);
+    border-bottom: 1px solid rgba(100,140,164,.3);
+}
+
+.notice-line-swiper {
+    flex: 1; /* ← 추가: swiper가 남은 공간 차지 */
+    height: 40px;
+    overflow: hidden;
+}
+
+.notice-line-swiper .swiper-slide {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.notice-icon {
+    font-size: 1.3rem;
+    margin-right: 12px;
+    flex-shrink: 0; /* ← 추가: 아이콘 크기 고정 */
+}
+
+.notice-line-item {
+    white-space: nowrap;
+    font-weight: 400;
+    cursor: pointer;
+    display: flex;
+    gap: 8px; /* ← 0px에서 8px로 (제목-날짜 간격) */
+    align-items: center;
+}
+
+.notice-line-item .notice-title {
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: inline-block;
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: #2c3e50;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+    padding: 4px 10px;
+    border-radius: 4px;
+    background: #abbeca;
+    transition: all 0.3s ease;
+}
+
+.notice-line-item:hover .notice-title {
+    color: #ff6b4a;
+    transform: translateX(3px);
+}
+
+.notice-line-item .notice-date {
+    font-size: 0.82rem;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    color: whitesmoke;
+    padding: 3px 10px;
+    background: #648ca4;
+    border-radius: 12px;
+}
+
+/* ========== + 버튼 스타일 (추가) ========== */
+.notice-expand-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%; /* 원형 버튼 */
+    background: #648ca4; /* 배경색 */
+    color: white;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    flex-shrink: 0; /* 버튼 크기 고정 */
+    font-size: 18px;
+}
+
+.notice-expand-btn:hover {
+    background: #5a7d94;
+    transform: scale(1.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.notice-expand-btn:active {
+    transform: scale(0.95);
+}
+
+.notice-expand-btn.active {
+    background: #ff6b4a;
+    transform: rotate(45deg); /* X 모양으로 회전 */
+}
+
+/* ========== 전체 공지사항 목록 (펼쳐지는 영역) ========== */
+.notice-full-list {
+    max-height: 0;
+    overflow: hidden;
+    background: white;
+    border-radius: 6px;
+    margin-top: 12px;
+    transition: all 0.3s ease;
+    opacity: 0;
+    transform: translateY(-10px);
+}
+
+.notice-full-list.active {
+    max-height: 500px;
+    overflow-y: auto;
+    opacity: 1;
+    transform: translateY(0);
+    border: 2px solid rgba(100, 140, 164, 0.75);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 목록 아이템 */
+.notice-items {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    background: white;
+}
+
+.notice-full-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid #e0e0e0;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: white;
+}
+
+.notice-full-item:last-child {
+    border-bottom: none;
+}
+
+.notice-full-item:hover {
+    background: #f5f5f5;
+    padding-left: 24px;
+}
+
+.notice-full-content {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex: 1;
+}
+
+.notice-full-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    flex: 1;
+}
+
+.notice-full-date {
+    font-size: 0.85rem;
+    color: #6c757d;
+    white-space: nowrap;
+}
+
+.notice-full-item i {
+    color: #6c757d;
+    transition: transform 0.2s ease;
+}
+
+.notice-full-item:hover i {
+    transform: translateX(4px);
+    color: #648ca4;
+}
+
+/* 스크롤바 */
+.notice-full-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.notice-full-list::-webkit-scrollbar-track {
+    background: #f5f5f5;
+}
+
+.notice-full-list::-webkit-scrollbar-thumb {
+    background: #648ca4;
+    border-radius: 3px;
+}
+
+.notice-full-list::-webkit-scrollbar-thumb:hover {
+    background: #5a7d94;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+    .notice-line-wrapper {
+        gap: 12px;
+    }
+    
+    .notice-icon {
+        font-size: 1.1rem;
+    }
+    
+    .notice-expand-btn {
+        width: 36px;
+        height: 36px;
+        font-size: 16px;
+    }
+    
+    .notice-full-title {
+        font-size: 0.9rem;
+    }
+}

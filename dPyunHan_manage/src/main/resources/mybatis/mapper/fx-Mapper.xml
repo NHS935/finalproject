@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.FxMapper">
+
+
+	<!-- 일정 조회(시작일, 종료일 사이 일정만 달력에 표시)-->
+	<select id="list" parameterType="hashMap" resultType="FxVO">
+ SELECT 
+    A.SCHDUL_SN, 
+    A.FX_SJ, 
+    A.FX_IEM, 
+    A.FX_CN, 
+    A.FX_PLACE, 
+    A.FX_BEGIN_DT, 
+    A.FX_END_DT, 
+    A.FX_REGIST_DT, 
+    A.EMP_ID, 
+    A.FCLTY_MANAGE_SN, 
+    A.FCLTY_SN, 
+    A.CMMNTY_SN, 
+    B.NM 
+	FROM FX A
+    LEFT JOIN  EMP B ON A.EMP_ID = B.EMP_ID
+	WHERE A.FX_BEGIN_DT BETWEEN to_date(#{fxBeginDt},'yyyy-MM-dd') AND to_date(#{fxEndDt},'yyyy-MM-dd')
+	ORDER BY A.FX_BEGIN_DT ASC
+	</select>
+	
+	
+	<!-- 일정 등록 하려고 할때 직원 전체 목록 조회해오기 -->
+    <select id="getEmpList" resultType="EmpVO">
+     SELECT
+        emp_id,
+        nm
+    FROM 
+        emp 
+    </select>
+	
+
+	<!-- 일정 등록 -->
+	<insert id="insert" parameterType="FxVO">
+	
+	<selectKey resultType="int" order="BEFORE" keyProperty="schdulSn">
+	  SELECT NVL(MAX(SCHDUL_SN),0) + 1 FROM FX
+	</selectKey>
+	
+	INSERT INTO FX (SCHDUL_SN, FX_SJ, FX_IEM, FX_CN, FX_PLACE, FX_BEGIN_DT, FX_END_DT, FX_REGIST_DT, EMP_ID, FCLTY_MANAGE_SN, FCLTY_SN, CMMNTY_SN)
+	VALUES (#{schdulSn},#{fxSj},#{fxIem},#{fxCn},#{fxPlace},#{fxBeginDt},#{fxEndDt},SYSDATE,#{empId},#{fcltyManageSn},#{fcltySn},#{cmmntySn})
+	</insert>
+	
+	
+	<!-- 일정 수정 -->
+	<update id="modify" parameterType="FxVO">
+	UPDATE FX
+	SET FX_SJ=#{fxSj}, FX_IEM=#{fxIem}, FX_CN=#{fxCn}, FX_PLACE=#{fxPlace}, 
+	    FX_BEGIN_DT=#{fxBeginDt}, FX_END_DT=#{fxEndDt}, FX_REGIST_DT=SYSDATE, EMP_ID=#{empId}
+	WHERE SCHDUL_SN=#{schdulSn}
+	</update>
+	
+	
+	<!-- 시설관리리스트 일정 등록 -->
+
+  <insert id="fcltyschdulregiser" parameterType="FxVO">	
+
+    <selectKey resultType="int" order="BEFORE" keyProperty="schdulSn">
+	  SELECT NVL(MAX(SCHDUL_SN),0) + 1 FROM FX
+	</selectKey>
+	
+	INSERT INTO FX(
+	schdul_sn,
+    fx_sj,
+    fx_iem,
+    fx_cn,
+    fx_place,
+    fx_begin_dt,
+    fx_end_dt,
+    fx_regist_dt,
+    emp_id,
+    fclty_manage_sn,
+    fclty_sn,
+    cmmnty_sn
+  ) 
+	
+  SELECT  
+ 
+    #{schdulSn},
+    
+    <choose>
+	<when test="fcltySn != null and fcltySn != 0">B.fclty_nm || ' ' || B.fclty_lc || ' ' || A.fcltymanage_chcksttus</when>
+	<when test="cmmntySn != null and cmmntySn != 0">C.cmmnty_nm || ' ' || A.fcltymanage_chcksttus</when>
+	<otherwise>A.fcltymanage_chcksttus</otherwise>
+	</choose>,
+	
+	
+	<choose>   <!-- fx_iem 부분 -->
+	 <when test="fcltySn != null and fcltySn != 0">'시설'</when>
+	 <when test="cmmntySn != null and cmmntySn != 0">'커뮤니티'</when>
+	 <otherwise>'개인일정'</otherwise>
+	</choose>,
+		
+	<choose>   <!-- fx_cn부분 -->
+	 <when test="fcltySn != null and fcltySn != 0">B.fclty_nm || ' ' || B.fclty_lc || ' ' || A.fcltymanage_chcksttus</when>
+	 <when test="cmmntySn != null and cmmntySn != 0">C.cmmnty_nm || ' ' || A.fcltymanage_chcksttus</when>
+	 <otherwise>'개인 일정'</otherwise>
+	</choose>,
+	
+			
+	<choose>   <!-- fx_place 부분 -->
+	  <when test="fcltySn != null and fcltySn != 0">B.fclty_lc</when>
+	  <when test="cmmntySn != null and cmmntySn != 0">C.cmmnty_nm</when>
+	  <otherwise>'개인 장소'</otherwise>
+	</choose>,
+    		
+	A.fcltymanage_begin_dt,
+	A.fcltymanage_end_dt,
+	SYSDATE,
+	A.emp_id,
+	A.fclty_manage_sn,
+	A.fclty_sn,
+	A.cmmnty_sn
+	
+ FROM FCLTY_MANAGE A	
+ LEFT JOIN FCLTY B on A.fclty_sn = B.fclty_sn
+ LEFT JOIN CMMNTY C on A.cmmnty_sn = C.cmmnty_sn
+ WHERE A.fclty_manage_sn = #{fcltyManageSn}
+</insert>
+
+<!-- 시설관리 리스트에서 일정 등록 여부 확인 -->
+<select id="getFxcount" parameterType="int" resultType="int">
+SELECT COUNT(*)
+FROM FX
+WHERE FCLTY_MANAGE_SN = #{fcltyManageSn}   <!-- vo로 받는게 아니라 int로 받아서 필드명을 적을 필요가 없음 -->
+</select>
+
+<!-- 나혜선 추가 -->
+<!-- 시설/보안 커뮤니티 점검이력 점검일자 동기화 -->
+<update id="updateFcltyManageDate" parameterType="FxVO">
+UPDATE fclty_manage
+SET
+    fcltymanage_begin_dt = #{fxBeginDt},
+    fcltymanage_end_dt = #{fxEndDt}
+WHERE
+    fclty_manage_sn = #{fcltyManageSn}
+
+</update>
+
+<!-- 시설 점검 일자 동기화 -->
+<update id="updateFcltyDate" parameterType="FxVO">
+ UPDATE fclty
+ SET fclty_chck_dt=#{fxBeginDt}
+ WHERE fclty_sn = #{fcltySn}
+</update>
+
+<!-- 커뮤니티 점검 일자 동기화 -->
+<update id="updateCmmntyDate" parameterType="FxVO">
+  UPDATE cmmnty
+  SET cmmnty_chck_dt=#{fxBeginDt}
+  WHERE cmmnty_sn=#{cmmntySn}
+</update>
+
+<!-- 동기화 후 db에서 재조회해오기 -->
+<select id="reselectFxDate" resultType="FxVO">
+ SELECT fx_begin_dt AS fxBeginDt,
+        fx_end_dt AS fxEndDt
+ FROM fx
+ WHERE fclty_manage_sn =#{fcltyManageSn}
+
+</select>
+
+<!-- 동기화 후 수정 후 db에서 재조회 해오기 -->
+<select id="reupdateFxDate" resultType="FxVO">
+SELECT
+    schdul_sn,
+    fx_sj,
+    fx_iem,
+    fx_cn,
+    fx_place,
+    fx_begin_dt,
+    fx_end_dt,
+    fx_regist_dt,
+    emp_id,
+    fclty_manage_sn,
+    fclty_sn,
+    cmmnty_sn
+FROM
+    fx
+WHERE schdul_sn=#{schdulSn}
+</select>
+
+<!-- 나혜선 추가 끝 -->
+
+</mapper>

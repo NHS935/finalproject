@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.or.ddit.mapper.EmpMyPageMapper">
+
+	<!-- 2개 이상의 테이블의 데이터를 VO를 통해서 갖고 올때 -->
+	<!-- 2개 이상의 resultMap, 그리고 각 resultMap은 테이블과 VO를 연결한다 -->
+
+	<!-- 보내는 값 들어오는(불르는) 값 -->
+	<resultMap type="kr.or.ddit.vo.EmpVO" id="empMap">
+		<!-- VO의 속성 명 SQL의 컬럼명 -->
+		<result property="empId" column="EMP_ID" />
+		<result property="empPassword" column="EMP_PASSWORD" />
+		<result property="clsf" column="CLSF" />
+		<result property="nm" column="NM" />
+		<result property="telno" column="TELNO" />
+		<result property="email" column="EMAIL" />
+		<result property="adres" column="ADRES" />
+		<result property="brthdy" column="BRTHDY" />
+		<result property="salary" column="SALARY" />
+		<result property="deptCode" column="DEPT_CODE" />
+		<result property="suprrId" column="SUPRR_ID" />
+		<result property="enabled" column="ENABLED" />
+		<result property="fileGroupSn" column="EMP_FILE_GROUP_SN" />
+<!-- 		<association property="suprrEmpVO" column="SUPRR_ID" -->
+<!-- 			select="findByEmpId"></association> -->
+<!-- 		<association property="signVO" resultMap="signMap"></association> -->
+		<association property="empFileVOs" resultMap="empFileMap"></association>
+		<collection property="empAuthorVOList" resultMap="empAthorMap"></collection>
+		<!-- 권장되는 방식으로, 주 직원 정보를 가져온 후, 달러\text{suprrEmpVO}달러 필드가 실제로 접근될 때 별도의 쿼리를 
+			실행하여 상관 정보를 가져옵니다. 코드가 깔끔해지고 성능이 좋습니다. -->
+		<!-- VO의 속성명 들어와야하는 값 -->
+	</resultMap>
+	<!-- VO이름 Mapping ID -->
+
+	<!-- Author -->
+	<resultMap type="kr.or.ddit.vo.EmpAuthorVO" id="empAthorMap">
+		<!-- VO속성명 테이블 컬럼명 -->
+		<id property="empId" column="EMP_ID" />
+		<id property="authorId" column="AUTHOR_ID" />
+	</resultMap>
+
+	<!-- FileGroup + fileDetailVOList -->
+	<resultMap type="kr.or.ddit.vo.FileGroupVO"	id="empFileMap">
+		<!-- VO속성명 테이블 컬럼명 -->
+		<result property="fileGroupSn" column="FILE_GROUP_SN" />
+		<collection property="fileDetailVOList"	resultMap="fileDetailMap" />
+	</resultMap>
+	<!-- Filedetail -->
+	<resultMap type="kr.or.ddit.vo.FileDetailVO"	id="fileDetailMap">
+		<result property="fileGroupSn" column="FILE_GROUP_SN" />
+		<result property="fileNo" column="FILE_NO" />
+		<result property="fileOrginlNm" column="FILE_ORGINL_NM" />
+		<result property="fileStreNm" column="FILE_STRE_NM" />
+		<result property="fileStrelc" column="FILE_STRELC" />
+		<result property="fileMg" column="FILE_MG" />
+		<result property="fileExtsn" column="FILE_EXTSN" />
+		<result property="fileMime" column="FILE_MIME" />
+		<result property="fileFancysize" column="FILE_FANCYSIZE" />
+		<result property="fileSaveDate" column="FILE_SAVE_DATE" />
+		<result property="fileDowncount" column="FILE_DOWNCOUNT" />
+	</resultMap>
+
+	<!-- 회원 상세모두모두조회해서 편하게쓰려고 한 게으른 생각 EMP + AUTHOR(컬렉션) + FILE_GROUP(컬렉션) + 
+		FILE_DETAIL(컬렉션) + SIGN(컬렉션) -->
+	<select id="selectEmpDetailById" parameterType="string"	resultMap="empMap">
+		SELECT e.EMP_ID
+			, e.EMP_PASSWORD
+			, e.CLSF
+			, e.NM
+			, e.TELNO
+			, e.EMAIL
+			, e.ADRES
+			, e.BRTHDY
+			, e.SALARY
+			, e.DEPT_CODE
+			, e.SUPRR_ID
+			, e.ENABLED
+			, e.FILE_GROUP_SN AS EMP_FILE_GROUP_SN
+<!-- 			, s.SIGN_ID AS SIGN_ID  -->
+<!-- 			, s.EMP_ID AS SIGN_EMP_ID  -->
+<!-- 			, s.FILE_GROUP_SN AS SIGN_FILE_GROUP_SN -->
+			
+			, fg.FILE_GROUP_SN AS FILE_GROUP_SN
+			, fg.REGIST_DT AS REGIST_DT
+			
+			, a.AUTHOR_ID AS AUTHOR_ID
+	
+			, fd.FILE_NO AS FILE_NO
+			, fd.FILE_ORGINL_NM AS FILE_ORGINL_NM
+			, fd.FILE_STRE_NM AS FILE_STRE_NM
+			, fd.FILE_STRELC AS FILE_STRELC
+			, fd.FILE_MG AS FILE_MG
+			, fd.FILE_EXTSN AS FILE_EXTSN
+			, fd.FILE_MIME AS FILE_MIME
+			, fd.FILE_FANCYSIZE AS FILE_FANCYSIZE
+			, fd.FILE_SAVE_DATE AS FILE_SAVE_DATE
+			, fd.FILE_DOWNCOUNT AS FILE_DOWNCOUNT
+		FROM EMP e LEFT JOIN EMP_AUTHOR a ON(e.EMP_ID = a.EMP_ID)
+				   LEFT JOIN FILE_GROUP fg ON(e.FILE_GROUP_SN = fg.FILE_GROUP_SN)
+				   LEFT JOIN FILE_DETAIL fd ON(fg.FILE_GROUP_SN = fd.FILE_GROUP_SN)
+		WHERE e.EMP_ID = #{empId}
+	</select>
+
+
+
+
+<update id="empEdit" parameterType="empVO">
+	UPDATE EMP
+    SET  
+        EMP_PASSWORD = #{empPassword}
+      , CLSF = #{clsf}
+      , NM = #{nm}
+      , TELNO = #{telno}
+      , EMAIL = #{email}
+      , ADRES = #{adres}
+      , BRTHDY = #{brthdy} 
+      , SALARY = #{salary}
+      , DEPT_CODE = #{deptCode}
+      , SUPRR_ID = #{suprrId}
+      , ENABLED = #{enabled}
+      <if test="fileGroupSn!=null and fileGroupSn!=''">
+      , FILE_GROUP_SN = #{fileGroupSn}
+      </if>
+ 	WHERE EMP_ID = #{empId}
+   </update>
+   
+	
+<!-- 파일업로드 고정 쿼리 -->
+<!--    <insert id="insertFileGroup" parameterType="fileGroupVO"> -->
+<!--       <selectKey resultType="long" order="BEFORE" keyProperty="fileGroupSn"> -->
+<!--          SELECT NVL(MAX(FILE_GROUP_SN)+1, TO_CHAR(SYSDATE, 'YYYYMMDD')||'001') -->
+<!--            FROM FILE_GROUP -->
+<!--           WHERE SUBSTR(FILE_GROUP_SN, 1, 8) = TO_CHAR(SYSDATE, 'YYYYMMDD') -->
+<!--       </selectKey> -->
+<!--       INSERT INTO FILE_GROUP (FILE_GROUP_SN, REGIST_DT) -->
+<!--       VALUES (#{fileGroupSn}, SYSDATE) -->
+<!--    </insert> -->
+
+
+<!--    <insert id="insertFileDetail" parameterType="fileDetailVO"> -->
+<!--       <selectKey resultType="int" order="BEFORE" keyProperty="fileNo"> -->
+<!--          SELECT NVL(MAX(file_no),0) + 1 -->
+<!--            FROM FILE_DETAIL -->
+<!--           WHERE FILE_GROUP_SN = #{fileGroupSn} -->
+<!--       </selectKey> -->
+<!--       INSERT INTO FILE_DETAIL (FILE_GROUP_SN,   FILE_NO, FILE_ORGINL_NM, FILE_STRE_NM, FILE_STRELC -->
+<!--           , FILE_MG, FILE_EXTSN,   FILE_MIME, FILE_FANCYSIZE, FILE_SAVE_DATE -->
+<!--           , FILE_DOWNCOUNT) -->
+<!--       VALUES (#{fileGroupSn}, #{fileNo}, #{fileOrginlNm}, #{fileStreNm}, #{fileStrelc} -->
+<!--           , #{fileMg}, #{fileExtsn}, #{fileMime}, #{fileFancysize}, SYSDATE -->
+<!--           , #{fileDowncount}) -->
+<!--    </insert> -->
+<!-- 파일업로드 고정 쿼리 끝 -->
+
+
+
+
+
+</mapper>

@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.BbsMapper">
+
+	<!-- public int postBbsGroup(BbsGroupVO bbsGroupVO); -->
+	<insert id="postBbsGroup" parameterType="bbsGroupVO">
+		<selectKey resultType="long" order="BEFORE" keyProperty="bbsGroupSn">
+			SELECT NVL(MAX(BBS_GROUP_SN),0) + 1 FROM BBS_GROUP 
+		</selectKey>
+		
+		INSERT INTO BBS_GROUP(BBS_GROUP_SN, ANSWER_AT, ATCH_FILE_AT, MBER_ID, BBS_NM)
+		VALUES(#{bbsGroupSn}, #{answerAt}, #{atchFileAt}, #{mberId}, #{bbsNm})
+	</insert>
+	
+	<!-- public int deleteBbsGroup(long bbsGroupSn); -->
+	<!-- 외래키 게시판(그룹) 내 게시글 먼저 삭제 -->
+	<delete id="deleteBbsDetail" parameterType="long">
+	    DELETE FROM BBS_DETAIL 
+	    WHERE BBS_GROUP_SN = #{bbsGroupSn}
+	</delete>
+
+	<delete id="deleteBbsGroup" parameterType="long">
+	    DELETE FROM BBS_GROUP 
+	    WHERE BBS_GROUP_SN = #{bbsGroupSn}
+	</delete>
+	
+	<!-- public List<BbsGroupVO> bbsGroupList(); -->
+	<select id="bbsGroupList" resultType="hashMap">
+	    SELECT BG.BBS_GROUP_SN, BG.BBS_NM, BG.ANSWER_AT, BG.ATCH_FILE_AT, BG.MBER_ID,
+	           (SELECT COUNT(*) FROM BBS_DETAIL WHERE BBS_GROUP_SN = BG.BBS_GROUP_SN) AS POST_COUNT,
+	           (SELECT COUNT(*) FROM ANSWER WHERE BBS_DETAIL_NO IN
+	               (SELECT BBS_DETAIL_NO FROM BBS_DETAIL WHERE BBS_GROUP_SN = BG.BBS_GROUP_SN)
+	           ) AS COMMENT_COUNT
+	    FROM BBS_GROUP BG
+	    ORDER BY BG.BBS_GROUP_SN ASC
+	</select>
+	
+	<!-- public int register(BbsDetailVO bbsDetailVO); -->
+	<insert id="register" parameterType="bbsDetailVO">
+		<selectKey resultType="long" order="BEFORE" keyProperty="bbsDetailNo">
+			SELECT NVL(MAX(BBS_DETAIL_NO),0) + 1 FROM BBS_DETAIL
+		</selectKey>
+	
+		INSERT INTO BBS_DETAIL(BBS_DETAIL_NO, BBS_GROUP_SN, SJ, CN, STTUS, WRITNG_DT, FILE_GROUP_SN, MBER_ID)
+		VALUES(#{bbsDetailNo}, #{bbsGroupSn}, #{sj}, #{cn}, #{sttus}, SYSDATE, #{fileGroupSn}, #{mberId})
+	</insert>
+	
+	<!-- public BbsGroupVO bbsGroup(long bbsGroupSn); -->
+	<select id="bbsGroup" parameterType="long" resultType="bbsGroupVO">
+	    SELECT BBS_GROUP_SN, BBS_NM, ANSWER_AT, ATCH_FILE_AT, MBER_ID, BBS_NM
+	    FROM BBS_GROUP
+    	WHERE BBS_GROUP_SN = #{bbsGroupSn}
+	</select>
+	
+	
+	<!-- public BbsDetailVO bbsDetail(long sn); -->
+	<select id="bbsList" parameterType="hashMap" resultType="bbsDetailVO">
+	    SELECT *
+	    FROM (
+	        SELECT ROWNUM RNUM, A.*
+	        FROM (
+	            SELECT BBS_DETAIL_NO, BBS_GROUP_SN, SJ, CN, STTUS, WRITNG_DT, FILE_GROUP_SN, MBER_ID
+	            FROM BBS_DETAIL
+	            WHERE BBS_GROUP_SN = #{bbsGroupSn}
+	            <if test="keyword != null and keyword != ''">
+	                AND (
+	                    SJ LIKE '%' || #{keyword} || '%'
+	                    OR CN LIKE '%' || #{keyword} || '%'
+	                    OR MBER_ID LIKE '%' || #{keyword} || '%'
+	                )
+	            </if>
+	            ORDER BY WRITNG_DT DESC
+	        ) A
+	    )
+	    WHERE RNUM BETWEEN (#{currentPage} - 1) * 10 + 1 AND #{currentPage} * 10
+	</select>
+	
+	<!-- public BbsDetailVO bbsDetail(long bbsDetailNo); -->
+	<select id="bbsDetail" parameterType="long" resultType="bbsDetailVO">
+	    SELECT BBS_DETAIL_NO, BBS_GROUP_SN, SJ, CN, STTUS, WRITNG_DT, FILE_GROUP_SN, MBER_ID
+	    FROM BBS_DETAIL
+	    WHERE BBS_DETAIL_NO = #{bbsDetailNo}
+	</select>
+	
+	<!-- public int updateBbs(BbsDetailVO bbsDetailVO); -->
+	<update id="updateBbs" parameterType="bbsDetailVO">
+		UPDATE BBS_DETAIL
+		   SET SJ = #{sj},
+		   	   CN = #{cn},
+		   	   FILE_GROUP_SN = #{fileGroupSn}
+		 WHERE BBS_DETAIL_NO = #{bbsDetailNo}
+	</update>
+	
+	<!-- public int deleteBbs(long bbsDetailNo); -->
+	<delete id="deleteBbs" parameterType="long">
+		DELETE FROM BBS_DETAIL
+		WHERE BBS_DETAIL_NO = #{bbsDetailNo}
+	</delete>
+	
+	<!-- public int getTotal(Map<String, Object> map); -->
+	<select id="getTotal" parameterType="hashMap" resultType="int">
+	    SELECT COUNT(*)
+	    FROM BBS_DETAIL
+	    WHERE BBS_GROUP_SN = #{bbsGroupSn}
+	    <if test="keyword != null and keyword != ''">
+	        AND (
+	            SJ LIKE '%' || #{keyword} || '%'
+	            OR CN LIKE '%' || #{keyword} || '%'
+	            OR MBER_ID LIKE '%' || #{keyword} || '%'
+	        )
+	    </if>
+	</select>
+	
+	<!-- public List<FileDetailVO> getFileList(long fileGroupSn); -->
+	<select id="getFileList" parameterType="long" resultType="fileDetailVO">
+		SELECT FILE_GROUP_SN, FILE_NO, FILE_ORGINL_NM, FILE_STRE_NM, 
+		       FILE_STRELC, FILE_MG, FILE_EXTSN, FILE_MIME, 
+		       FILE_FANCYSIZE, FILE_SAVE_DATE, FILE_DOWNCOUNT
+		FROM FILE_DETAIL
+		WHERE FILE_GROUP_SN = #{fileGroupSn}
+		ORDER BY FILE_NO ASC
+	</select>
+</mapper>

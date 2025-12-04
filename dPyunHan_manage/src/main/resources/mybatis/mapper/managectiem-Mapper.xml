@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.ManagectIemMapper">
+
+    <insert id="upload" parameterType="java.util.List">
+        INSERT ALL
+        <foreach collection="list" item="item">
+            INTO MANAGECT_IEM (
+            MANAGECT_IEM_ID,
+            IEM_NM,
+            MANAGECT_AMOUNT,
+            MANAGECT_IEM_STDR_CODE,
+            MANAGECT_USE_DE
+            ) VALUES (
+            #{item.managectIemId},
+            #{item.iemNm},
+            #{item.managectAmount},
+            #{item.managectIemStdrCode},
+            #{item.managectUseDe}
+            )
+        </foreach>
+        SELECT * FROM DUAL
+    </insert>
+    <select id="getMaxId" resultType="int">
+        SELECT NVL(MAX(MANAGECT_IEM_ID), 0)
+        FROM   MANAGECT_IEM
+    </select>
+    <select id="findFeesByMonth" parameterType="java.lang.String" resultType="kr.or.ddit.vo.ManagectIemVO">
+        SELECT
+            MANAGECT_IEM_ID,
+            IEM_NM,
+            MANAGECT_AMOUNT,
+            MANAGECT_IEM_STDR_CODE,
+            MANAGECT_USE_DE
+        FROM
+            MANAGECT_IEM
+        WHERE
+            TO_CHAR(TO_DATE(MANAGECT_USE_DE, 'YYYY.MM.DD'), 'YYYYMM') = #{billingMonth}
+    </select>
+</mapper>

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.or.ddit.mapper.SignMapper">
+	<!-- SignVO -->
+	<resultMap type="signVO" id="signMap">
+		<result property="signId" column="SIGN_ID"/>
+		<result property="empId" column="EMP_ID"/>
+		<result property="fileGroupSn" column="SIGN_FILE_GROUP_SN"/>	
+		<association property="fileDetailVO" resultMap="fileMap"></association>	
+	</resultMap>
+	<!-- fileDetailMap -->
+	<resultMap type="kr.or.ddit.vo.FileDetailVO" id="fileMap">
+		<result property="fileStreNm" column="FILE_STRE_NM"/>
+		<result property="fileStrelc" column="FILE_STRELC"/>
+		<result property="fileMg" column="FILE_MG"/>
+		<result property="fileExtsn" column="FILE_EXTSN"/>
+		<result property="fileMime" column="FILE_MIME"/>
+		<result property="fileFancysize" column="FILE_FANCYSIZE"/>
+		<result property="fileSaveDate" column="FILE_SAVE_DATE"/>
+		<result property="fileDowncount" column="FILE_DOWNCOUNT"/>
+	</resultMap>
+	<!-- empId를 기준으로 FILE_STRELC 가져오기 -->
+	<select id="selectSign" parameterType="string" resultMap="signMap">
+	  SELECT
+	      A.EMP_ID
+	    , B.SIGN_ID
+	    , B.FILE_GROUP_SN  AS SIGN_FILE_GROUP_SN
+	    , C.FILE_STRELC
+	  FROM EMP A
+	  LEFT JOIN SIGN B ON A.EMP_ID = B.EMP_ID
+	  LEFT JOIN FILE_DETAIL C ON B.FILE_GROUP_SN = C.FILE_GROUP_SN
+	  WHERE A.EMP_ID = #{empId}
+	</select>
+
+
+<select id="findByEmpIdForUpdate" parameterType="string" resultType="kr.or.ddit.vo.SignVO">
+  SELECT SIGN_ID, EMP_ID, FILE_GROUP_SN
+  FROM SIGN
+  WHERE EMP_ID = #{empId}
+  FOR UPDATE
+</select>
+
+<!-- INSERT -->
+<insert id="insertSignWithSeq" parameterType="kr.or.ddit.vo.SignVO">
+  <selectKey keyProperty="signId" resultType="long" order="BEFORE">
+	SELECT NVL(MAX(SIGN_ID), 0) + 1 FROM SIGN
+  </selectKey>
+  INSERT INTO SIGN (SIGN_ID, EMP_ID, FILE_GROUP_SN)
+  VALUES (#{signId}, #{empId}, #{fileGroupSn})
+</insert>
+
+<!-- EMP_ID 기준 FILE_GROUP_SN 업데이트 -->
+<update id="updateFileGroupByEmpId">
+  UPDATE SIGN
+     SET FILE_GROUP_SN = #{fileGroupSn}
+   WHERE EMP_ID = #{empId}
+</update>
+
+<!-- 다시 조회 -->
+<select id="findSignIdByEmpId" parameterType="string" resultType="long">
+  SELECT SIGN_ID FROM SIGN WHERE EMP_ID = #{empId}
+</select>
+
+
+
+
+
+
+
+
+</mapper>

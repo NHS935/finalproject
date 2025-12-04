@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.VisitVhcleMapper">
+
+	<select id="selectHshldIdByMberId" resultType="string" parameterType="string">
+    SELECT HSHLD_ID
+    FROM HSHLD_MBER_MANAGE
+    WHERE MBER_ID = #{mberId}
+	</select>
+
+    <!-- 남은 주차시간 조회 -->
+	<select id="getRemainingTime" resultType="java.lang.Integer" parameterType="string">
+	    SELECT 120 - NVL(SUM((PARKNG_END_DT - PARKNG_BEGIN_DT)*24),0)
+	    FROM VISIT_VHCLE
+	    WHERE HSHLD_ID = #{hshldId}
+	      AND TO_CHAR(PARKNG_BEGIN_DT,'YYYYMM') = TO_CHAR(SYSDATE,'YYYYMM')
+	</select>
+
+
+    <!-- 예약 등록 -->
+    <insert id="insertVisit" parameterType="kr.or.ddit.vo.VisitVhcleVO">
+        INSERT INTO VISIT_VHCLE
+        (VISIT_VHCLE_SN, HSHLD_ID, VHCLE_NO, VISIT_REQST_DT, PARKNG_BEGIN_DT, PARKNG_END_DT, LAST_DT)
+        VALUES
+        (SEQ_VISIT_VHCLE.NEXTVAL, #{hshldId}, #{vhcleNo}, SYSDATE, #{parkngBeginDt}, #{parkngEndDt}, SYSDATE)
+    </insert>
+
+    <!-- 남은시간 업데이트 -->
+    <update id="updateRemainingTime">
+        UPDATE VISIT_VHCLE
+        SET ACCMLT_TIME = NVL(ACCMLT_TIME, 0) + #{usedMinutes},
+            RMNDR_TIME = NVL(RMNDR_TIME, 120) - #{usedMinutes},
+            LAST_DT = SYSDATE
+        WHERE HSHLD_ID = #{hshldId}
+    </update>
+    
+	<!-- 신규 입주민 초기화 -->
+	<insert id="insertInitialTime" parameterType="string">
+	    INSERT INTO VISIT_VHCLE (VISIT_VHCLE_SN, HSHLD_ID, RMNDR_TIME, ACCMLT_TIME, LAST_DT)
+	    VALUES (SEQ_VISIT_VHCLE.NEXTVAL, #{hshldId}, 120, 0, SYSDATE)
+	</insert>
+    
+    <!-- 월별 초기화 -->
+    <update id="resetMonthlyTime">
+        UPDATE VISIT_VHCLE
+        SET RMNDR_TIME = 120,
+            ACCMLT_TIME = 0,
+            LAST_DT = SYSDATE
+    </update>
+
+    <!-- 이용내역 조회 -->
+    <select id="selectVisitHistory" parameterType="string" resultType="kr.or.ddit.vo.VisitVhcleVO">
+        SELECT *
+        FROM VISIT_VHCLE
+        WHERE HSHLD_ID = #{hshldId}
+        ORDER BY VISIT_REQST_DT DESC
+    </select>
+<select id="selectVisitHistoryByMonth" parameterType="map" resultType="kr.or.ddit.vo.VisitVhcleVO">
+    SELECT vhcle_no, parkng_begin_dt, parkng_end_dt, visit_reqst_dt
+    FROM visit_vhcle
+    WHERE hshld_id = #{hshldId}
+      AND TO_CHAR(parkng_begin_dt, 'YYYY-MM') = #{month}
+    ORDER BY parkng_begin_dt DESC
+</select>
+	<select id="selectLatestVisit" parameterType="string" resultType="kr.or.ddit.vo.VisitVhcleVO">
+	    SELECT *
+	    FROM VISIT_VHCLE
+	    WHERE HSHLD_ID = #{hshldId}
+	    ORDER BY LAST_DT DESC
+	    FETCH FIRST 1 ROWS ONLY
+	</select>
+	
+	<!-- 이번 달 누적 사용시간 -->
+	<select id="getAccmltTime" resultType="java.lang.Integer" parameterType="string">
+	    SELECT NVL(SUM((PARKNG_END_DT - PARKNG_BEGIN_DT)*24),0)
+	    FROM VISIT_VHCLE
+	    WHERE HSHLD_ID = #{hshldId}
+	      AND TO_CHAR(PARKNG_BEGIN_DT,'YYYYMM') = TO_CHAR(SYSDATE,'YYYYMM')
+	</select>
+	
+</mapper>

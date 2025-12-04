@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.SigningRequestMapper">
+
+    <insert id="insertSigningRequest" parameterType="SigningRequestVO">
+        INSERT INTO SIGNING_REQUEST (
+            SIGN_TOKEN, FILE_GROUP_SN, FILE_NO,ELCTRNSANCTN_SN,
+            CCPY_CMPNY_NM, STATUS, EXPIRY_DATE, REG_DATE
+        ) VALUES (
+                     #{signToken}, #{fileGroupSn}, #{fileNo}, #{elctrnSanctnSn},
+                     #{ccpyCmpnyNm}, #{status, jdbcType=VARCHAR}, #{expiryDate}, SYSDATE
+                 )
+    </insert>
+
+    <select id="findRequestByToken" parameterType="String" resultType="SigningRequestVO">
+        SELECT *
+        FROM SIGNING_REQUEST
+        WHERE SIGN_TOKEN = #{signToken}
+    </select>
+
+    <update id="updateRequestStatus">
+        UPDATE SIGNING_REQUEST
+        SET STATUS = #{status}
+        WHERE SIGN_TOKEN = #{signToken}
+    </update>
+	
+</mapper>

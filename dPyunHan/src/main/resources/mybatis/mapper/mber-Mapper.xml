@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.MberMapper">
+
+	<resultMap type="kr.or.ddit.vo.MberVO" id="mberMap">
+		<result property="enabled" column="ENABLED" />
+		<result property="mberId" column="MBER_ID" />
+		<result property="password" column="PASSWORD" />
+		<result property="mberNm" column="MBER_NM" />
+		<result property="telno" column="TELNO" />
+		<result property="email" column="EMAIL" />
+		<result property="mberTy" column="MBER_TY" />
+		<result property="brthdy" column="BRTHDY" />
+		<result property="aptcmpl" column="APTCMPL" />
+		<result property="ho" column="HO" />
+		<result property="residesttus" column="RESIDESTTUS" />
+		<result property="hshldId" column="HSHLD_ID"/>
+		<collection property="authorVOList" resultMap="AthorMap" />
+		
+		<collection property="hshldManageList" resultMap="hshldManageMap"/>
+	</resultMap>
+
+	<resultMap type="kr.or.ddit.vo.AuthorVO" id="AthorMap">
+		<result property="mberId" column="MBER_ID" />
+		<result property="authorId" column="AUTHOR_ID" />
+	</resultMap>
+	
+	<resultMap type="hshldMberManageVO" id="hshldManageMap">
+		<result property="mberId" column="MBER_ID"/>
+		<result property="hshldId" column="HSHLD_ID"/>
+		
+		<association property="hshldVO" resultMap="hshldMap"/>
+	</resultMap>
+	
+	<resultMap type="hshldVO" id="hshldMap">
+		<result property="hshldId" column="HSHLD_ID"/>
+		<result property="adres" column="ADRES"/>
+		<result property="aptcmpl" column="APTCMPL"/>
+		<result property="ho" column="HO"/>
+		<result property="prvuseAr" column="PRVUSE_AR"/>
+		<result property="suplyAr" column="SUPLY_AR"/>
+		<result property="cmmntyUseAt" column="CMMNTY_USE_AT"/>
+		<result property="residesttus" column="RESIDESTTUS"/>
+		<result property="mvnDe" column="MVN_DE"/>
+		<result property="lvhsDe" column="LVHS_DE"/>
+	</resultMap>
+
+
+	<!-- 사용자 정보를 가져옴(로그인)-select -->
+	<select id="findByMberId" parameterType="String" resultMap="mberMap">
+		SELECT
+			a.mber_id,
+			a.password,
+			a.mber_nm,
+			a.telno,
+			a.email,
+			a.mber_ty,
+			a.brthdy,
+			a.enabled,
+			b.author_id,
+			hm.HSHLD_ID,
+			h.ADRES,
+			h.APTCMPL,
+			h.HO,
+			h.PRVUSE_AR,
+			h.SUPLY_AR,
+			h.CMMNTY_USE_AT,
+			h.RESIDESTTUS,
+			h.MVN_DE,
+			h.LVHS_DE
+		FROM mber a
+			LEFT OUTER JOIN author b on(a.mber_id = b.mber_id)
+			LEFT OUTER JOIN HSHLD_MBER_MANAGE hm ON a.MBER_ID = hm.MBER_ID
+			LEFT OUTER JOIN HSHLD h ON hm.HSHLD_ID = h.HSHLD_ID
+		WHERE
+			a.mber_id=#{mberId}
+	</select>
+
+	<!-- 세대 존재 여부 체크 -->
+	<select id="countHousehold" resultType="int">
+		SELECT COUNT(*)
+		FROM HSHLD
+		WHERE APTCMPL = #{aptcmpl}
+		AND HO = #{ho}
+		AND RESIDESTTUS = #{residesttus}
+	</select>
+
+	<!-- 이미 등록된 회원인지 체크 -->
+	<select id="countRegistered" resultType="int">
+		SELECT COUNT(*)
+		FROM MBER m
+		JOIN HSHLD_MBER_MANAGE hu ON m.MBER_ID = hu.MBER_ID
+		JOIN HSHLD h ON hu.HSHLD_ID = h.HSHLD_ID
+		WHERE h.APTCMPL = #{aptcmpl} AND h.HO = #{ho} AND h.RESIDESTTUS =
+		#{residesttus}
+	</select>
+
+
+	<!-- 회원가입 시 MBER 테이블에 insert -->
+	<insert id="insertMember" parameterType="kr.or.ddit.vo.MberVO">
+		INSERT INTO MBER (MBER_ID, PASSWORD, MBER_NM, TELNO, EMAIL, MBER_TY, BRTHDY,
+		ENABLED)
+		VALUES (#{mberId}, #{password}, #{mberNm}, #{telno}, #{email}, #{mberTy},
+		#{brthdy}, 0)
+	</insert>
+
+	<!-- 회원가입 시 AUTHOR에 ROLE_GUEST insert -->
+	<insert id="insertMemberAuthor"
+		parameterType="kr.or.ddit.vo.MberVO">
+		INSERT INTO AUTHOR (MBER_ID, AUTHOR_ID)
+		VALUES (#{mberId}, 'GUEST')
+	</insert>
+
+	<!-- HSHLD_MBER_MANAGE에 세대와 회원 연결 -->
+	<insert id="insertHouseholdMember"
+		parameterType="kr.or.ddit.vo.MberVO">
+		INSERT INTO HSHLD_MBER_MANAGE (HSHLD_ID, MBER_ID)
+		VALUES (
+		(SELECT HSHLD_ID FROM HSHLD WHERE APTCMPL = #{aptcmpl} AND HO = #{ho} AND
+		RESIDESTTUS = #{residesttus}),
+		#{mberId}
+		)
+	</insert>
+
+	<!-- 같은 동호수 체크 -->
+	<select id="countHouseholdMember" resultType="int">
+		SELECT COUNT(*)
+		FROM HSHLD_MBER_MANAGE hm
+		JOIN HSHLD h ON hm.HSHLD_ID = h.HSHLD_ID
+		WHERE h.APTCMPL = #{aptcmpl} AND h.HO = #{ho}
+	</select>
+
+	<!-- 차량 등록 -->
+	<insert id="insertVehicleRegist"
+		parameterType="kr.or.ddit.vo.MberVO">
+		INSERT INTO REGIST (REGIST_ID, VHCLE_NO, HSHLD_ID)
+		VALUES (
+		(SELECT NVL(MAX(REGIST_ID),0)+1 FROM REGIST),
+		#{vhcleNo},
+		(SELECT HSHLD_ID FROM HSHLD
+		WHERE APTCMPL = #{aptcmpl} AND HO = #{ho} AND RESIDESTTUS = #{residesttus})
+		)
+	</insert>
+	
+	<!-- 회원 정보 수정 -->
+<update id="updateMember" parameterType="kr.or.ddit.vo.MberVO">
+    UPDATE MBER
+    SET 
+        MBER_NM = #{mberNm},
+        TELNO = #{telno},
+        EMAIL = #{email}
+    <if test="password != null and password != ''">
+        , PASSWORD = #{password}
+    </if>
+    WHERE MBER_ID = #{mberId}
+</update>
+	
+</mapper>

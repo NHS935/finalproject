@@ -1,0 +1,28 @@
+body {
+    font-family: 'Nanum Gothic', sans-serif; /* 나눔고딕, 없으면 기본 sans-serif */
+    font-size: 11pt;
+    line-height: 1.6;
+    color: #333;
+}
+.contract-container { width: 100%; max-width: 800px; margin: 0 auto; padding: 20px; box-sizing: border-box; } /* 최대 너비 지정 */
+h1 { text-align: center; font-size: 18pt; margin-bottom: 40px; }
+
+/* 계약 당사자 정보 테이블 */
+.party-table { width: 100%; border-collapse: collapse; margin-bottom: 25px; }
+.party-table th, .party-table td { border: 1px solid #ccc; padding: 10px; text-align: left; }
+.party-table th { background-color: #f9f9f9; width: 15%; white-space: nowrap; } /* 헤더 폭 고정 */
+.party-table .party-group { border: 1px solid #ccc; margin-bottom: 15px; background-color: #f9f9f9; } /* 그룹화 */
+.party-table .party-title { font-weight: bold; padding-bottom: 5px; }
+
+
+/* 본문 제목 */
+.contract-body h2 { font-size: 13pt; border-bottom: 1px solid #eee; padding-bottom: 5px; margin-top: 30px; }
+.contract-body p { margin-bottom: 15px; }
+
+/* 서명/직인 부분 테이블 */
+.signature-table { width: 100%; border-collapse: collapse; margin-top: 50px; text-align: center; }
+.signature-table td { width: 50%; padding: 20px 0; vertical-align: top; } /* 좌우 균등 분할 */
+.signature-table .signature-block { display: inline-block; text-align: left; width: 80%; } /* 블록 내부 정렬 */
+.signature-table .signature-placeholder { height: 80px; border-bottom: 1px solid #555; margin-top: 10px; } /* 직인선 */
+.signature-table p { margin: 5px 0; }
+.signature-date { margin-top: 30px; text-align: center; font-weight: bold; }

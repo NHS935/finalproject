@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.VoteManageTrgterMapper">
+
+	<!-- 키워드  -->
+	<sql id="where">
+		<if test="keyword!=null and keyword!=''">
+  			AND (MTR_SJ LIKE '%' || #{keyword} || '%' OR MTR_CN LIKE '%' || #{keyword} || '%')
+  		</if>
+		<!-- 시작시간 ~ 끝 -->
+	  	<if test="periodFrom != null and periodFrom != ''">
+	    AND TO_DATE(VOTE_END_DT, 'YYYY-MM-DD"T"HH24:MI') 
+	        &gt;= TO_DATE(#{periodFrom}, CASE WHEN INSTR(#{periodFrom}, 'T') &gt; 0 
+	                                         THEN 'YYYY-MM-DD"T"HH24:MI' 
+	                                         ELSE 'YYYY-MM-DD' END)
+		  </if>
+		  <!-- 단일 시간 -->
+		  <if test="periodTo != null and periodTo != ''">
+		    AND TO_DATE(VOTE_BEGIN_DT, 'YYYY-MM-DD"T"HH24:MI') 
+		        &lt;= TO_DATE(#{periodTo}, CASE WHEN INSTR(#{periodTo}, 'T') &gt; 0 
+		                                        THEN 'YYYY-MM-DD"T"HH24:MI' 
+		                                        ELSE 'YYYY-MM-DD' END)
+		  </if>
+	</sql>
+
+
+		<!-- 1 -->
+	<resultMap type="kr.or.ddit.vo.VoteMtrVO" id="voteMtrMap">
+		<result property="voteMtrSn" column="VOTE_MTR_SN" />
+		<result property="mtrSj" column="MTR_SJ" />
+		<result property="mtrCn" column="MTR_CN" />
+		<result property="voteBeginDt" column="VOTE_BEGIN_DT" />
+		<result property="voteEndDt" column="VOTE_END_DT" />
+		<result property="empId" column="EMP_ID" />
+	   	
+		<collection property="voteIemVOList" resultMap="voteIemMap" />
+	</resultMap>
+	<!-- N -->
+	<resultMap type="kr.or.ddit.vo.VoteIemVO" id="voteIemMap">
+		<result property="voteMtrSn" column="VOTE_MTR_SN" />
+		<result property="voteIemNo" column="VOTE_IEM_NO" />
+		<result property="iemNm" column="IEM_NM" />
+		<result property="iemCn" column="IEM_CN" />
+		<result property="cnt" column="CNT" />
+	</resultMap>
+
+	<!-- 20251103검색항목 추가를위해 수정됨 with T는 안쓰는게 좋다. 가상테이블을 만들때 쓰는게 with이다 -->	
+	<select id="memVoteList" parameterType="kr.or.ddit.vo.VoteMtrVO" resultType="voteMtrVO">
+	  WITH T AS (
+	    SELECT ROW_NUMBER() OVER( ORDER BY S.VOTE_MTR_SN DESC ) RNUM
+	         , S.VOTE_MTR_SN, S.MTR_SJ, S.MTR_CN, S.VOTE_BEGIN_DT, S.VOTE_END_DT, S.EMP_ID, S.VOTED_NUM, S.IS_VOTED
+	    FROM (
+	      SELECT F.VOTE_MTR_SN, F.MTR_SJ, F.MTR_CN, F.VOTE_BEGIN_DT, F.VOTE_END_DT, F.EMP_ID, F.VOTED_NUM, F.IS_VOTED
+	      FROM (
+	        SELECT a.VOTE_MTR_SN, a.MTR_SJ, a.MTR_CN, a.VOTE_BEGIN_DT, a.VOTE_END_DT, a.EMP_ID
+	             , ( SELECT COUNT(b.MBER_ID)
+	                   FROM VOTE_MANAGE_TRGTER b
+	                  WHERE b.vote_mtr_sn = a.vote_mtr_sn ) as VOTED_NUM
+	             , CASE WHEN EXISTS (
+	                 SELECT 1
+	                   FROM VOTE_MANAGE_TRGTER b
+	                  WHERE b.vote_mtr_sn = a.vote_mtr_sn
+	                    AND b.mber_id     = #{mberId}
+	               ) THEN '참여' ELSE '미참여' END AS IS_VOTED
+	        FROM VOTE_MTR a
+	        WHERE 1=1
+	        <include refid="where"></include>
+	      ) F
+	    ) S
+	  )
+	  <!-- <![CDATA[등호,부등호]]> 는 sql에서 등호,부등호 사용할때 XML에서 사용하면 해줘야함(from 중호샘) -->
+	  SELECT T.RNUM, T.VOTE_MTR_SN, T.MTR_SJ, T.MTR_CN, T.VOTE_BEGIN_DT, T.VOTE_END_DT, T.EMP_ID, T.VOTED_NUM , T.IS_VOTED
+	       , CASE
+	           WHEN sysdate <![CDATA[>=]]> to_date(T.VOTE_BEGIN_DT,'YYYY-MM-DD"T"hh24:mi')
+	            AND sysdate <![CDATA[<=]]> to_date(T.VOTE_END_DT,'YYYY-MM-DD"T"hh24:mi') THEN '진행중'
+	           WHEN sysdate <![CDATA[<]]>  to_date(T.VOTE_BEGIN_DT,'YYYY-MM-DD"T"hh24:mi') THEN '예정'
+	           ELSE '마감'
+	         END STAT
+	  FROM T
+	  WHERE 1=1
+	    <!-- 상태stat코드검색을위해 -->
+	    <if test="stat != null and stat != ''">
+	      AND (
+	        CASE
+	          WHEN sysdate <![CDATA[>=]]> to_date(T.VOTE_BEGIN_DT,'YYYY-MM-DD"T"hh24:mi')
+	           AND sysdate <![CDATA[<=]]> to_date(T.VOTE_END_DT,'YYYY-MM-DD"T"hh24:mi') THEN '진행중'
+	          WHEN sysdate <![CDATA[<]]>  to_date(T.VOTE_BEGIN_DT,'YYYY-MM-DD"T"hh24:mi') THEN '예정'
+	          ELSE '마감'
+	        END
+	      ) = #{stat}
+	    </if>
+	
+	    AND T.RNUM BETWEEN 
+	    	( (#{currentPage} - 1) * #{size} ) + 1
+        AND ( #{currentPage} * #{size} )
+	</select>
+		<!-- item2 페이징코드 따라하기 -->
+	<select id="getTotal" parameterType="hashMap" resultType="int">
+		 SELECT COUNT(*)
+		 FROM VOTE_MTR
+		 WHERE 1 = 1
+		 <include refid="where"></include>
+	</select>
+	
+	<!-- 투표하려고보는 상세페이지 -->
+	<select id="voteMtrList" parameterType="int" resultMap="voteMtrMap">
+		 SELECT
+		    A.VOTE_MTR_SN,
+		    A.MTR_SJ,
+		    A.MTR_CN,
+		    A.VOTE_BEGIN_DT,
+		    A.VOTE_END_DT,
+		    A.EMP_ID,
+		    B.VOTE_MTR_SN AS B_VOTE_MTR_SN,
+		    B.VOTE_IEM_NO,
+		    B.IEM_NM,
+		    B.IEM_CN
+		    ,COUNT(C.MBER_ID) CNT 
+		  FROM VOTE_MTR A
+		  LEFT JOIN VOTE_IEM B
+		    ON B.VOTE_MTR_SN = A.VOTE_MTR_SN
+		  LEFT JOIN VOTE_MANAGE_TRGTER C
+		    ON C.VOTE_MTR_SN = B.VOTE_MTR_SN
+		   AND C.VOTE_IEM_NO = B.VOTE_IEM_NO
+		  WHERE A.VOTE_MTR_SN = #{voteMtrSn}
+		  GROUP BY
+		    A.VOTE_MTR_SN, A.MTR_SJ, A.MTR_CN, A.VOTE_BEGIN_DT, A.VOTE_END_DT, A.EMP_ID,
+		    B.VOTE_MTR_SN, B.VOTE_IEM_NO, B.IEM_NM, B.IEM_CN
+		  ORDER BY B.VOTE_IEM_NO
+	</select> 	
+	
+	<!-- 업데이트 먼저시도 -->
+	<update id="updateVote" parameterType="kr.or.ddit.vo.VoteManageTrgterVO">
+	    UPDATE VOTE_MANAGE_TRGTER
+	       SET VOTE_IEM_NO = #{voteIemNo}
+	     WHERE VOTE_MTR_SN = #{voteMtrSn}
+	       AND MBER_ID = #{mberId}
+	</update>
+
+	<!-- 바뀐 행이 없으면 INSERT -->
+	<insert id="insertVote" parameterType="kr.or.ddit.vo.VoteManageTrgterVO">
+	    INSERT INTO VOTE_MANAGE_TRGTER (VOTE_MTR_SN, MBER_ID, VOTE_IEM_NO)
+	    VALUES (#{voteMtrSn}, #{mberId}, #{voteIemNo})
+	</insert>
+	
+	
+	<!-- 직원이름 select -->
+	<select id="findEmpNm" parameterType="String" resultType="string">
+		SELECT nm
+	    FROM EMP
+	    WHERE EMP_ID = #{empId}
+	</select>
+	
+	<select id="getMyVoteIemNo" parameterType="map" resultType="Integer">
+		SELECT vote_iem_no
+			FROM vote_manage_trgter
+			WHERE mber_id = #{mberId}
+		AND vote_mtr_sn = #{voteMtrSn}
+	</select>
+</mapper>

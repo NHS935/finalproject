@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.FxMapper">
+
+<!-- 일정 조회 -->
+<select id="listAjax" resultType="FxVO">
+SELECT
+    schdul_sn,
+    fx_sj,   
+    fx_iem,
+    fx_cn,
+    fx_place,
+    fx_begin_dt,
+    fx_end_dt,
+    fx_regist_dt,
+    emp_id,
+    fclty_manage_sn,
+    fclty_sn,
+    cmmnty_sn
+FROM
+    fx
+WHERE fx_iem != '개인일정'
+</select>
+
+
+
+
+
+</mapper>

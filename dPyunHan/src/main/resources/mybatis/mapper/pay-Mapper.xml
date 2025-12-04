@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.or.ddit.mapper.PayMapper">
+
+    <sql id="where">
+        <if test="keyword != null and keyword != ''">
+            AND L.RQEST_YM LIKE '%' || #{keyword} || '%'
+        </if>
+    </sql>
+    
+   
+ <select id="list" parameterType="String" resultType="kr.or.ddit.vo.PayVO">
+SELECT 
+        P.PAY_SN,
+        P.PAY_AMOUNT,
+        P.PAY_DT,
+        P.PAY_MTH,
+        L.RQEST_YM  FROM LEVY L
+    JOIN PAY P
+        ON L.PAY_SN = P.PAY_SN
+    WHERE L.HSHLD_ID = #{hshldId}
+    
+    <include refid="where"/> </select>
+
+
+    <!-- 결제내역 저장 -->
+    <insert id="insertPay" parameterType="kr.or.ddit.vo.PayVO">
+        INSERT INTO PAY (
+            PAY_SN,
+            PAY_AMOUNT,
+            PAY_DT,
+            PAY_MTH
+        ) VALUES (
+            #{paySn},
+            #{payAmount},
+            SYSDATE,
+            #{payMth}
+        )
+    </insert>
+
+    <select id="getTotal" parameterType="kr.or.ddit.vo.LevyVO" resultType="kr.or.ddit.vo.LevyVO">
+        SELECT RQEST_SN, PAY_TMLMT, RQEST_YM, RQEST_DT, MANAGECT_TOT_AMOUNT, HSHLD_ID, PAY_SN, PAY_STTUS
+          FROM LEVY
+    	WHERE HSHLD_ID = #{hshldId} 
+    	 AND  PAY_STTUS = 1
+    </select>
+
+<!-- 	<select id="listPaySn" parameterType="String" resultType="int">
+	    SELECT PAY_SN
+	    FROM PAY
+	    WHERE HSHLD_ID = #{hshldId}
+	</select> -->
+
+
+</mapper>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.or.ddit.mapper.LevyMapper">
+
+	<!-- 회원 ID로 세대 ID 조회 -->
+	<select id="selectHouseholdIdByMember" resultType="String">
+	    SELECT HSHLD_ID
+	    FROM HSHLD_MBER_MANAGE
+	    WHERE MBER_ID = #{mberId}
+	</select>
+<!-- 
+    세대 기준 월별 청구 조회 세대번호 달라도 동,호수 같으면 관리비조회가능-->
+ <select id="selectMonthlyRqestByHouse" resultType="kr.or.ddit.vo.LevyVO">
+    SELECT 
+        RQEST_SN AS rqestSn,
+        PAY_TMLMT AS payTmlmt,
+        RQEST_YM AS rqestYm,
+        RQEST_DT AS rqestDt,
+        MANAGECT_TOT_AMOUNT AS managectTotAmount,
+        HSHLD_ID AS hshldId,
+        PAY_SN AS paySn,
+        PAY_STTUS AS paySttus
+    FROM LEVY
+    WHERE 
+        SUBSTR(HSHLD_ID, 2) = SUBSTR(#{hshldId}, 2)
+        
+    AND RQEST_YM = TO_NUMBER(REPLACE(#{yearMonth}, '-', ''))
+    ORDER BY RQEST_DT DESC
+</select> 
+
+    <!-- 납부 상태 갱신 -->
+<update id="updatePayStatus" parameterType="map">
+    UPDATE LEVY
+    SET "PAY_STTUS" = 1,
+        "PAY_SN" = #{paySn}
+    WHERE "RQEST_SN" = #{rqestSn}
+</update>
+
+</mapper>

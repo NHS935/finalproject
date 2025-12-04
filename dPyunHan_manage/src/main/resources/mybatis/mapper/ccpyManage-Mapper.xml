@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.CcpyManageMapper">
+	
+	<insert id="postCcpyManageVO" parameterType="ccpyManageVO">
+		<selectKey resultType="int" order="BEFORE" keyProperty="ccpyManageId">
+			select NVL(MAX(ccpy_manage_id), 0)+1
+				from ccpy_manage
+		</selectKey>
+		INSERT INTO ccpy_manage (
+		    ccpy_manage_id
+		    ,ccpy_cmpny_nm
+		    ,ccpy_adres
+		    ,ccpy_telno
+		    ,ccpy_rprsntv_nm
+		    ,ccpy_bizrno
+		    ,ccpy_email
+		    ,ccpy_password
+		    ,file_group_sn
+		    ,ccpy_opbiz_de
+		    ,CCPY_REGISTDT
+		    ,CCPY_STTUS
+		) VALUES (
+		     #{ccpyManageId}
+		     , #{ccpyCmpnyNm}
+		     , #{ccpyAdres}
+		     , #{ccpyTelno}
+		     , #{ccpyRprsntvNm}
+		     , #{ccpyBizrno}
+		     , #{ccpyEmail}
+		     , #{ccpyPassword}
+		     , #{fileGroupSn}
+		     , #{ccpyOpbizDe}
+		     , sysdate
+		     , 0
+		)		
+	</insert>
+	
+	<insert id="postbizcndIndutyVO" parameterType="bizcndIndutyVO">
+		<selectKey resultType="int" order="BEFORE" keyProperty="bizcndIndutyId">
+			select NVL(MAX(bizcnd_induty_id), 0)+1
+				from bizcnd_induty
+		</selectKey>
+		INSERT INTO bizcnd_induty (
+		    ccpy_manage_id
+		    , bizcnd_induty_id
+		    , bizcnd_nm
+		    , induty_nm
+		) VALUES (
+		    #{ccpyManageId}
+        	, #{bizcndIndutyId}
+        	, #{bizcndNm}
+        	, #{indutyNm}
+		)		
+	</insert>
+	
+	<insert id="postCcpyAuthor" parameterType="ccpyAuthorVO">
+		INSERT INTO ccpy_author (
+   			ccpy_manage_id
+		    , author_id
+		) VALUES (
+		   #{ccpyManageId}
+		   , 'GUEST'
+		)
+	</insert>
+	
+	<resultMap type="ccpyManageVO" id="ccpyManageVOMap">
+		<id property="ccpyManageId"  column="CCPY_MANAGE_ID"/>
+		
+		<result property="rnum" column="RNUM"/>
+		<result property="ccpyCmpnyNm" column="CCPY_CMPNY_NM"/>
+		<result property="ccpyAdres" column="CCPY_ADRES"/>
+		<result property="ccpyTelno" column="CCPY_TELNO"/>
+		<result property="ccpyRprsntvNm" column="CCPY_RPRSNTV_NM"/>
+		<result property="ccpyBizrno" column="CCPY_BIZRNO"/>
+		<result property="ccpyEmail" column="CCPY_EMAIL"/>
+		 <result property="ccpySttus" column="CCPY_STTUS"/>
+		<result property="ccpyPassword" column="CCPY_PASSWORD"/>
+		<result property="fileGroupSn" column="FILE_GROUP_SN"/>
+		<result property="ccpyOpbizDe" column="CCPY_OPBIZ_DE"/>
+		<result property="ccpyRegistdt" column="CCPY_REGISTDT"/>
+		
+		<collection property="ccpyAuthorVOList" resultMap="ccpyAuthorVOMap"></collection>
+		<collection property="bizcndIndutyVOList" resultMap="bizcndIndutyVOMap"></collection>
+	</resultMap>
+	
+	<resultMap type="bizcndIndutyVO" id="bizcndIndutyVOMap">
+		<result property="ccpyManageId" column="CCPY_MANAGE_ID"/>
+		<result property="bizcndIndutyId" column="BIZCND_INDUTY_ID"/>
+		<result property="bizcndNm" column="BIZCND_NM"/>
+		<result property="indutyNm" column="INDUTY_NM"/>
+	</resultMap>
+	
+	<resultMap type="ccpyAuthorVO" id="ccpyAuthorVOMap">
+		<result property="ccpyManageId" column="CCPY_MANAGE_ID"/>
+		<result property="authorId" column="AUTHOR_ID"/>
+	</resultMap>
+	
+	<select id="getCcpyManageGuestList" parameterType="hashMap" resultMap="ccpyManageVOMap">
+		<include refid="commonMapper.pageHeader"></include>
+		SELECT	 a.CCPY_MANAGE_ID
+				, a.CCPY_CMPNY_NM
+				, a.CCPY_ADRES
+				, a.CCPY_TELNO
+				, a.CCPY_RPRSNTV_NM
+				, a.CCPY_BIZRNO
+				, a.CCPY_EMAIL
+				, a.CCPY_PASSWORD
+				, a.CCPY_REGISTDT
+				, a.FILE_GROUP_SN
+				, a.CCPY_STTUS  
+				, a.CCPY_OPBIZ_DE
+				, b.AUTHOR_ID
+			FROM CCPY_MANAGE a
+			LEFT OUTER JOIN CCPY_AUTHOR b ON(a.CCPY_MANAGE_ID = b.CCPY_MANAGE_ID)
+			<where>
+				b.AUTHOR_ID = 'GUEST'
+				and a.CCPY_STTUS = 0
+				<if test ="keyword !=null and keyword !=''">
+					AND a.CCPY_CMPNY_NM LIKE '%'||#{keyword}||'%' 
+				</if>
+			</where>
+			ORDER BY CCPY_MANAGE_ID DESC
+		<include refid="commonMapper.pageFooter"></include>
+	</select>
+	
+	<select id="getTotal" resultType="int" parameterType="hashMap">
+		 SELECT COUNT(*)
+		    FROM CCPY_MANAGE
+		    WHERE 1=1
+		    <if test="keyword != null and keyword != ''">
+		        AND CCPY_CMPNY_NM LIKE '%'||#{keyword}||'%' 
+		    </if>
+	</select>
+	
+	<select id="getCcpyManage" parameterType="CcpyManageVO" resultMap="ccpyManageVOMap">
+		select  a.ccpy_manage_id,
+			    a.ccpy_cmpny_nm,
+			    a.ccpy_adres,
+			    a.ccpy_telno,
+			    a.ccpy_rprsntv_nm,
+			    a.ccpy_bizrno,
+			    a.ccpy_email,
+			    a.ccpy_password,
+			    a.file_group_sn,
+			    a.ccpy_opbiz_de,
+			    a.ccpy_sttus,
+			    a.CCPY_REGISTDT,
+			    b.BIZCND_INDUTY_ID
+			    , b.BIZCND_NM
+			    , b.INDUTY_NM
+			from CCPY_MANAGE a
+			left outer join BIZCND_INDUTY b on(a.ccpy_manage_id = b.ccpy_manage_id)
+			where a.CCPY_MANAGE_ID = #{ccpyManageId}
+	</select>
+	
+	<insert id="postCcpyDta" parameterType="ccpyDtaVO">
+		<selectKey resultType="int" order="BEFORE" keyProperty="ccpyDtaId">
+			select NVL(MAX(ccpy_dta_id), 0)+1
+				from ccpy_dta
+		</selectKey>
+		INSERT INTO ccpy_dta (
+			    ccpy_manage_id,
+			    ccpy_dta_id,
+			    file_group_sn
+			) VALUES (
+			    #{ccpyManageId}
+			    , #{ccpyDtaId}
+			    , #{fileGroupSn}
+			)
+	</insert>
+	
+	<select id="getCcpyDta" parameterType="ccpyManageVO" resultType="ccpyDtaVO">
+		select *
+			from CCPY_DTA
+			where ccpy_manage_id = #{ccpyManageId}
+	</select>
+	
+	<update id="putCcpyAuthor" parameterType="ccpyManageVO">
+		UPDATE CCPY_AUTHOR SET AUTHOR_ID = 'ROLE_CCPY'
+   		WHERE CCPY_MANAGE_ID = #{ccpyManageId}
+	</update>
+	
+	<select id="findByCcpyEmail" parameterType="String" resultMap="ccpyManageVOMap">
+		SELECT A.CCPY_MANAGE_ID
+		       , A.CCPY_CMPNY_NM
+		       , A.CCPY_ADRES
+		       , A.CCPY_TELNO
+		       , A.CCPY_RPRSNTV_NM
+		       , A.CCPY_BIZRNO
+		       , A.CCPY_EMAIL
+		       , A.CCPY_PASSWORD
+		       , A.FILE_GROUP_SN
+		       , A.CCPY_OPBIZ_DE
+		       , A.CCPY_STTUS
+		       , a.CCPY_REGISTDT
+		       , B.AUTHOR_ID
+		  FROM CCPY_MANAGE A
+		  LEFT OUTER JOIN CCPY_AUTHOR B ON(A.CCPY_MANAGE_ID = B.CCPY_MANAGE_ID)
+		  WHERE A.CCPY_EMAIL = #{ccpyEmail}
+	</select>
+	
+	<update id="putCcpySttsAsAcpt" parameterType="ccpyManageVO">
+		UPDATE ccpy_manage
+			SET
+			    ccpy_sttus = 1
+			WHERE
+			    ccpy_manage_id = #{ccpyManageId}
+	</update>
+	
+	<update id="putCcpySttsAsRej" parameterType="ccpyManageVO">
+		UPDATE ccpy_manage
+			SET
+			    ccpy_sttus = 2
+			WHERE
+			    ccpy_manage_id = #{ccpyManageId}
+	</update>
+
+	<select id="getCcpyManageList" parameterType="hashMap" resultMap="ccpyManageVOMap">
+		SELECT	 a.CCPY_MANAGE_ID
+		, a.CCPY_CMPNY_NM
+		, a.CCPY_ADRES
+		, a.CCPY_TELNO
+		, a.CCPY_RPRSNTV_NM
+		, a.CCPY_BIZRNO
+		, a.CCPY_EMAIL
+		, a.CCPY_PASSWORD
+		, a.CCPY_REGISTDT
+		, a.FILE_GROUP_SN
+		, a.CCPY_STTUS
+		, a.CCPY_OPBIZ_DE
+		, b.AUTHOR_ID
+		FROM CCPY_MANAGE a
+		INNER JOIN CCPY_AUTHOR b ON(a.CCPY_MANAGE_ID = b.CCPY_MANAGE_ID)
+		where b.AUTHOR_ID = 'ROLE_CCPY'
+		and   a.CCPY_STTUS = 1
+			<if test ="keyword !=null and keyword !=''">
+				AND a.CCPY_CMPNY_NM LIKE '%'||#{keyword}||'%'
+			</if>
+		ORDER BY CCPY_MANAGE_ID DESC
+	</select>
+</mapper>

@@ -1,0 +1,447 @@
+/* ===== AdminLTE/Bootstrap 전체 기본 스타일 ===== */
+body {
+  font-family: "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 0.75rem;
+  color: #495057;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* ===== Filter Card ===== */
+.filter-card {
+  background-color: #ffffff;
+  border: 1px solid #dee2e6;
+  border-radius: 0.25rem;
+  box-shadow: 0 0 1px rgba(0, 0, 0, 0.125);
+  margin-bottom: 0.5rem;
+  overflow: hidden;
+}
+
+/* ===== Filter Card Header ===== */
+.filter-card-header {
+  padding: 0.3rem 0.5rem;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.filter-card-header .filter-card-title {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #333;
+}
+
+/* ===== Filter Card Body ===== */
+.filter-card-body {
+  padding: 0.4rem 0.5rem;
+  max-height: 500px;
+  overflow: hidden;
+  transition: max-height 0.3s ease, opacity 0.3s ease, padding 0.3s ease;
+  opacity: 1;
+}
+
+.filter-card-body.collapsed {
+  max-height: 0;
+  opacity: 0;
+  padding: 0 0.5rem;
+}
+
+/* ===== Filter Search Footer ===== */
+.filter-search-footer {
+  padding: 0.3rem 0.5rem;
+  background-color: #f8f9fa;
+  border-top: 1px solid #dee2e6;
+  display: flex;
+  gap: 0.4rem;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+/* ===== 필터 행 (4개 컬럼) ===== */
+.filter-row {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr 1.5fr;
+  gap: 0;
+  border-bottom: 1px solid #dee2e6;
+  align-items: flex-end;
+}
+
+.filter-row:last-of-type {
+  border-bottom: none;
+}
+
+.filter-row .filter-cell:not(:last-child) {
+  border-right: 1px solid #dee2e6;
+}
+
+.filter-cell {
+  padding: 0.35rem 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.filter-cell.full-width {
+  grid-column: 1 / -1;
+  border-right: none;
+}
+
+/* ===== 셀 레이아웃 ===== */
+.filter-cell-label {
+  font-weight: 600;
+  color: #495057;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  line-height: 1;
+}
+
+.filter-cell-content {
+  flex: 1;
+}
+
+/* ===== Filter Control ===== */
+.filter-control {
+  display: block;
+  width: 100%;
+  padding: 0.25rem 0.4rem;
+  font-size: 0.8rem;
+  line-height: 1.3;
+  color: #495057;
+  background-color: #ffffff;
+  border: 1px solid #ced4da;
+  border-radius: 0.25rem;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.filter-control:focus {
+  color: #495057;
+  background-color: #ffffff;
+  border-color: #80bdff;
+  outline: 0;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.filter-control::placeholder {
+  color: #999;
+  font-size: 0.75rem;
+}
+
+/* ===== 검색 입력 래퍼 ===== */
+.filter-search-wrapper {
+  flex: 0 1 auto;
+  min-width: 120px;
+  margin-left: auto;
+}
+
+.filter-input {
+  display: block;
+  width: 100%;
+  padding: 0.25rem 0.4rem;
+  font-size: 0.8rem;
+  line-height: 1.3;
+  color: #495057;
+  background-color: #ffffff;
+  border: 1px solid #ced4da;
+  border-radius: 0.25rem;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.filter-input:focus {
+  color: #495057;
+  background-color: #ffffff;
+  border-color: #80bdff;
+  outline: 0;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.filter-input::placeholder {
+  color: #999;
+  font-size: 0.75rem;
+}
+
+/* ===== Filter Input Group ===== */
+.filter-input-group {
+  display: flex;
+  gap: 0;
+  flex-wrap: nowrap;
+  align-items: center;
+}
+
+.filter-input-group .filter-control {
+  flex: 1;
+  border-radius: 0.25rem;
+  margin-right: -1px;
+}
+
+.filter-input-group .filter-control:first-child {
+  border-radius: 0.25rem 0 0 0.25rem;
+}
+
+.filter-input-group .filter-control:last-child {
+  border-radius: 0 0.25rem 0.25rem 0;
+  margin-right: 0;
+}
+
+.filter-input-group-text {
+  display: flex;
+  align-items: center;
+  padding: 0.25rem 0.4rem;
+  background-color: #e9ecef;
+  border: 1px solid #ced4da;
+  color: #495057;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* ===== Filter Custom Controls - 가로 정렬 ===== */
+.filter-control-inline {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* ===== Filter Custom Checkbox ===== */
+.filter-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  cursor: pointer;
+  user-select: none;
+  font-size: 0.8rem;
+  color: #495057;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.filter-checkbox input[type="checkbox"] {
+  cursor: pointer;
+  width: 0.85rem;
+  height: 0.85rem;
+  margin: 0;
+  accent-color: #007bff;
+  flex-shrink: 0;
+}
+
+.filter-checkbox span {
+  cursor: pointer;
+  padding-top: 0.02rem;
+  line-height: 1;
+}
+
+.filter-checkbox input[type="checkbox"]:checked + span {
+  font-weight: 500;
+  color: #212529;
+}
+
+/* ===== Filter Custom Radio Button ===== */
+.filter-radio {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  cursor: pointer;
+  user-select: none;
+  font-size: 0.8rem;
+  color: #495057;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.filter-radio input[type="radio"] {
+  cursor: pointer;
+  width: 0.85rem;
+  height: 0.85rem;
+  margin: 0;
+  accent-color: #007bff;
+  flex-shrink: 0;
+}
+
+.filter-radio span {
+  cursor: pointer;
+  padding-top: 0.02rem;
+  line-height: 1;
+}
+
+.filter-radio input[type="radio"]:checked + span {
+  font-weight: 500;
+  color: #212529;
+}
+
+/* ===== Filter Toggle Button ===== */
+.filter-btn-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0 0.4rem;
+  color: #495057;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  transition: color 0.3s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.filter-btn-toggle:hover {
+  color: #007bff;
+}
+
+.filter-toggle-text {
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.filter-btn-toggle i {
+  font-size: 0.9rem;
+  transform: rotate(0deg);
+  transition: transform 0.3s ease;
+}
+
+.filter-btn-toggle i.rotated {
+  transform: rotate(180deg);
+}
+
+/* ===== Filter Button ===== */
+.filter-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.3;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: middle;
+  cursor: pointer;
+  border: 1px solid transparent;
+  border-radius: 0.25rem;
+  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
+  text-decoration: none;
+}
+
+.filter-btn:hover {
+  text-decoration: none;
+}
+
+.filter-btn-primary {
+  color: #ffffff;
+  background-color: #007bff;
+  border-color: #007bff;
+}
+
+.filter-btn-primary:hover {
+  color: #ffffff;
+  background-color: #0062cc;
+  border-color: #005cbf;
+}
+
+.filter-btn-secondary {
+  color: #ffffff;
+  background-color: #6c757d;
+  border-color: #6c757d;
+}
+
+.filter-btn-secondary:hover {
+  color: #ffffff;
+  background-color: #5a6268;
+  border-color: #545b62;
+}
+
+/* ===== 반응형 ===== */
+@media (max-width: 1200px) {
+  .filter-row {
+    grid-template-columns: 1.5fr 1.5fr;
+  }
+
+  .filter-row .filter-cell:nth-child(3) {
+    border-right: 1px solid #dee2e6;
+  }
+
+  .filter-row .filter-cell:nth-child(4) {
+    border-right: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .filter-row {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-row .filter-cell {
+    border-right: none !important;
+    border-bottom: 1px solid #dee2e6;
+  }
+
+  .filter-row .filter-cell:last-child {
+    border-bottom: none;
+  }
+
+  .filter-cell {
+    padding: 0.3rem;
+  }
+
+  .filter-card-body {
+    padding: 0.3rem;
+  }
+
+  .filter-search-footer {
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
+  .filter-search-wrapper {
+    width: 100%;
+    min-width: auto;
+  }
+
+  .filter-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .filter-control-inline {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.4rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .filter-card-header .filter-card-title {
+    font-size: 0.8rem;
+  }
+
+  .filter-cell-label {
+    font-size: 0.7rem;
+  }
+
+  .filter-control,
+  .filter-input {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.3rem;
+  }
+
+  .filter-input-group .filter-control,
+  .filter-input-group-text {
+    padding: 0.2rem 0.3rem;
+    font-size: 0.7rem;
+  }
+
+  .filter-checkbox {
+    font-size: 0.75rem;
+  }
+
+  .filter-toggle-text {
+    display: none;
+  }
+}

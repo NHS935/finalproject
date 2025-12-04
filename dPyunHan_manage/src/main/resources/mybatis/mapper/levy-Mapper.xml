@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.LevyMapper">
+    <select id="getNextLevyPKs" parameterType="int" resultType="long">
+        SELECT
+        LEVY_RQEST_SN_SEQ.NEXTVAL
+        FROM
+        DUAL
+        CONNECT BY
+        LEVEL &lt;= #{count}
+    </select>
+
+    <insert id="insertBillsBatch" parameterType="java.util.List">
+        INSERT ALL
+        <foreach collection="list" item="bill">
+        INTO LEVY (
+        RQEST_SN,
+        HSHLD_ID,
+        RQEST_YM,
+        MANAGECT_TOT_AMOUNT,
+        RQEST_DT,
+        PAY_TMLMT,
+        PAY_STTUS
+        )
+            VALUES (
+            #{bill.rqestSn},
+            #{bill.hshldId},
+            #{bill.rqestYm},
+            #{bill.managectTotAmount},
+            #{bill.rqestDt},
+            #{bill.payTmlmt},
+            #{bill.paySttus}
+            )
+        </foreach>
+        SELECT * FROM DUAL
+    </insert>
+
+    <select id="findByHshldId" parameterType="map" resultType="kr.or.ddit.vo.LevyVO">
+        SELECT
+            RQEST_SN,
+            HSHLD_ID,
+            RQEST_YM,
+            MANAGECT_TOT_AMOUNT,
+            RQEST_DT,
+            PAY_TMLMT
+        FROM
+            LEVY
+        WHERE
+            RQEST_YM = #{billingMonth}
+          AND HSHLD_ID = #{hshldId}
+    </select>
+
+    <select id="findByBillingMonth" parameterType="java.lang.String" resultType="kr.or.ddit.vo.LevyVO">
+        SELECT
+            RQEST_SN,
+            HSHLD_ID,
+            RQEST_YM,
+            MANAGECT_TOT_AMOUNT,
+            RQEST_DT,
+            PAY_TMLMT
+        FROM
+            LEVY
+        WHERE
+            RQEST_YM = #{billingMonth}
+        ORDER BY
+            HSHLD_ID
+    </select>
+</mapper>

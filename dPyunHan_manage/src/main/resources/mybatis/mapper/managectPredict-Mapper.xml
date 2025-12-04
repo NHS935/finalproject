@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.ManagectPredictMapper">
+
+
+<resultMap id="predictMap" type="ManagectPredictVO">
+ <result property="hshldId" column="HSHLD_ID" />
+ <result property="mtinspDt" column="MTINSP_DT" />
+ <result property="iemNm" column="IEM_NM" />
+ <result property="usgqty" column="USGQTY" />
+</resultMap>
+
+
+<!-- 세대별 관리비 예측 조회 -->
+<select id="selectPredict" resultMap="predictMap">
+	SELECT   
+	    A.hshld_id,
+	    A.usgqty,
+	    A.mtinsp_dt,
+	    B.iem_nm
+	FROM
+	    mtinsp A
+	JOIN untpc B ON A.iem_nm = B.iem_nm
+	JOIN hshld C on C.hshld_id = A.hshld_id   
+	WHERE A.hshld_id = #{hshldId}
+	ORDER BY A.mtinsp_dt DESC
+
+</select>
+
+
+
+
+
+</mapper>

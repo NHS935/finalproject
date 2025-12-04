@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.SLRMapper">
+	
+	<!-- 1. 월별 세대별 사용량 Pivot 조회 -->
+    <select id="selectDailyUsage" resultType="mtinspVO">
+	    SELECT 
+	        TO_CHAR(mtinsp_dt, 'YYYY-MM-DD') AS mtinspDt,
+	        SUM(CASE WHEN iem_nm = '가스' THEN usgqty ELSE 0 END) AS gasQty,
+	        SUM(CASE WHEN iem_nm = '수도' THEN usgqty ELSE 0 END) AS waterQty,
+	        SUM(CASE WHEN iem_nm = '전기' THEN usgqty ELSE 0 END) AS elecQty
+	    FROM MTINSP
+	    WHERE TO_CHAR(mtinsp_dt, 'YYYYMM') = #{yyyymm}
+	      AND HSHLD_ID = #{hshldId} 
+	    GROUP BY TO_CHAR(mtinsp_dt, 'YYYY-MM-DD')
+	    ORDER BY TO_CHAR(mtinsp_dt, 'YYYY-MM-DD')
+	</select>
+
+</mapper>

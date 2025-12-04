@@ -1,0 +1,441 @@
+
+/*/////////////////////////////////////////////////////////////////////////////////////*/
+/*1. 공지사항 목록*/
+
+.noticelist-top{
+  font-size: 28px;
+  font-weight: bold;
+  padding-bottom: 10px;
+  border-bottom: 2px dotted gray;
+  margin-bottom: 20px;
+  width:1000px;  /*점선 길이*/
+  margin-left: 30px;
+}
+
+/* 화면 전체 배경 */
+.wrap {
+  background-color: white;
+  padding: 20px 10px;
+  min-height: 100vh;
+}
+
+/* AgGrid 영역 전체 높이 자동 계산 */
+.grid-area {
+  height: calc(100vh - 350px); /* 상단 영역 높이 계산 후 남는 부분을 그리드에 할당 */
+  min-height: 0;
+  width: 1000px;              /* 👉 기존 너비 고정 */
+  margin-left: 30px;
+}
+
+/* AgGrid 내부 wrapper 크기 강제 */
+.ag-root-wrapper {
+  height: 100% !important;
+}
+
+.noticelistBtn {
+  margin-top: 15px;
+  margin-bottom: 15px;
+  margin-left:900px;
+  display: flex;
+  align-items: center;
+  gap: 12px;                 /* 버튼 간 간격 */
+}
+
+/*글등록, 선택삭제 버튼*/
+.noticelistBtn button {
+  border: none;
+  border-radius: 6px;
+  background-color: #e5e7eb; /* 기본 회색 */
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: 0.2s ease;
+}
+
+.noticelistBtn button:hover {
+  background-color: #d1d5db;
+}
+
+/* 글등록 버튼 */
+.noticelistBtn button:first-child {
+  background-color: #384c6b;
+  color: white;
+  width: 50px;
+  height: 25px;
+}
+
+.noticelistBtn button:first-child:hover {
+  background-color: #2563eb;
+}
+
+/* 선택 삭제 버튼 */
+.noticelistBtn button:last-child {
+  background-color: #f87171;
+  color: white;
+  width: 60px;
+  height: 25px;
+}
+
+.noticelistBtn button:last-child:hover {
+  background-color: #ef4444;
+}
+
+.ag-header-cell-label {
+  justify-content: center !important;
+}
+
+.ag-root-wrapper{
+   margin-top: 20px; 
+   margin-left: 30px;
+}
+
+/*검색부분*/
+/* select 박스 */
+.search-container select {
+  width: 80px;
+  padding: 6px 8px;
+  border: 1px solid #bbb;
+  border-radius: 6px;
+  background: white;
+  font-size: 14px;
+}
+
+.search-container select:focus {
+  outline: none;
+  border-color: #4a90e2;
+  box-shadow: 0 0 4px rgba(74, 144, 226, 0.5);
+}
+
+/* input */
+.search-container input {
+  width: 200px;
+  padding: 6px 8px;
+  border: 1px solid #bbb;
+  border-radius: 6px;
+  font-size: 14px;
+  margin-left: 5px;
+}
+
+.search-container input:focus {
+  outline: none;
+  border-color: #4a90e2;
+  box-shadow: 0 0 4px rgba(74, 144, 226, 0.4);
+}
+
+/* button */
+.search-container button {
+  width: 60px;
+  background: #e0e0e0;
+  border: 1px solid #bbb;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 6px 0;
+  transition: 0.2s;
+  margin-left: 5px;
+}
+
+.search-container button:hover {
+  background: #d5d5d5;
+}
+
+.search-container button:active {
+  background: #c8c8c8;
+}
+
+
+
+/*////////////////////////////////////////////////////////////////////////////////////////////////*/
+
+/*2. 공지사항 상세화면*/
+
+/* 전체 레이아웃 */
+.top{
+  background-color: white;
+  padding: 20px 10px;
+}
+
+/* .notice-detail-wrap {
+  width: 1000px;
+  margin: 0 auto;
+  padding: 20px 10px;
+  font-family: "Noto Sans KR", sans-serif;
+  color: #333;
+
+} */
+
+/* 상단 타이틀 */
+.notice-top-title {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 30px;
+  border-bottom: 2px dotted #222;
+  width: 1000px;
+  padding-bottom: 15px;
+  margin-left: 30px;
+}
+
+/* 공지 제목 */
+.notice-title {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  margin-left: 40px;
+}
+
+/* 작성 정보 */
+.notice-info {
+  font-size: 15px;
+  color: #666;
+  margin-bottom: 40px;
+  margin-left: 40px;
+}
+
+/* 첨부파일 전체 박스 */
+.notice-file-box {
+  border: 1px solid #d1d5db;
+  background: #f9fafb;
+  width: 800px;
+  border-radius: 8px;
+  margin-left: 40px;
+  margin-bottom: 30px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+
+
+/* 상단 타이틀 */
+.notice-file-header {
+  background: #f3f4f6;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 10px 14px;
+  font-weight: bold;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* 파일 리스트 한 줄 */
+.notice-file-list {
+  padding: 12px 14px;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+}
+
+
+/* 파일명 영역 */
+.notice-file-name {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+}
+
+/* 버튼 박스 */
+.notice-file-buttons {
+  padding: 4px 10px;    /* ← 기존 10px → 4px 로 축소 */
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;             /* ← 간격도 축소 */
+  background: #f9fafb;
+}
+
+
+/* 다운로드 버튼 공통 스타일 */
+.notice-file-buttons button {
+  border: none;
+  border-radius: 4px;   /* 둥근 정도 축소 */
+  cursor: pointer;
+  font-size: 12px;      /* ← 글자 크기 감소 */
+  padding: 4px 8px;     /* ← 버튼 높이 크게 줄어듦 */
+  font-weight: 500;
+  transition: .2s;
+}
+
+/* 첫 번째 버튼 (선택 다운로드 — secondary) */
+.notice-file-buttons button:first-child {
+  background-color: #9ca3af;
+  color: white;
+}
+
+.notice-file-buttons button:first-child:hover {
+  background-color: #6b7280;
+}
+
+/* 두 번째 버튼 (전체 다운로드 — primary) */
+.notice-file-buttons button:last-child {
+  background-color: #384c6b;
+  color: white;
+}
+
+.notice-file-buttons button:last-child:hover {
+  background-color: #2563eb;
+}
+
+/* 본문 내용 */
+.notice-content {
+  font-size: 16px;
+  line-height: 1.7;
+  margin-bottom: 40px;
+  white-space: pre-line;
+  margin-left: 40px; 
+}
+
+/* 이미지 박스 */
+.notice-image {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.notice-image img {
+  width: 800px;
+  border: 1px solid #ddd;
+  margin-left: 40px;
+}
+
+/* 버튼 박스 */
+.notice-btn-box {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 40px;
+  margin-right: -40px;
+}
+
+.notice-btn-box button {
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 10px 20px;
+  transition: .2s;
+}
+
+/* 목록 버튼 (secondary) */
+.notice-btn-box button.list {
+  background-color: #9ca3af;
+  color: white;
+}
+
+.notice-btn-box button.list:hover {
+  background-color: #6b7280;
+}
+
+/* 프린트 버튼 (primary) */
+.notice-btn-box button.print {
+  background-color: #384c6b;
+  color: white;
+}
+
+.notice-btn-box button.print:hover {
+  background-color: #2563eb;
+}
+
+/*//////////////////////////////////////////////////////////////////////////////////////*/
+/*공지사항 등록화면*/
+/* CKEditor */
+.ck-editor__editable {
+  min-height: 500px; 
+  border-radius: 6px; 
+}
+
+.notice-reg-top{
+  background-color: white;
+  padding: 20px 10px;
+}
+
+.ck.ck-editor__main > .ck-editor__editable:not(.ck-focused) {
+  border-color: #e5e7eb !important;
+}
+
+
+/* 상단 제목 */
+.notice-reg-title {
+  font-size: 28px;
+  font-weight: bold;
+  padding-bottom: 10px;
+  border-bottom: 2px dotted gray;
+  margin-bottom: 25px;
+  width: 810px;
+  margin-left: 20px;    /* 리스트와 동일한 좌측 라인 */
+}
+
+
+/* 제목 입력 박스 */
+.notie-reg-input {
+  border: 1px solid lightgray;
+  background-color: white;
+  width: 800px;
+  height: 50px;
+  margin-bottom: 10px;
+  padding: 0 12px;            /* 내부 여백 */
+  border-radius: 6px;
+
+  display: flex;
+  align-items: center;        /* 세로 가운데 정렬 */
+}
+
+/* 실제 input */
+.notie-reg-input input {
+  width: 100%;
+  height: 100%;
+  border: none;
+  outline: none;              /* 포커스 시 기본 테두리 제거 */
+  font-size: 16px;
+}
+
+/* focus 시에도 새로운 border 생기지 않음 */
+.notie-reg-input input:focus {
+  border: none;
+  outline: none;
+}
+
+/* 버튼 박스 (정렬 통일) */
+.notice-reg-btn-box {
+  display: flex;
+  margin-top: 20px;
+  gap: 10px;
+}
+
+/* 공통 버튼 스타일 */
+.notice-reg-btn-box button {
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  background-color: #e5e7eb;
+  transition: 0.2s;
+}
+
+.notice-reg-btn-box button:hover {
+  background-color: #d4d4d4;
+}
+
+/* 임시저장 */
+.notice-reg-btn-box button:first-child {
+  background-color: #9ca3af;
+  color: white;
+  width: 80px;
+  height: 30px;
+  margin-left: 630px;
+}
+.notice-reg-btn-box button:first-child:hover {
+  background-color: #6b7280;
+}
+
+/* 등록 버튼 */
+.notice-reg-btn-box button:last-child {
+  background-color: #384c6b;
+  color: white;
+  width: 80px;
+  height: 30px;
+}
+.notice-reg-btn-box button:last-child:hover {
+  background-color: #2563eb;
+}

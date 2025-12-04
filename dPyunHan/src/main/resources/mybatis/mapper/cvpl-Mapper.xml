@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.CvplMapper">
+
+	<!-- 민원처리 상태값 -->
+	<resultMap id="cvplRceptResultMap" type="CvplRceptVO">
+	 	<id property="cvplRceptId" column="CVPL_RCEPT_ID"/>
+	    <result property="empId" column="EMP_ID"/>
+	    <result property="rceptDt" column="RCEPT_DT"/>
+	    <result property="rceptCn" column="RCEPT_CN"/>
+	    <result property="rceptSttus" column="RCEPT_STTUS"/>
+	</resultMap>
+
+	<!-- 부서코드 부서이름으로 가져오기 -->
+	<resultMap id="deptResultMap" type="DeptVO">
+		<id property="deptCode" column="DEPT_CODE"/>
+		<result property="deptNm" column="DEPT_NM"/>	
+	</resultMap>
+	
+	<resultMap id="cvplManageResultMap" type="CvplManageVO">
+	 	<id property="cvplRceptId" column="CVPL_RCEPT_ID"/>
+	 	<id property="cvplSn" column="CVPL_SN"/>
+	 	<!-- 민원 처리 -->
+		<association property="cvplRceptVO" resultMap="cvplRceptResultMap">
+	        <id property="cvplRceptId" column="CVPL_RCEPT_ID"/>
+	        <result property="empId" column="EMP_ID"/>
+	        <result property="rceptDt" column="RCEPT_DT"/>
+	        <result property="rceptCn" column="RCEPT_CN"/>
+	        <result property="rceptSttus" column="RCEPT_STTUS"/>
+    	</association>
+	</resultMap>
+	
+
+	<!-- 민원 -->
+	<resultMap id="cvplResultMap" type="cvplVO">
+			<id property="cvplSn" column="CVPL_SN"/>
+			<result property="mberId" column="MBER_ID"/>
+			<result property="mberNm" column="MBER_NM"/>			
+			<result property="cvplSj" column="CVPL_SJ"/>
+			<result property="cvplCn" column="CVPL_CN"/>
+			<result property="reqstDt" column="REQST_DT"/>
+			<result property="deptCode" column="DEPT_CODE"/>
+			<result property="fileGroupSn" column="FILE_GROUP_SN"/>
+		<!-- 부서 상태 가져오기 -->
+		<association property="deptVO" resultMap="deptResultMap"/>	
+		<!-- 중간테이블 -->
+		<association property="cvplManageVO" resultMap="cvplManageResultMap">
+			<id property="cvplRceptId" column="CVPL_RCEPT_ID"/>
+			<id property="cvplSn" column="CVPL_SN"/>
+		</association>
+	</resultMap>
+
+	
+	<!-- 리스트 민원,부서,민원처리-->
+	<select id="list" parameterType="map" resultMap="cvplResultMap">
+	SELECT *
+FROM (
+  SELECT 
+       ROW_NUMBER() OVER(PARTITION BY t.mber_id ORDER BY t.cvpl_sn DESC) AS rnum
+      	, t.cvpl_sn
+    	, t.mber_id
+    	, t.cvpl_sj
+    	, t.cvpl_cn
+    	, t.reqst_dt
+   		, t.dept_code
+   		<!-- , t.file_group_sn -->
+    	, d.dept_nm
+   	    , r.cvpl_rcept_id
+    	, r.emp_id
+    	, r.rcept_dt
+   		, r.rcept_cn
+   		, r.rcept_sttus
+   		, mb.mber_nm
+  FROM cvpl t
+  LEFT OUTER JOIN mber mb ON mb.mber_id = t.mber_id
+  LEFT OUTER JOIN dept d ON d.dept_code = t.dept_code
+  LEFT OUTER JOIN cvpl_manage m ON m.cvpl_sn = t.cvpl_sn
+  LEFT OUTER JOIN (
+    SELECT 
+    	  cvpl_rcept_id
+  		, emp_id
+  		, rcept_dt
+  		, rcept_cn
+  		, rcept_sttus
+    FROM (
+      SELECT 
+          cvpl_rcept_id
+  		, emp_id
+  		, rcept_dt
+  		, rcept_cn
+  		, rcept_sttus
+        , ROW_NUMBER() OVER (PARTITION BY cvpl_rcept_id ORDER BY rcept_dt DESC) AS rn
+      FROM cvpl_rcept
+    )
+    WHERE rn = 1
+  ) r ON m.cvpl_rcept_id = r.cvpl_rcept_id
+  WHERE 1=1
+  AND t.mber_id = #{mberId}
+  <if test="keyword != null and keyword != ''">
+      AND (
+          t.cvpl_sn LIKE '%' || #{keyword} || '%' OR
+          t.mber_id LIKE '%' || #{keyword} || '%' OR
+          t.cvpl_sj LIKE '%' || #{keyword} || '%' OR
+          t.cvpl_cn LIKE '%' || #{keyword} || '%'
+      )
+  </if>
+) x
+WHERE x.rnum BETWEEN (#{currentPage} * 10) - (10 - 1) AND (#{currentPage} * 10)
+	</select>
+	
+	
+	<select id="getTotal" parameterType="hashMap" resultType="int">
+		SELECT COUNT(*)
+		FROM cvpl
+		WHERE 1 = 1
+		AND mber_id = #{mberId}
+		<if test="keyword != null and keyword != ''">
+			AND (
+			cvpl_sn LIKE '%' || #{keyword} || '%' OR
+			mber_id LIKE '%' || #{keyword} || '%' OR
+            cvpl_sj LIKE '%' || #{keyword} || '%' OR
+            cvpl_cn LIKE '%' || #{keyword} || '%'
+			)
+		</if>
+	</select>
+	
+	<!-- 상세 -->
+	<select id="findById" parameterType="int" resultMap="cvplResultMap">
+		SELECT t.cvpl_sn
+			 , t.mber_id
+			 , t.cvpl_sj
+			 , t.cvpl_cn
+			 , t.reqst_dt
+			 , t.dept_code
+			 , t.file_group_sn
+			 , d.dept_nm
+			 , m.cvpl_rcept_id
+    		 , r.emp_id
+   			 , r.rcept_dt
+     		 , r.rcept_cn
+    		 , r.rcept_sttus
+    		 , mb.mber_nm
+		  FROM cvpl t
+		  LEFT OUTER JOIN mber mb ON mb.mber_id = t.mber_id
+		  LEFT OUTER JOIN dept d ON d.dept_code = t.dept_code
+		  LEFT OUTER JOIN cvpl_manage m ON m.cvpl_sn = t.cvpl_sn
+  		  LEFT OUTER JOIN cvpl_rcept r ON r.cvpl_rcept_id = m.cvpl_rcept_id
+		 WHERE t.cvpl_sn = #{cvplSn}
+	</select>
+	
+	
+	<!-- 민원 등록 -->
+	<insert id="register" parameterType="cvplVO" >
+		<selectKey keyProperty="cvplSn" resultType="int" order="BEFORE">
+ 			 SELECT 
+ 			 	NVL(MAX(cvpl_sn), 0) + 1 
+ 			 FROM cvpl
+		</selectKey>
+		INSERT INTO cvpl (
+				   cvpl_sn
+    			 , mber_id
+   				 , cvpl_sj
+    			 , cvpl_cn
+   				 , reqst_dt
+    			 , dept_code
+    			 , file_group_sn
+				  )
+		VALUES (
+			 #{cvplSn}
+			,#{mberId}
+			,#{cvplSj}
+			,#{cvplCn}
+			,SYSDATE
+			,#{deptCode}
+			,#{fileGroupSn}
+			)
+	</insert>
+	
+	<!-- 부서 코드를 가져오기-->
+	<select id="deptVOList" resultType="deptVO">
+		select 
+			dept_code
+		   ,dept_nm
+		   ,dept_cttpc
+		  from dept
+	</select>
+	
+	<select id="getFileDetailVOList" parameterType="long" resultType="fileDetailVO">
+		select *
+			from file_detail
+			where file_group_sn = #{fileGroupSn}
+	</select>
+	
+	<update id="update" parameterType="cvplVO">
+		  update cvpl
+  			 set 
+   				 cvpl_sj = #{cvplSj},
+    			 cvpl_cn = #{cvplCn}
+ 		   WHERE cvpl_sn = #{cvplSn}
+   			 AND mber_id = #{mberId}
+	</update>
+	
+	<!-- 이전글/다음글 -->
+	<select id="findByMberId" parameterType="string" resultType="cvplVO">
+    SELECT * 
+    	FROM cvpl 
+   	 WHERE mber_id = #{mberId}
+     ORDER BY cvpl_sn DESC
+	</select>
+	
+
+</mapper>

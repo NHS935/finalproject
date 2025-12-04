@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.or.ddit.mapper.ContractMapper">
+    <sql id="where">
+        <if test="keyword != null and keyword != ''">
+            and (TITLE like '%' || #{keyword} || '%')
+        </if>
+    </sql>
+
+
+    <resultMap id="contractMap" type="contractVO">
+        <result property="id" column="id" />
+        <result property="content" column="content" jdbcType="CLOB" javaType="java.lang.String" />
+        <result property="title" column="title" />
+    </resultMap>
+    <select id="getContractById" parameterType="long" resultMap="contractMap">
+        SELECT
+            id, content, title
+        FROM
+            contract_table
+        WHERE
+            id = #{id}
+    </select>
+
+    <update id="updateContract" parameterType="contractVO">
+        UPDATE contract_table
+        SET
+            content = #{content},
+            title=#{title},
+            UPDATED_AT=SYSDATE
+
+        WHERE
+            id = #{id}
+    </update>
+
+    <insert id="postContract" parameterType="contractVO">
+    <selectKey keyProperty="id" resultType="long" order="BEFORE">
+        SELECT CONTRACT_TABLE_SEQ.NEXTVAL FROM DUAL
+    </selectKey>
+
+    INSERT INTO CONTRACT_TABLE (id, title, content)
+    VALUES (#{id}, #{title}, #{content}) -- 위에서 채워진 ID 사용
+    </insert>
+
+
+    <select id="getTotal" resultType="int" parameterType="hashMap">
+        select count(*)
+        from CONTRACT_TABLE
+        where 1 = 1
+        <include refid="where"></include>
+    </select>
+
+    <select id="getContractList" resultType="contractVO" parameterType="hashMap">
+        WITH T AS(
+        SELECT ROWNUM RNUM,
+        f.ID,
+        f.TITLE,
+        f.CONTENT,
+        f.CREATED_AT,
+        f.UPDATED_AT
+        FROM
+        (
+        SELECT	ID, TITLE, CONTENT, CREATED_AT, UPDATED_AT
+        FROM   CONTRACT_TABLE
+        where 1=1
+        <include refid="where"></include>
+        order by UPDATED_AT desc
+        ) F
+        )
+        SELECT * FROM T
+        WHERE T.RNUM BETWEEN (#{currentPage}*10)-(10-1) and (#{currentPage}*10)
+    </select>
+
+
+</mapper>

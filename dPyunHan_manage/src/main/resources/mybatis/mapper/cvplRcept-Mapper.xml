@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.CvplRceptMapper">
+
+    <sql id="where">
+        <if test="cvplSj != null and cvplSj.trim() != ''">
+            AND C.CVPL_SJ LIKE '%' || #{cvplSj} || '%'
+        </if>
+        <if test="mberNm != null and mberNm.trim() != ''">
+            AND MB.MBER_NM LIKE '%' || #{mberNm} || '%'
+        </if>
+
+        <if test="startDate != null and startDate.trim() != ''">
+            <![CDATA[
+            AND C.REQST_DT >= TO_DATE(#{startDate}, 'YYYY-MM-DD')
+            ]]>
+        </if>
+
+        <if test="endDate != null and endDate.trim() != ''">
+            <![CDATA[
+            AND C.REQST_DT <= TO_DATE(#{endDate}, 'YYYY-MM-DD')
+            ]]>
+        </if>
+        
+        <if test="remainDaysRange != null and remainDaysRange.trim() != ''">
+            <![CDATA[
+            AND FLOOR((C.REQST_DT + 14) - SYSDATE) BETWEEN 0 AND TO_NUMBER(#{remainDaysRange})
+            AND NVL(R.RCEPT_STTUS, 0) != 2
+            ]]>
+        </if>
+    </sql>
+    <sql id="where_rceptSttus">
+        <choose>
+            <when test="rceptSttus == -1">
+                AND 1=1
+            </when>
+            <when test="rceptSttus == 0">
+                AND R.CVPL_RCEPT_ID IS NULL
+            </when>
+            <otherwise>
+                AND R.RCEPT_STTUS = #{rceptSttus}
+            </otherwise>
+        </choose>
+    </sql>
+    
+    <!--
+    //해당 부서의 민원 리스트
+    List<CvplVO> listDept(CvplVO cvplVO)
+    -->
+    <select id="list" parameterType="hashMap" resultType="cvplVO">
+        WITH S AS (
+            SELECT ROW_NUMBER() OVER (
+                ORDER BY
+                <choose>
+                    <when test="sortType == 'remain'">
+                        (TRUNC(C.REQST_DT) + 14 - TRUNC(SYSDATE)) ASC
+                    </when>
+                    <otherwise>
+                        C.CVPL_SN DESC
+                    </otherwise>
+                </choose>
+            ) AS RNUM
+                 , C.CVPL_SN
+                 , C.MBER_ID
+                 , MB.MBER_NM
+                 , C.CVPL_SJ
+                 , C.CVPL_CN
+                 , C.REQST_DT
+                 , C.DEPT_CODE
+                 , R.RCEPT_STTUS AS RCEPT_STTUS
+                 , R.CVPL_RCEPT_ID AS CVPL_RCEPT_ID
+                 , R.RCEPT_DT AS RCEPT_DT
+                 , (TRUNC(C.REQST_DT) + 14 - TRUNC(SYSDATE)) AS REMAIN_DAYS
+              FROM CVPL C
+              JOIN EMP E ON C.DEPT_CODE = E.DEPT_CODE
+              LEFT JOIN CVPL_MANAGE M ON C.CVPL_SN = M.CVPL_SN
+              LEFT JOIN CVPL_RCEPT R ON M.CVPL_RCEPT_ID = R.CVPL_RCEPT_ID
+              JOIN MBER MB ON C.MBER_ID = MB.MBER_ID
+             WHERE 1 = 1
+               AND E.EMP_ID = #{empId}
+               <if test="sortType != null and sortType == 'remain'">
+                    AND (TRUNC(C.REQST_DT) + 14 - TRUNC(SYSDATE)) > 0   <!-- 기한 만료 제외 -->
+                    AND NVL(R.RCEPT_STTUS,0) != 2
+               </if>
+               <include refid="where"/>
+               <include refid="where_rceptSttus"/>
+            )
+        SELECT S.*
+          FROM S
+         WHERE S.RNUM BETWEEN((#{currentPage} - 1) * #{size} + 1) AND (#{currentPage} * #{size})
+    </select>
+
+    <!-- 
+    //전체 행의 수
+    int getTotal(Map<String, Object> map)
+    -->
+    <select id="getTotal" parameterType="hashMap" resultType="int">
+        SELECT COUNT(*)
+          FROM CVPL C
+          JOIN EMP E ON C.DEPT_CODE = E.DEPT_CODE
+          LEFT JOIN CVPL_MANAGE M ON C.CVPL_SN = M.CVPL_SN
+          LEFT JOIN CVPL_RCEPT R ON M.CVPL_RCEPT_ID = R.CVPL_RCEPT_ID
+          JOIN MBER MB ON C.MBER_ID = MB.MBER_ID
+         WHERE 1 = 1
+           AND E.EMP_ID = #{empId}
+           <include refid="where"/>
+           <include refid="where_rceptSttus"/>
+    </select>
+    <!--
+    //해당 민원의 상세
+    CvplVO detail(CvplVO cvplVO)
+    -->
+    <select id="detail" parameterType="cvplVO" resultMap="cvplMap">
+        SELECT C.CVPL_SN
+             , C.MBER_ID
+             , MB.MBER_NM
+             , C.CVPL_SJ
+             , C.CVPL_CN
+             , C.REQST_DT
+             , C.DEPT_CODE
+             , F.FILE_GROUP_SN AS FILE_GROUP_SN
+             , F.REGIST_DT
+             , D.FILE_NO
+             , D.FILE_ORGINL_NM
+             , D.FILE_STRE_NM
+             , D.FILE_STRELC
+             , D.FILE_EXTSN
+             , D.FILE_MIME
+             , D.FILE_MG
+             , D.FILE_FANCYSIZE 
+          FROM CVPL C
+          LEFT JOIN FILE_GROUP F ON C.FILE_GROUP_SN = F.FILE_GROUP_SN
+          LEFT JOIN FILE_DETAIL D ON F.FILE_GROUP_SN = D.FILE_GROUP_SN
+          JOIN MBER MB ON C.MBER_ID = MB.MBER_ID
+         WHERE C.CVPL_SN = #{cvplSn}
+    </select>
+    <!--
+    CvplRceptVO cvplRceptDetail(int cvplSn)
+    -->
+    <select id="cvplRceptDetail" parameterType="int" resultMap="cvplRceptMap">
+        SELECT DISTINCT
+               R.CVPL_RCEPT_ID
+             , R.RCEPT_CN
+             , R.RCEPT_DT
+             , R.EMP_ID
+             , E.NM AS EMP_NM
+             , R.RCEPT_STTUS
+             , FG.FILE_GROUP_SN
+             , FD.FILE_NO
+             , FD.FILE_ORGINL_NM
+             , FD.FILE_STRE_NM
+             , FD.FILE_STRELC
+             , FD.FILE_EXTSN
+             , FD.FILE_MIME
+             , FD.FILE_MG
+             , FD.FILE_FANCYSIZE
+          FROM CVPL_RCEPT R
+          LEFT JOIN EMP E ON R.EMP_ID = E.EMP_ID
+          LEFT JOIN FILE_GROUP FG ON R.FILE_GROUP_SN = FG.FILE_GROUP_SN
+          LEFT JOIN FILE_DETAIL FD ON FG.FILE_GROUP_SN = FD.FILE_GROUP_SN
+          JOIN CVPL_MANAGE M ON R.CVPL_RCEPT_ID = M.CVPL_RCEPT_ID
+         WHERE M.CVPL_SN = #{cvplSn}
+    </select>
+
+    <!-- CVPL : FILE_GROUP = 1 : 1 -->
+    <resultMap type="cvplVO" id="cvplMap">
+        <result property="cvplSn" column="CVPL_SN"/>
+        <result property="mberId" column="MBER_ID"/>
+        <result property="mberNm" column="MBER_NM"/>
+        <result property="cvplSj" column="CVPL_SJ"/>
+        <result property="cvplCn" column="CVPL_CN"/>
+        <result property="reqstDt" column="REQST_DT"/>
+        <result property="deptCode" column="DEPT_CODE"/>
+        <result property="fileGroupSn" column="FILE_GROUP_SN" />
+        <result property="remainDays" column="REMAIN_DAYS"/>
+        <result property="rceptDt" column="RCEPT_DT"/>
+        <association property="fileGroupVO" resultMap="fileGroupMap"></association>
+    </resultMap> 
+    
+    <!-- CVPL_RCEPT : FILE_GROUP = 1 : 1 -->
+    <resultMap type="cvplRceptVO" id="cvplRceptMap">
+        <result property="cvplRceptId" column="CVPL_RCEPT_ID" />
+        <result property="empId" column="EMP_ID" />
+        <result property="empNm" column="EMP_NM" />
+        <result property="rceptDt" column="RCEPT_DT" />
+        <result property="rceptCn" column="RCEPT_CN" />
+        <result property="rceptSttus" column="RCEPT_STTUS" />
+        <result property="fileGroupSn" column="FILE_GROUP_SN" />
+        <association property="fileGroupVO" resultMap="fileGroupMap"></association>
+    </resultMap>
+
+    <!-- FILE_GROUP : FILE_DETAIL = 1 : 1 -->
+    <resultMap type="fileGroupVO" id="fileGroupMap">
+        <result property="fileGroupSn" column="FILE_GROUP_SN" />
+        <result property="registDt" column="REGIST_DT" />
+        <collection property="fileDetailVOList" resultMap="fileDetailMap"></collection>
+    </resultMap>
+
+    <!-- FILE_DETAIL : CVPL_RCEPT = 1 : 1 -->
+    <resultMap type="fileDetailVO" id="fileDetailMap">
+        <result property="fileStreNm" column="FILE_STRE_NM" />
+        <result property="fileStrelc" column="FILE_STRELC" />
+        <result property="fileMg" column="FILE_MG" />
+        <result property="fileExtsn" column="FILE_EXTSN" />
+        <result property="fileMime" column="FILE_MIME" />
+        <result property="fileFancysize" column="FILE_FANCYSIZE" />
+        <result property="fileSaveDate" column="FILE_SAVE_DATE" />
+        <result property="fileDowncount" column="FILE_DOWNCOUNT" />
+        <result property="fileGroupSn" column="FILE_GROUP_SN" />
+        <result property="fileNo" column="FILE_NO" />
+        <result property="fileOrginlNm" column="FILE_ORGINL_NM" />
+    </resultMap>
+    <!--
+    //해당 민원 접수 실행
+    int cvplRceptPost(CvplVO cvplVO)
+    -->
+    <insert id="cvplRceptPost" parameterType="cvplRceptVO">
+        INSERT INTO CVPL_RCEPT (
+        <selectKey resultType="int" order="BEFORE" keyProperty="cvplRceptId">
+            SELECT NVL(MAX(CVPL_RCEPT_ID),0) + 1 FROM CVPL_RCEPT
+        </selectKey>
+               CVPL_RCEPT_ID
+             , EMP_ID
+             , RCEPT_DT
+             , RCEPT_CN
+             , RCEPT_STTUS
+             , FILE_GROUP_SN
+        ) VALUES (
+               #{cvplRceptId}
+             , #{empId}
+             , SYSDATE
+             , #{rceptCn}
+             , 1
+             , #{fileGroupSn}
+        )
+    </insert>
+    
+    <insert id="insertCvplManage" parameterType="cvplRceptVO">
+        INSERT INTO CVPL_MANAGE (
+               CVPL_RCEPT_ID
+             , CVPL_SN
+        ) VALUES (
+               #{cvplRceptId}
+             , #{cvplSn}
+        )
+    </insert>
+    
+    <!-- 
+    // 해당 민원 종결 실행
+    int cvplEnPost(CvplRceptVO cvplRceptVO)
+    -->
+    <update id="cvplEnPost" parameterType="cvplRceptVO">
+        UPDATE CVPL_RCEPT
+           SET RCEPT_STTUS = 2
+         WHERE CVPL_RCEPT_ID = #{cvplRceptId}
+    </update>
+    
+    <!--
+    //cvplVO 조회(수신자, 알림 제목)
+    CvplVO selectMberIdCvplSj(int cvplSn)
+    -->
+    <select id="selectMberIdCvplSj" parameterType="int" resultType="cvplVO">
+        SELECT CVPL_SN
+             , MBER_ID
+             , CVPL_SJ
+             , CVPL_CN
+             , REQST_DT
+             , DEPT_CODE
+             , FILE_GROUP_SN
+          FROM CVPL
+         WHERE CVPL_SN = #{cvplSn}
+    </select>
+    
+    <!-- kbh추가 헤더에서 처리해야할 민원 숫자 보여주는 쿼리 -->
+    <select id="getCvplRceptNum" resultType="int">
+        select count(CVPL_RCEPT_ID) as cvplRceptNum
+        from CVPL_RCEPT
+        where rcept_Sttus !=2
+    </select>
+</mapper>

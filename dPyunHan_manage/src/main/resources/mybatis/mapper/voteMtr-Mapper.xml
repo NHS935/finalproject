@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.VoteMtrMapper">
+	<!-- 검색 키워드  -->
+	<sql id="where">
+		<if test="keyword!=null and keyword!=''">
+   			AND (MTR_SJ LIKE '%' || #{keyword} || '%' OR MTR_CN LIKE '%' || #{keyword} || '%')
+   		</if>
+   		<!-- 시작시간 ~ 끝 -->
+	  	<if test="periodFrom != null and periodFrom != ''">
+	    AND TO_DATE(VOTE_END_DT, 'YYYY-MM-DD"T"HH24:MI') 
+	        &gt;= TO_DATE(#{periodFrom}, CASE WHEN INSTR(#{periodFrom}, 'T') &gt; 0 
+	                                         THEN 'YYYY-MM-DD"T"HH24:MI' 
+	                                         ELSE 'YYYY-MM-DD' END)
+		  </if>
+		  <!-- 단일 시간 -->
+		  <if test="periodTo != null and periodTo != ''">
+		    AND TO_DATE(VOTE_BEGIN_DT, 'YYYY-MM-DD"T"HH24:MI') 
+		        &lt;= TO_DATE(#{periodTo}, CASE WHEN INSTR(#{periodTo}, 'T') &gt; 0 
+		                                        THEN 'YYYY-MM-DD"T"HH24:MI' 
+		                                        ELSE 'YYYY-MM-DD' END)
+		  </if>
+	</sql>
+
+		<!-- 1 -->
+	<resultMap type="kr.or.ddit.vo.VoteMtrVO" id="voteMtrMap">
+		<result property="voteMtrSn" column="VOTE_MTR_SN" />
+		<result property="mtrSj" column="MTR_SJ" />
+		<result property="mtrCn" column="MTR_CN" />
+		<result property="voteBeginDt" column="VOTE_BEGIN_DT" />
+		<result property="voteEndDt" column="VOTE_END_DT" />
+		<result property="empId" column="EMP_ID" />
+		<collection property="voteIemVOList" resultMap="voteIemMap" />
+	</resultMap>
+	<!-- N -->
+	<resultMap type="kr.or.ddit.vo.VoteIemVO" id="voteIemMap">
+		<result property="voteMtrSn" column="VOTE_MTR_SN" />
+		<result property="voteIemNo" column="VOTE_IEM_NO" />
+		<result property="iemNm" column="IEM_NM" />
+		<result property="iemCn" column="IEM_CN" />
+		<result property="cnt" column="CNT" />
+	</resultMap>
+
+	<!-- //상세보기 public VoteMtrVO voteMtrList(VoteMtrVO voteMtrVO); -->
+	<select id="voteMtrList" parameterType="int" resultMap="voteMtrMap">
+	    SELECT
+	        A.VOTE_MTR_SN, A.MTR_SJ, A.MTR_CN, A.VOTE_BEGIN_DT, A.VOTE_END_DT, A.EMP_ID,
+	        B.VOTE_MTR_SN, B.VOTE_IEM_NO, B.IEM_NM, B.IEM_CN,
+	        COUNT(C.MBER_ID) AS CNT
+	    FROM VOTE_MTR A
+	    LEFT OUTER JOIN VOTE_IEM B
+	        ON A.VOTE_MTR_SN = B.VOTE_MTR_SN
+	    LEFT OUTER JOIN VOTE_MANAGE_TRGTER C
+	        ON B.VOTE_MTR_SN = C.VOTE_MTR_SN
+	       AND B.VOTE_IEM_NO  = C.VOTE_IEM_NO
+	    WHERE A.VOTE_MTR_SN = #{voteMtrSn}
+	    GROUP BY
+	        A.VOTE_MTR_SN, A.MTR_SJ, A.MTR_CN, A.VOTE_BEGIN_DT, A.VOTE_END_DT, A.EMP_ID,
+	        B.VOTE_MTR_SN, B.VOTE_IEM_NO, B.IEM_NM, B.IEM_CN
+	    ORDER BY B.VOTE_IEM_NO
+	</select> 
+
+	<!-- //투표 리스트 + 페이징-->
+	<select id="voteList" parameterType="voteMtrVO" resultType="voteMtrVO">
+	    WITH T AS (
+	        SELECT ROW_NUMBER() OVER( ORDER BY S.VOTE_MTR_SN DESC ) RNUM
+	             , S.VOTE_MTR_SN, S.MTR_SJ, S.MTR_CN, S.VOTE_BEGIN_DT, S.VOTE_END_DT, S.EMP_ID
+	        FROM 
+	        (
+	           SELECT F.VOTE_MTR_SN, F.MTR_SJ, F.MTR_CN, F.VOTE_BEGIN_DT, F.VOTE_END_DT, F.EMP_ID
+	           FROM (
+	             SELECT VOTE_MTR_SN, MTR_SJ, MTR_CN, VOTE_BEGIN_DT, VOTE_END_DT, EMP_ID
+	             FROM VOTE_MTR
+	             WHERE 1=1
+	             <include refid="where"></include>
+	           ) F
+	       ) S
+	     )
+	     <!-- <![CDATA[등호,부등호]]> 는 sql에서 등호,부등호 사용할때 XML에서 사용하면 해줘야함(from 중호샘) -->
+	     SELECT T.RNUM, T.VOTE_MTR_SN, T.MTR_SJ, T.MTR_CN, T.VOTE_BEGIN_DT, T.VOTE_END_DT, T.EMP_ID
+	          , CASE 
+	              WHEN sysdate <![CDATA[>=]]> TO_DATE(T.VOTE_BEGIN_DT,'YYYY-MM-DD"T"hh24:mi')
+	               AND sysdate <![CDATA[<=]]> TO_DATE(T.VOTE_END_DT,'YYYY-MM-DD"T"hh24:mi') THEN '진행'
+	              WHEN sysdate <![CDATA[<]]>  TO_DATE(T.VOTE_BEGIN_DT,'YYYY-MM-DD"T"hh24:mi') THEN '예정'
+	              ELSE '마감'
+	            END STAT
+	     FROM T
+	     WHERE 1=1
+	       <!-- 단일선택 -->
+	       <if test="stat != null and stat != ''">
+	         AND (
+	           CASE 
+	             WHEN sysdate <![CDATA[>=]]> TO_DATE(T.VOTE_BEGIN_DT,'YYYY-MM-DD"T"hh24:mi')
+	              AND sysdate <![CDATA[<=]]> TO_DATE(T.VOTE_END_DT,'YYYY-MM-DD"T"hh24:mi') THEN '진행'
+	             WHEN sysdate <![CDATA[<]]>  TO_DATE(T.VOTE_BEGIN_DT,'YYYY-MM-DD"T"hh24:mi') THEN '예정'
+	             ELSE '마감'
+	           END
+	         ) = #{stat}
+	       </if>
+		    AND T.RNUM BETWEEN 
+		    	( (#{currentPage} - 1) * #{size} ) + 1
+	        AND ( #{currentPage} * #{size} )
+	        
+	</select>
+	
+	<!-- 페이징코드 -->
+	<select id="getTotal" parameterType="hashMap" resultType="int">
+		 SELECT COUNT(*)
+		 FROM VOTE_MTR
+		 WHERE 1 = 1
+		 <include refid="where"></include>
+	</select>
+
+	<!-- //투표글작성 -->
+	<!-- public int addVote(VoteMtrVO voteMtrVO); -->
+	<!-- addVote와, addVoteIem은 같이 진행된다 -->
+	<insert id="addVote" parameterType="voteMtrVO">
+		<selectKey resultType="int" order="BEFORE" keyProperty="voteMtrSn">
+			SELECT NVL(MAX(VOTE_MTR_SN), 0) + 1 FROM VOTE_MTR
+		</selectKey>
+		INSERT INTO VOTE_MTR (VOTE_MTR_SN, MTR_SJ, MTR_CN, VOTE_BEGIN_DT, VOTE_END_DT, EMP_ID) 
+		VALUES (#{voteMtrSn}, #{mtrSj}, #{mtrCn}, #{voteBeginDt}, #{voteEndDt}, #{empId})
+	</insert>
+
+	<insert id="addVoteIem" parameterType="voteIemVO">
+		<selectKey resultType="int" order="BEFORE" keyProperty="voteIemNo">
+			SELECT NVL(MAX(VOTE_IEM_NO), 0) + 1
+			FROM VOTE_IEM
+			WHERE VOTE_MTR_SN = #{voteMtrSn}
+		</selectKey>
+		INSERT INTO VOTE_IEM (VOTE_MTR_SN, VOTE_IEM_NO, IEM_NM, IEM_CN) 
+		VALUES (#{voteMtrSn}, #{voteIemNo}, #{iemNm}, #{iemCn})
+	</insert>
+	
+	<select id="findEmpNm" parameterType="String" resultType="string">
+		SELECT nm
+	    FROM EMP
+	    WHERE EMP_ID = #{empId}
+	</select>
+</mapper>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.ManagectLevyDetailMapper">
+    <select id="getNextManagectLevyDetailPKs" parameterType="int" resultType="long">
+        SELECT
+        MANAGECT_LEVY_DETAIL_SN_SEQ.NEXTVAL
+        FROM
+        DUAL
+        CONNECT BY
+         LEVEL &lt;= #{count}
+    </select>
+    <insert id="insertDetailsBatch" parameterType="java.util.List">
+        INSERT ALL
+        <foreach collection="list" item="detail">
+            INTO MANAGECT_LEVY_DETAIL (
+            MANAGECT_LEVY_DETAIL_SN,
+            IEM_NM,
+            RQEST_AMOUNT,
+            RQEST_STDR,
+            RQEST_UNTPC,
+            RQEST_SN
+            )
+            VALUES (
+            #{detail.managectLevyDetailSn},
+            #{detail.iemNm},
+            #{detail.rqestAmount},
+            #{detail.rqestStdr},
+            #{detail.rqestUntpc},
+            #{detail.rqestSn}
+            )
+        </foreach>
+        SELECT * FROM DUAL
+    </insert>
+
+    <select id="findByBillingMonth" parameterType="java.lang.String" resultType="kr.or.ddit.vo.ManagectLevyDetailVO">
+        SELECT
+            D.MANAGECT_LEVY_DETAIL_SN,
+            D.IEM_NM,
+            D.RQEST_AMOUNT,
+            D.RQEST_STDR,
+            D.RQEST_UNTPC,
+            D.RQEST_SN
+        FROM
+            MANAGECT_LEVY_DETAIL D
+                JOIN
+            LEVY L ON (D.RQEST_SN = L.RQEST_SN)
+        WHERE
+            L.RQEST_YM = #{billingMonth}
+        ORDER BY
+            D.RQEST_SN, D.IEM_NM
+    </select>
+</mapper>

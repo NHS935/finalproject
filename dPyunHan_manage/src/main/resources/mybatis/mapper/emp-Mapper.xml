@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.or.ddit.mapper.EmpMapper">
+
+<!-- 2개 이상의 테이블의 데이터를 VO를 통해서 갖고 올때 -->
+<!-- 2개 이상의 resultMap, 그리고 각 resultMap은 테이블과 VO를 연결한다 -->
+
+	<!--       		 보내는 값				들어오는(불르는) 값 -->
+	<resultMap type="EmpVO" id="empMap">
+					<!-- VO의 속성 명 		SQL의 컬럼명 -->
+		<result property="telno" column="TELNO"/>
+		<result property="email" column="EMAIL"/>
+		<result property="adres" column="ADRES"/>
+		<result property="brthdy" column="BRTHDY"/>
+		<result property="salary" column="SALARY"/>
+		<result property="deptCode" column="DEPT_CODE"/>
+		<result property="suprrId" column="SUPRR_ID"/>
+		<result property="enabled" column="ENABLED"/>
+		<result property="empId" column="EMP_ID"/>
+		<result property="empPassword" column="EMP_PASSWORD"/>
+		<result property="clsf" column="CLSF"/>
+		<result property="nm" column="NM"/>
+		<!-- 
+		권장되는 방식으로, 주 직원 정보를 가져온 후, $\text{suprrEmpVO}$ 필드가 실제로 접근될 때 
+		별도의 쿼리를 실행하여 상관 정보를 가져옵니다. 코드가 깔끔해지고 성능이 좋습니다.
+		 -->
+							<!-- VO의 속성명					들어와야하는 값 -->
+		<association property="deptVO" resultMap="deptVOMap"></association>
+		<association property="suprrEmpVO" column="SUPRR_ID" select="findByEmpId"></association>
+		<collection property="empAuthorVOList" resultMap="empAthorMap"></collection>
+	</resultMap>
+				<!-- 	VO이름        Mapping ID -->
+	<resultMap type="EmpAuthorVO" id="empAthorMap">
+					<!--  VO속성명 		   테이블 컬럼명-->
+		<result property="empId" column="EMP_ID"/>
+		<result property="authorId" column="AUTHOR_ID"/>
+	</resultMap>
+	
+	<resultMap type="DeptVO" id="deptVOMap">
+		<result property="deptCode" column="DEPT_CODE"/>
+		<result property="deptNm" column="DEPT_NM"/>
+		<result property="deptCttpc" column="DEPT_CTTPC"/>
+	</resultMap>
+	
+	<!-- 사용자 정보를 가져옴(로그인)-select -->
+	<select id="findByEmpId" parameterType="String" resultMap="empMap">
+	SELECT
+	    e.EMP_ID, e.EMP_PASSWORD, e.CLSF, e.NM, e.TELNO, e.EMAIL, e.ADRES, e.BRTHDY, e.SALARY, e.DEPT_CODE, e.SUPRR_ID, e.ENABLED
+	    , a.author_id
+	    , d.DEPT_NM, d.DEPT_CTTPC
+	FROM
+	    emp e
+	    left outer join emp_author a on(e.emp_id = a.EMP_ID)
+	    left outer join dept d on (d.dept_code = e.dept_code)
+	    where e.emp_id = #{empId}
+	</select>
+	
+	 <select id="findByEmpIdMgr" parameterType="String" resultMap="empMgrVOMap">
+        SELECT
+            e.EMP_ID
+            , e.EMP_PASSWORD
+            , e.CLSF
+            , e.NM
+            , e.TELNO
+            , e.EMAIL
+            , e.ADRES
+            , e.BRTHDY
+            , e.SALARY
+            , e.DEPT_CODE
+            , e.SUPRR_ID
+            , e.ENABLED
+        FROM
+            emp e
+        WHERE
+            e.EMP_ID = #{empId}
+    </select>
+    
+    <resultMap type="EmpVO" id="empMgrVOMap">
+        <result property="empId" column="EMP_ID"/>
+        <result property="empPassword" column="EMP_PASSWORD"/>
+        <result property="clsf" column="CLSF"/>
+        <result property="nm" column="NM"/>
+        <result property="telno" column="TELNO"/>
+        <result property="email" column="EMAIL"/>
+        <result property="adres" column="ADRES"/>
+        <result property="brthdy" column="BRTHDY"/>
+        <result property="salary" column="SALARY"/>
+        <result property="deptCode" column="DEPT_CODE"/>
+        <result property="suprrId" column="SUPRR_ID"/>
+        <result property="enabled" column="ENABLED"/>
+    </resultMap>
+    
+    <select id="getTesterList" parameterType="empVO" resultType="testerVO">
+    	select * 
+    		from TESTER
+    		where emp_id = #{empId}
+    </select>
+    
+    
+    <!-- 나혜선 추가 -->
+  <!-- 일정등록 담당자 목록 불러오기 -->
+  
+  <select id="getEmpList" parameterType="EmpVO">
+     SELECT
+        emp_id,
+        nm
+    FROM 
+        emp 
+  </select>  
+</mapper>

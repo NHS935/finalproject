@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.MberMapper">
+
+<!-- 검색 키워드  -->
+<sql id="where">
+    <if test="keyword != null and keyword != ''">
+        AND (HSHLD_ID LIKE '%' || #{keyword} || '%'
+         OR  APTCMPL LIKE '%' || #{keyword} || '%')
+    </if>
+</sql>
+
+	<!-- 승인 대기 회원 목록 -->
+	<select id="selectPendingMembers"
+		resultType="kr.or.ddit.vo.MberVO">
+		SELECT
+		m.MBER_ID,
+		m.MBER_NM,
+		m.TELNO,
+		m.EMAIL,
+		m.MBER_TY,
+		m.ENABLED,
+		hmm.HSHLD_ID,
+		h.APTCMPL,
+		h.HO,
+		h.MVN_DE
+		FROM MBER m
+		JOIN AUTHOR a
+		ON m.MBER_ID = a.MBER_ID
+		LEFT JOIN HSHLD_MBER_MANAGE hmm
+		ON m.MBER_ID = hmm.MBER_ID
+		LEFT JOIN HSHLD h
+		ON hmm.HSHLD_ID = h.HSHLD_ID
+		WHERE m.ENABLED = '0'
+		AND a.AUTHOR_ID = 'GUEST'
+		ORDER BY m.MBER_ID DESC
+	</select>
+
+	<!-- 승인 처리 -->
+	<update id="approveMember" parameterType="String">
+		UPDATE MBER
+		SET ENABLED = '1'
+		WHERE MBER_ID = #{mberId}
+	</update>
+
+	<!-- 기존 ROLE_GUEST 삭제 -->
+	<delete id="deleteGuestRole" parameterType="String">
+		DELETE FROM AUTHOR
+		WHERE MBER_ID = #{mberId} AND AUTHOR_ID = 'GUEST'
+	</delete>
+
+	<!-- ROLE_MBER 추가 -->
+	<insert id="insertMberRole" parameterType="String">
+		INSERT INTO AUTHOR (MBER_ID, AUTHOR_ID)
+		VALUES (#{mberId}, 'ROLE_MBER')
+	</insert>
+
+	<!-- 회원 상세보기 -->
+	<select id="selectMemberDetail" parameterType="String"
+		resultType="kr.or.ddit.vo.MberVO">
+		SELECT
+		M.MBER_ID,
+		M.MBER_NM,
+		M.TELNO,
+		M.EMAIL,
+		M.MBER_TY,
+		M.BRTHDY,
+		M.ENABLED,
+		H.HSHLD_ID,
+		H.ADRES,
+		H.APTCMPL,
+		H.HO,
+		H.CMMNTY_USE_AT,
+		H.RESIDESTTUS,
+		H.MVN_DE,
+        R.VHCLE_NO AS CAR_NO,
+        F.FILE_STRELC AS FILE_PATH,
+        F.FILE_STRE_NM AS FILE_NM,
+        H.FILE_GROUP_SN
+		FROM HSHLD_MBER_MANAGE HM
+		JOIN MBER M ON HM.MBER_ID = M.MBER_ID
+		JOIN HSHLD H ON HM.HSHLD_ID = H.HSHLD_ID
+        JOIN REGIST R ON HM.HSHLD_ID = R.HSHLD_ID 
+   LEFT JOIN FILE_DETAIL F ON H.FILE_GROUP_SN = F.FILE_GROUP_SN
+		WHERE M.MBER_ID = #{mberId}
+
+	</select>
+
+	<!-- kbh 11-18추가 헤더에 승인해야할 회원 수 count 회원숫자 public int getMemNum(); -->
+	<select id="getMemNum" resultType="int">
+		SELECT COUNT(MBER_ID) AS memNum
+		FROM MBER
+		WHERE ENABLED != 1
+	</select>
+
+	<!-- 목록 페이지용 -->
+	<select id="getHshldList" parameterType="map" resultType="MberVO">
+	<include refid="commonMapper.pageHeader"/>
+		SELECT
+		H.HSHLD_ID,
+		H.ADRES,
+		H.APTCMPL,
+		H.HO,
+		H.RESIDESTTUS,
+		H.MVN_DE,
+		H.LVHS_DE,
+		
+		M.MBER_ID,
+		M.MBER_NM,
+		M.TELNO,
+		M.EMAIL,
+		M.MBER_TY,
+		M.ENABLED
+		FROM HSHLD H
+		LEFT JOIN HSHLD_MBER_MANAGE HM
+		ON H.HSHLD_ID = HM.HSHLD_ID
+		LEFT JOIN MBER M
+		ON HM.MBER_ID = M.MBER_ID
+		
+		<include refid="where"/>
+		
+		ORDER BY H.HSHLD_ID, M.MBER_NM
+		<include refid="commonMapper.pageFooter"/>
+	</select>
+	<select id="getHshldTotal" parameterType="hashMap" resultType="int">
+		 SELECT COUNT(*)
+		 FROM HSHLD
+		 WHERE 1 = 1
+		 <include refid="where"></include>
+	</select>	
+	
+	<!-- 상세페이지용 -->
+<select id="getHshldDetail" parameterType="string" resultType="kr.or.ddit.vo.MberVO">
+        SELECT
+            H.HSHLD_ID       AS hshldId,
+            H.ADRES          AS adres,
+            H.APTCMPL        AS aptcmpl,
+            H.HO             AS ho,
+            H.PRVUSE_AR      AS prvuseAr,
+            H.SUPLY_AR       AS suplyAr,
+            H.RESIDESTTUS    AS residesttus,
+			H.MVN_DE		 AS mvnDe,
+			H.LVHS_DE		 AS lvhsDe,
+	
+            M.MBER_ID        AS mberId,
+            M.MBER_NM        AS mberNm,
+            M.TELNO          AS telno,
+            M.EMAIL          AS email,
+            M.MBER_TY        AS mberTy,
+            M.ENABLED        AS enabled
+
+        FROM HSHLD H
+        LEFT JOIN HSHLD_MBER_MANAGE HM
+               ON H.HSHLD_ID = HM.HSHLD_ID
+        LEFT JOIN MBER M
+               ON HM.MBER_ID = M.MBER_ID
+
+        WHERE H.HSHLD_ID = #{hshldId}
+
+    </select>
+<!-- kbh추가끝 -->
+</mapper>

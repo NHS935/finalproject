@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.BdderMapper">
+	
+	<resultMap type="bidPblancVO" id="bidPblancVOMap">
+		<result property="bidGtnRt" column="BID_GTN_RT"/>
+		<result property="cdltPresentnAt" column="CDLT_PRESENTN_AT"/>
+		<result property="acmsltproofPresentnAt" column="ACMSLTPROOF_PRESENTN_AT"/>
+		<result property="fileGroupSn" column="bid_FILE_GROUP_SN"/>
+		<result property="sptdcAt" column="SPTDC_AT"/>
+		<result property="sptdcDt" column="SPTDC_DT"/>
+		<result property="sptdcPlace" column="SPTDC_PLACE"/>
+		<result property="bidPblancSn" column="BID_PBLANC_SN"/>
+		<result property="bidSj" column="BID_SJ"/>
+		<result property="scsbMth" column="SCSB_MTH"/>
+		<result property="bidCn" column="BID_CN"/>
+		<result property="pblancDt" column="PBLANC_DT"/>
+		<result property="bidClosDt" column="BID_CLOS_DT"/>
+		<result property="bidSttus" column="BID_STTUS"/>
+		<result property="elctrnsanctnSn" column="ELCTRNSANCTN_SN"/>
+	</resultMap>
+	
+	<resultMap type="bdderVO" id="bdderVOMap">
+		<result property="rnum" column="RNUM"/>
+		<result property="ccpyManageId" column="CCPY_MANAGE_ID"/>
+		<result property="bidGtn" column="BID_GTN"/>
+		<result property="bdderSn" column="BDDER_SN"/>
+		<result property="bidSportDt" column="BID_SPORT_DT"/>
+		<result property="bidAmount" column="BID_AMOUNT"/>
+		<result property="bidPblancSn" column="BID_PBLANC_SN"/>
+		<result property="bidAt" column="BID_AT"/>
+		<result property="bidSlctnDt" column="BID_SLCTN_DT"/>
+		<result property="fileGroupSn" column="bdder_FILE_GROUP_SN"/>
+		<association property="bidPblancVO" resultMap="bidPblancVOMap"></association>
+		<association property="ccpyManageVO" resultMap="ccpyManageVOMap"></association>
+	</resultMap>
+	
+	<resultMap type="ccpyManageVO" id="ccpyManageVOMap">
+		<result property="ccpyRegistdt" column="CCPY_REGISTDT"/>
+		<result property="ccpySttus" column="CCPY_STTUS"/>
+		<result property="ccpyManageId" column="CCPY_MANAGE_ID"/>
+		<result property="ccpyCmpnyNm" column="CCPY_CMPNY_NM"/>
+		<result property="ccpyAdres" column="CCPY_ADRES"/>
+		<result property="ccpyTelno" column="CCPY_TELNO"/>
+		<result property="ccpyRprsntvNm" column="CCPY_RPRSNTV_NM"/>
+		<result property="ccpyBizrno" column="CCPY_BIZRNO"/>
+		<result property="ccpyEmail" column="CCPY_EMAIL"/>
+		<result property="ccpyPassword" column="CCPY_PASSWORD"/>
+		<result property="fileGroupSn" column="FILE_GROUP_SN"/>
+		<result property="ccpyOpbizDe" column="CCPY_OPBIZ_DE"/>
+	</resultMap>
+	
+	<insert id="postBdder" parameterType="kr.or.ddit.vo.BdderVO">
+		<selectKey resultType="int" order="BEFORE"
+			keyProperty="bdderSn">
+			select NVL(MAX(bdder_sn), 0)+1 from bdder
+		</selectKey>
+		INSERT INTO bdder (
+						    BDDER_SN, BID_SPORT_DT, BID_AMOUNT, BID_PBLANC_SN, BID_AT, BID_GTN, CCPY_MANAGE_ID, FILE_GROUP_SN						    
+						) VALUES (
+						    #{bdderSn}
+						    , sysdate
+						    , #{bidAmount}
+						    , #{bidPblancSn}
+						    , 0
+						    , #{bidGtn}
+						    , #{ccpyManageId}
+						    , #{fileGroupSn}
+						)
+	</insert>
+
+	<select id="getMyBdderList" parameterType="hashMap" resultMap="bdderVOMap">
+		<include refid="commonMapper.pageHeader"></include>
+			SELECT
+			    a.BDDER_SN,
+			    a.BID_SPORT_DT,
+			    a.BID_AMOUNT,
+			    a.BID_PBLANC_SN,
+			    a.BID_AT,
+			    a.BID_GTN,
+			    a.CCPY_MANAGE_ID,
+			    b.BID_SJ,
+			    b.SCSB_MTH,
+			    b.BID_CN,
+			    b.PBLANC_DT,
+			    b.BID_CLOS_DT,
+			    b.BID_STTUS,
+			    b.ELCTRNSANCTN_SN,
+			    b.CDLT_PRESENTN_AT,
+			    b.ACMSLTPROOF_PRESENTN_AT,
+			    b.FILE_GROUP_SN AS bid_FILE_GROUP_SN,
+			    b.SPTDC_AT,
+			    b.SPTDC_DT,
+			    b.SPTDC_PLACE,
+			    b.BID_GTN_RT
+			FROM
+			    bdder a
+			inner join BID_PBLANC b on(a.BID_PBLANC_SN = b.BID_PBLANC_SN)
+			WHERE 
+			    a.ccpy_manage_id = #{ccpyManageId}
+			order by a.BID_SPORT_DT desc
+		<include refid="commonMapper.pageFooter"></include>
+	</select>
+	
+	<select id="getFileDetailVOList" parameterType="long" resultType="FileDetailVO">
+		 SELECT *
+		    FROM FILE_DETAIL
+		    WHERE FILE_GROUP_SN = #{fileGroupSn}
+	</select>
+	
+	<select id="getExistingBid" resultType="BdderVO" parameterType="kr.or.ddit.vo.BdderVO">
+		select *
+			from bdder
+			where ccpy_manage_id = #{ccpyManageId}
+				and bid_pblanc_sn = #{bidPblancSn}
+	</select>
+	
+	<select id="getTotal" resultType="int" parameterType="hashMap">
+		select count(*)
+			from bdder a
+			inner join ccpy_manage b on(a.CCPY_MANAGE_ID = b.CCPY_MANAGE_ID)
+			<where>
+				 <if test="bidPblancSn != null and bidPblancSn != ''">
+					a.BID_PBLANC_SN = #{bidPblancSn} 
+				</if>
+			</where> 
+	</select>
+	
+	<select id="getBdderList" resultMap="bdderVOMap" parameterType="hashMap">
+		<include refid="commonMapper.pageHeader"></include>
+		select 
+			a.BDDER_SN
+			, a.BID_SPORT_DT
+			, a.BID_AMOUNT
+			, a.BID_PBLANC_SN
+			, a.BID_AT
+			, a.BID_GTN
+			, a.CCPY_MANAGE_ID
+			, b.CCPY_CMPNY_NM
+			, b.CCPY_ADRES
+			, b.CCPY_TELNO
+			, b.CCPY_RPRSNTV_NM
+			, b.CCPY_BIZRNO
+			, b.CCPY_EMAIL
+			, b.CCPY_PASSWORD
+			, b.FILE_GROUP_SN
+			, b.CCPY_OPBIZ_DE
+			, b.CCPY_STTUS
+			, b.CCPY_REGISTDT
+			from bdder a
+			inner join ccpy_manage b on(a.CCPY_MANAGE_ID = b.CCPY_MANAGE_ID)
+			<where>
+				 <if test="bidPblancSn != null and bidPblancSn != ''">
+					a.BID_PBLANC_SN = #{bidPblancSn}
+				</if>
+				<include refid="commonMapper.pageFooterSm"></include>
+			</where> 
+	</select> 
+	
+	<select id="getBdder" parameterType="bdderVO" resultMap="bdderVOMap">
+		select 
+				a.BDDER_SN
+				, a.BID_SPORT_DT
+				, a.BID_AMOUNT
+				, a.BID_PBLANC_SN
+				, a.BID_AT
+				, a.BID_GTN
+				, a.CCPY_MANAGE_ID
+				, a.FILE_GROUP_SN as bdder_FILE_GROUP_SN
+				, b.CCPY_CMPNY_NM
+				, b.CCPY_ADRES
+				, b.CCPY_TELNO
+				, b.CCPY_RPRSNTV_NM
+				, b.CCPY_BIZRNO
+				, b.CCPY_EMAIL
+				, b.CCPY_PASSWORD
+				, b.FILE_GROUP_SN
+				, b.CCPY_OPBIZ_DE
+				, b.CCPY_STTUS
+				, b.CCPY_REGISTDT
+        		, c.BID_SJ
+        		, c.SCSB_MTH
+        		, c.BID_CN
+        		, c.PBLANC_DT
+        		, c.BID_CLOS_DT
+        		, c.BID_STTUS
+        		, c.ELCTRNSANCTN_SN
+        		, c.CDLT_PRESENTN_AT
+        		, c.ACMSLTPROOF_PRESENTN_AT
+        		, c.FILE_GROUP_SN as bid_FILE_GROUP_SN
+        		, c.SPTDC_AT
+        		, c.SPTDC_DT
+        		, c.SPTDC_PLACE
+        		, c.BID_GTN_RT
+			from bdder a
+			inner join ccpy_manage b on(a.CCPY_MANAGE_ID = b.CCPY_MANAGE_ID)
+			inner join bid_pblanc c on(a.BID_PBLANC_SN = c.BID_PBLANC_SN)
+			where bdder_sn = #{bdderSn}
+	</select>
+	
+	<update id="putBdder" parameterType="bdderVO">
+		update bdder
+		set bid_at = 1
+		where bdder_sn = #{bdderSn}
+			and bid_pblanc_sn = #{bidPblancSn}
+			and ccpy_manage_id = #{ccpyManageId}
+	</update>
+</mapper>

@@ -1,0 +1,39 @@
+@charset "UTF-8";
+* {
+	font-size : 50px;
+}
+
+#header, .container, #footer{
+	width:100%;
+	margin:0;
+}
+
+#header{
+	background-color:green;
+	height:200px;
+	float:left;
+}
+
+.container{
+	height:500px;
+}
+
+#body{
+	width:70%;
+	height:100%;
+	margin-left:10px;
+	background-color:red;
+}
+
+#aside{
+	width:20%;
+	float:left;
+	height:100%;
+	background-color:yellow;
+}
+
+#footer{
+	background-color:blue;
+	height:200px;
+	float:left;
+}

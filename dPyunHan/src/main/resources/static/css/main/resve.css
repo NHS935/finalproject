@@ -1,0 +1,639 @@
+/* 전체 탭 컨테이너 여백 조정 */
+#resveTabs {
+    gap: 10px;
+}
+
+/* 타원형 버튼 스타일 */
+#resveTabs .nav-link {
+    border-radius: 50px;
+    /* 완전한 타원 */
+    padding: 8px 20px;
+    background-color: #f1f1f1;
+    color: #333;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+}
+
+/* 호버 효과 */
+#resve1 .col-md-4:hover .js-resve-card, #resve1 .col-12:hover .js-resve-card
+    {
+    transform: scale(1.03);
+    transition: 0.3s ease;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+    border-color: #66bb6a;
+}
+
+/* 활성 탭 (active 상태) */
+#resveTabs .nav-link.active {
+    background-color: #4caf50;
+    color: white;
+    border-color: #388e3c;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* CSS로 사진 넣기 */
+#resve1 .col-md-4:nth-of-type(1) .js-resve-card {
+    background: url('/images/socialSpace/bookCafe.png') center/cover no-repeat;
+}
+
+#resve1 .col-md-4:nth-of-type(2) .js-resve-card {
+    background: url('/images/socialSpace/swim.jpg') center/cover no-repeat;
+}
+
+#resve1 .col-md-4:nth-of-type(3) .js-resve-card {
+	background: url('/images/socialSpace/billiards.jpg') center/cover no-repeat;
+}
+
+#resve1 .col-md-4:nth-of-type(4) .js-resve-card {
+	background: url('/images/socialSpace/tennis.jpg') center/cover no-repeat;
+}
+
+#resve1 .row.gy-4>div:nth-child(5) .js-resve-card {
+	background: url('/images/socialSpace/seminar.jpg') center/cover no-repeat;
+}
+
+#resve1 .row.gy-4>div:nth-child(6) .js-resve-card {
+	background: url('/images/socialSpace/gym.png') center/cover no-repeat;
+}
+
+#resve1 .row.gy-4>div:nth-child(7) .js-resve-card {
+    background: url('/images/socialSpace/spa.png') center/cover no-repeat;
+}
+
+#resve1 .row.gy-4>div:nth-child(8) .js-resve-card {
+    background: url('/images/socialSpace/golf.jpeg') center/cover no-repeat;
+}
+
+#resve1 .row.gy-4>div:nth-child(9) .js-resve-card {
+    background: url('/images/socialSpace/tableTenis.jpeg') center/cover no-repeat;
+}
+
+#resve1 .js-resve-card {
+    border-radius: 14px;
+    overflow: hidden;
+    color: #fff;
+    position: relative;
+    display: block;
+    min-height: 140px;
+}
+
+#resve1 .js-resve-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+}
+
+#resve1 .js-resve-card>div {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    width: 100%;
+    padding: 0 10px;
+    /* CSS로 사진 넣기 끝 */
+}
+
+#resve1 .js-resve-card .title {
+    margin-bottom: 4px; /* 제목 아래 간격 최소화 */
+}
+
+#resve1 .js-resve-card .description {
+    margin-top: 0;
+    line-height: 1.35;  /* 읽기 좋은 최소 라인 간격 */
+}
+
+#resve1 .js-resve-card h4,
+#resve1 .js-resve-card p {
+    margin: 0;   /* h4/p 기본 margin 제거 */
+}
+
+#resve1 .js-resve-card > div {
+    position: absolute;
+    z-index: 3;
+}
+
+#resve1 .js-resve-card .title {
+    color: #FF4A17 !important;
+    position: relative;
+    z-index: 3;
+}
+
+#resve1 .js-resve-card h4.title a {
+    color: #FF4A17 !important;
+    position: relative;
+    z-index: 3;
+}
+
+.text-center {
+    text-align: center;
+}
+
+/* ---------------------- 상단 정보 ---------------------- */
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    font-size: 15px;
+    color: #444;
+}
+
+.card-title.text-center {
+    font-size: 30px !important;
+    font-weight: 700 !important;
+}
+
+/* ---------------------- 주간 달력 ---------------------- */
+.week-calendar {
+    margin-bottom: 18px;
+}
+
+.week-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 12px;
+}
+
+.week-header button {
+    border: none;
+    background: #e9eef2;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.15s ease;
+}
+
+.week-header button:hover {
+    background: #d5dde4;
+}
+
+.week-header button:active {
+    background: #364E5D;
+    color: #fff;
+}
+
+.week-days,
+.week-dates {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+}
+
+.week-date-btn {
+    padding: 6px 12px;
+    border: 1px solid #d0d0d0;
+    background: #fafafa;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.15s ease-in-out;
+    font-size: 14px;
+    text-align: center;
+    width: 38px;
+}
+
+.week-date-btn:hover:not(:disabled) {
+    background: #f0f0f0;
+}
+
+.week-date-btn.active,
+.week-date-btn.selected {
+    background: #364E5D;
+    color: #fff;
+    border-color: #364E5D;
+}
+
+.week-date-btn:disabled {
+    opacity: 0.35;
+    text-decoration: line-through;
+    cursor: default;
+    z-index: 1;
+}
+
+.week-nav {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.week-arrow {
+    font-size: 26px;   /* 버튼 크게 */
+    font-weight: bold;
+    background: #F0F4F8;
+    border: 1px solid #ccc;
+    padding: 6px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.week-arrow:hover {
+    background: #e5e9ed;
+}
+
+.week-label {
+    font-size: 13px;
+    color: #555;
+}
+
+.week-title {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.week-grid {
+    display: flex;
+    justify-content: space-between;
+    gap: 6px;
+    margin-top: 10px;
+}
+
+.day-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 42px;
+    gap: 4px;
+}
+
+.day-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #666;  /* 기존 톤과 최대한 통일 */
+}
+
+.week-date-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 8px;
+    border: 1px solid #d0d0d0;
+    background: #fafafa;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease-in-out;
+    font-size: 14px;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.week-date-btn.selected {
+    background: #364E5D !important;
+    border-color: #364E5D !important;
+    color: #fff !important;
+}
+
+.day-label {
+    font-size: 14px !important;  /* 기존 13 → 16 */
+    font-weight: 700 !important;
+}
+
+/* ---------------------- 3단 그리드 ---------------------- */
+
+/* ---------------------- 공통 버튼 스타일 ---------------------- */
+.time-slot,
+.nmpr-btn,
+.length-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid #d0d0d0;
+    padding: 10px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    background: #fff;
+    border-radius: 8px;
+    transition: all 0.15s ease;
+    font-size: 14px;
+    text-align: center;
+    white-space: nowrap;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* hover 효과 */
+.time-slot:hover,
+.nmpr-btn:hover,
+.length-btn:hover {
+    background: #f5f5f5;
+}
+
+/* 클릭(선택)된 상태 — 네가 요청한 색상 #364E5D */
+.time-slot.selected,
+.nmpr-btn.selected,
+.length-btn.selected {
+    background: #364E5D !important;
+    border-color: #364E5D !important;
+    color: #fff !important;
+    font-weight: 600;
+}
+
+/* 비활성화 */
+.time-slot.disabled {
+    position: relative;
+    opacity: 0.35;
+    text-decoration: line-through;
+    pointer-events: none;
+    background: #f1f1f1;
+    z-index: 1;
+}
+
+.time-slot.disabled::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+        -45deg,
+        rgba(0, 0, 0, 0.04),
+        rgba(0, 0, 0, 0.04) 4px,
+        rgba(0, 0, 0, 0.08) 6px
+    );
+    border-radius: inherit;
+    z-index: 1;
+}
+
+.time-slot.disabled {
+    position: relative;
+    opacity: 0.35;
+    text-decoration: line-through;
+    pointer-events: none;
+    background: #f1f1f1;
+}
+
+.time-slot.disabled span,
+.time-slot.disabled p,
+.time-slot.disabled div,
+.time-slot.disabled {
+    position: relative;
+    z-index: 2;   /* 텍스트를 최상단으로 */
+}
+
+/* 시간대 스크롤바 영역 */
+/* 시간대 리스트 스크롤 */
+#timeContainer {
+    max-height: 350px; /* 너가 원하는 높이로 조절 가능 */
+    overflow-y: auto;
+    padding-right: 4px; /* 스크롤바가 내용 가리지 않도록 */
+}
+
+/* 스크롤바 전체 */
+#timeContainer::-webkit-scrollbar {
+    width: 8px;
+}
+
+/* 스크롤 트랙(배경) */
+#timeContainer::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 8px;
+}
+
+/* 스크롤 thumb(움직이는 부분) */
+#timeContainer::-webkit-scrollbar-thumb {
+    background: #F66214;
+    border-radius: 8px;
+}
+
+/* hover 시 색 진하게 */
+#timeContainer::-webkit-scrollbar-thumb:hover {
+    background: #e06626;
+}
+
+/* 구분선 */
+/* 첫 번째 칼럼과 두 번째 칼럼 사이 */
+.resve-grid {
+    position: relative !important;
+    display: flex;
+    gap: 12px;
+    position: relative;
+    align-items: stretch;
+    flex-wrap: nowrap !important;
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    min-height: 1px !important;
+}
+
+.grid-left { width: 40%; }
+.grid-center { width: 30%; }
+.grid-right { width: 30%; }
+
+.grid-left,
+.grid-center,
+.grid-right {
+    display: flex;
+    flex-direction: column;
+}
+
+
+#nmprContainer,
+#lengthContainer,
+#timeContainer {
+    flex: 1; /* 각 칼럼 높이를 동일하게 확장 */
+}
+
+/* 제목 중앙 정렬 */
+.grid-left h6,
+.grid-center h6,
+.grid-right h6 {
+    text-align: center;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+/* 두 번째 칼럼과 세 번째 칼럼 사이 */
+.resve-grid::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 39%;
+    width: 2px;
+    background: #d3d3d3;
+}
+
+.resve-grid::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 70%;
+    width: 2px;
+    background: #d3d3d3;
+}
+
+/* 취소 버튼 */
+#resveModal .btn-cancel {
+    background-color: rgba(135, 163, 179, 0.7) !important;
+    border: 2px solid rgb(135, 163, 179) !important;
+    color: white !important;
+    font-weight: 600 !important;
+    border-radius: 8px !important;
+    padding: 8px 18px !important;
+    box-shadow: none !important;
+}
+
+/* 취소 버튼 hover 제거 */
+#resveModal .btn-cancel:hover,
+#resveModal .btn-cancel:focus,
+#resveModal .btn-cancel:active {
+    background-color: rgba(135, 163, 179, 0.7) !important;
+    border: 2px solid rgb(135, 163, 179) !important;
+    color: white !important;
+    box-shadow: none !important;
+}
+
+/* 예약 버튼 */
+#resveModal .btn-reserve {
+    background-color: #FAD1BD !important;
+    border: 2px solid #F56314 !important;
+    color: #F56314 !important;
+    font-weight: 700 !important;
+    border-radius: 8px !important;
+    padding: 8px 18px !important;
+    box-shadow: none !important;
+}
+
+/* 예약 버튼 hover 제거 */
+#resveModal .btn-reserve:hover,
+#resveModal .btn-reserve:focus,
+#resveModal .btn-reserve:active {
+    background-color: #FAD1BD !important;
+    border: 2px solid #F56314 !important;
+    color: #F56314 !important;
+    box-shadow: none !important;
+}
+
+/* 취소 버튼 */
+#resveMberModal .btn-cancel {
+    background-color: rgba(135, 163, 179, 0.7) !important;
+    border: 2px solid rgb(135, 163, 179) !important;
+    color: white !important;
+    font-weight: 600 !important;
+    border-radius: 8px !important;
+    padding: 8px 18px !important;
+    box-shadow: none !important;
+}
+
+/* 취소 버튼 hover 제거 */
+#resveMberModal .btn-cancel:hover,
+#resveMberModal .btn-cancel:focus,
+#resveMberModal .btn-cancel:active {
+    background-color: rgba(135, 163, 179, 0.7) !important;
+    border: 2px solid rgb(135, 163, 179) !important;
+    color: white !important;
+    box-shadow: none !important;
+}
+
+/* 취소 버튼 */
+#resveMberDetailModal .btn-cancel {
+    background-color: rgba(135, 163, 179, 0.7) !important;
+    border: 2px solid rgb(135, 163, 179) !important;
+    color: white !important;
+    font-weight: 600 !important;
+    border-radius: 8px !important;
+    padding: 8px 18px !important;
+    box-shadow: none !important;
+}
+
+/* 취소 버튼 hover 제거 */
+#resveMberDetailModal .btn-cancel:hover,
+#resveMberDetailModal .btn-cancel:focus,
+#resveMberDetailModal .btn-cancel:active {
+    background-color: rgba(135, 163, 179, 0.7) !important;
+    border: 2px solid rgb(135, 163, 179) !important;
+    color: white !important;
+    box-shadow: none !important;
+}
+
+/* 예약 버튼 */
+#resveMberDetailModal .btn-reserve {
+    background-color: #FAD1BD !important;
+    border: 2px solid #F56314 !important;
+    color: #F56314 !important;
+    font-weight: 700 !important;
+    border-radius: 8px !important;
+    padding: 8px 18px !important;
+    box-shadow: none !important;
+}
+
+/* 예약 버튼 hover 제거 */
+#resveMberDetailModal .btn-reserve:hover,
+#resveMberDetailModal .btn-reserve:focus,
+#resveMberDetailModal .btn-reserve:active {
+    background-color: #FAD1BD !important;
+    border: 2px solid #F56314 !important;
+    color: #F56314 !important;
+    box-shadow: none !important;
+}
+
+#resveMberDetailModal .modal-footer button.btn-cancel:hover,
+#resveMberDetailModal .modal-footer button.btn-cancel:focus,
+#resveMberDetailModal .modal-footer button.btn-cancel:active {
+    background-color: rgba(135, 163, 179, 0.7) !important;
+    border: 2px solid rgb(135, 163, 179) !important;
+    color: white !important;
+    box-shadow: none !important;
+}
+
+#resve1 .row.gy-4 {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 16px !important;
+}
+#resve1 .row.gy-4 > div {
+    width: 100% !important;
+}
+
+@media (max-width: 500px) {
+    /* 첫 번째 구분선: +4px 이동 */
+    .resve-grid::before {
+        left: calc(40% + 5px) !important;
+    }
+
+    /* 두 번째 구분선: +3px 이동 */
+    .resve-grid::after {
+        left: calc(70% + 6px) !important;
+    }
+}
+
+/* 요일/날짜 전체 중앙 정렬 */
+.week-days,
+.week-dates,
+.week-grid {
+    justify-content: center !important;
+    gap: 10px !important;   /* 버튼 간 간격 */
+}
+
+/* 지난 주 / 다음 주 / 월(2025년 11월) 전체 중앙 정렬 */
+.week-header {
+    display: flex;
+    justify-content: center !important;
+    align-items: center;
+    gap: 20px !important; /* 화살표와 월 사이 간격 */
+    text-align: center;
+}
+
+/* 화살표 버튼 크기 조정하면 더 균형 좋아짐 */
+.week-header button,
+.week-arrow {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.info-row > div:first-child {
+    margin-left: auto;
+    text-align: right;
+}
+
+.resve-grid::before,
+.resve-grid::after {
+    z-index: 999 !important;
+    display: block !important;
+    top: 0;
+    bottom: 0;
+}

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.HshldMapper">
+<update id="updateHshld"
+        parameterType="kr.or.ddit.vo.HshldVO">
+    UPDATE HSHLD
+    SET
+        FILE_GROUP_SN = #{fileGroupSn}
+    WHERE HSHLD_ID    = #{hshldId}
+</update>
+</mapper>

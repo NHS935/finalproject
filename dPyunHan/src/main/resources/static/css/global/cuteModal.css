@@ -1,0 +1,170 @@
+/* 공통 테이블 간격을 줄 간격 맞추기. table 생성시 꼭 사용하세요 시작 */
+.tight-table, .tight-table th, .tight-table td {
+    padding: 3px 5px !important; /* 테이블들 행간격 */
+    overflow: hidden !important; /* 삐져나가는거 잡아줘요 */
+    text-overflow: ellipsis; /* 길어진 글은 ...처리 */
+    white-space: nowrap; /* 줄바꿈 X */
+    text-align: center;
+}
+/* 줄무늬 효과(odd는 홀수, even은 짝수) */
+.tight-table tbody tr:nth-child(odd) {
+    background-color: #ffffff; /* 흰색 */
+}
+
+.tight-table tbody tr:nth-child(even) {
+    background-color: #f1f4fa; /* 연한 회색(AdminLTE 느낌) */
+}
+/* 공통 테이블 간격을 줄 간격 맞추기. table 생성시 꼭 사용하세요 끝 */
+/* 호버이벤트 시작 */
+/* tight-table호버이벤트시작 */
+.table tbody tr {
+    transition: background-color 0.25s ease, box-shadow 0.25s ease,
+        transform 0.2s ease;
+}
+
+.table tbody tr:hover {
+    background-color: rgba(100, 140, 164, 0.12) !important; /* 은은한 파스텔 */
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15); /* 은은한 그림자 */
+    transform: translateY(-1px); /* 살짝 띄우기 */
+    cursor: pointer;
+}
+/* 호버이벤트 끝 */
+
+/* 모달 css영역 시작입니다 */
+/* 모달 프레임 자체 */
+.cute-modal .modal-content {
+    border: 0 !important;
+    border-radius: 14px !important;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, .12) !important;
+    overflow: hidden !important;
+}
+
+/* 헤더 영역 */
+.cute-modal .modal-header {
+    background: rgba(100, 140, 164, .85) !important;
+    color: #fff !important;
+    padding: .6rem .9rem !important;
+}
+
+/* 제목(좌측) */
+.cute-modal .modal-title {
+    font-size: 1rem !important;
+    display: flex !important;
+    gap: .5rem !important;
+    align-items: center !important;
+    margin: 0 !important;
+}
+
+.cute-modal .modal-title small {
+    font-size: .85rem !important;
+}
+
+/* 닫기 버튼 */
+.cute-modal .close, .cute-modal .btn-close, .cute-modal .btn-close-white
+    {
+    color: #fff !important;
+    opacity: .9 !important;
+    text-shadow: none !important;
+}
+
+.cute-modal .close:hover, .cute-modal .btn-close:hover, .cute-modal .btn-close-white:hover
+    {
+    opacity: 1 !important;
+}
+
+/* 본문 기본 패딩 */
+.cute-modal .modal-body {
+    padding: .9rem !important;
+}
+
+/* 필드 라벨 (제목, 기간, 내용 등) */
+.cute-modal .field-label {
+    color: #6b7b86 !important;
+    font-size: .875rem !important;
+    margin-bottom: .25rem !important;
+}
+
+/* 상단 메타 정보(기간 + 내용) 박스 */
+.cute-modal .cute-meta-box {
+    display: grid !important;
+    grid-template-columns: 92px 1fr !important;
+    row-gap: .35rem !important;
+    column-gap: .75rem !important;
+    padding: .8rem !important;
+    border: 1px solid rgba(0, 0, 0, .06) !important;
+    border-radius: 10px !important;
+    background: rgba(100, 140, 164, .12) !important; 
+    margin-bottom: .75rem !important;
+}
+
+.cute-modal .cute-meta-label {
+    color: #6b7b86 !important;
+    font-size: .875rem !important;
+    align-self: center !important;
+}
+
+.cute-modal .cute-meta-label.top {
+    align-self: flex-start !important;
+}
+
+.cute-modal .cute-meta-value {
+    font-weight: 600 !important;
+    font-size: .95rem !important;
+}
+
+/* 내용 textarea */
+.cute-modal textarea.form-control {
+    resize: none !important;
+}
+
+/* 섹션 제목 (ex. 투표 항목, 첨부파일 등) */
+.cute-modal .cute-section-title {
+    margin: 0 0 .5rem 0 !important;
+}
+
+/* 테이블 – Dewi/BS5/BS4 모두 공통 느낌 */
+.cute-modal .cute-table {
+    margin-top: .25rem !important;
+}
+
+.cute-modal .cute-table thead th {
+    background: #f6f8fa !important;
+    border-bottom: 1px solid rgba(0, 0, 0, .06) !important;
+}
+
+/* 버튼 줄 */
+.cute-modal .cute-btn-row {
+    margin-top: .5rem !important;
+}
+
+/* 버튼 */
+.cute-modal .btn-round-sm {
+    padding: .35rem .7rem !important;
+    border-radius: 10px !important;
+}
+
+/* cute-modal 전용 너비 크기 조절 */
+.cute-modal .modal-dialog {
+    max-width: 650px !important; /* 원하는 너비 */
+    width: 100% !important;
+}
+
+/* 실제 모달 박스 높이 고정 */
+.cute-modal .modal-content {
+ /*   height: 550px !important;     */ /* 절대 고정 높이 */
+  /*  max-height: 550px !important;*/
+    overflow: hidden !important;   /* 스크롤 완전 제거 */
+}
+
+/* body 영역은 스크롤 되지만 스크롤바는 숨김 */
+.cute-modal .modal-body {
+    flex: 1 1 auto !important;
+    overflow-y: auto !important;   /* 스크롤 가능 */
+    scrollbar-width: none !important; /* Firefox */
+}
+
+/* WebKit (Chrome, Edge, Safari) 스크롤바 숨김 */
+.cute-modal .modal-body::-webkit-scrollbar {
+    display: none !important;
+}
+/* 모달 css영역 끝 입니다 */

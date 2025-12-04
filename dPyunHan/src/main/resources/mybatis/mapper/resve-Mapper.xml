@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.ResveMapper">
+	
+	<!-- 
+	// 커뮤니티시설 리스트(예약)
+	List<CmmntyVO> list(CmmntyVO cmmntyVO)
+	-->
+	<select id="list" parameterType="cmmntyVO">
+		SELECT CMMNTY_SN
+			 , CMMNTY_NM
+			 , TOT_ACEPTNC_NMPR
+			 , CMMNTY_OPN_VWPOINT
+			 , CMMNTY_CLOS_VWPOINT
+			 , RESVE_MXMM_NMPR
+			 , RESVE_MXMM_TIME
+		  FROM CMMNTY
+	</select>
+	
+	<!-- 
+	// 해당 커뮤니티시설 상세 조회
+	int resve(CmmntyVO cmmntyVO)
+	-->
+	<select id="detail" parameterType="cmmntyVO">
+		SELECT CMMNTY_SN
+			 , CMMNTY_NM
+			 , TOT_ACEPTNC_NMPR
+			 , CMMNTY_OPN_VWPOINT
+			 , CMMNTY_CLOS_VWPOINT
+			 , RESVE_MXMM_NMPR
+			 , RESVE_MXMM_TIME
+		  FROM CMMNTY
+		 WHERE CMMNTY_SN = #{cmmntySn}
+	</select>
+	
+	<!--
+	// 해당 커뮤니티시설 시간대 조회
+	List<String> selectTimeSlots(CmmntyVO cmmntyVO)
+	-->
+	<select id="selectTimeSlots" parameterType="cmmntyVO" resultType="string">
+		<![CDATA[
+		WITH num_seq AS (
+		    SELECT LEVEL - 1 AS n
+		      FROM dual
+		   CONNECT BY LEVEL <= 24
+		)
+		SELECT 
+		    TO_CHAR(
+		        TO_DATE(
+		            TO_CHAR(TRUNC(SYSDATE), 'YYYY-MM-DD') || ' ' || C.CMMNTY_OPN_VWPOINT,
+		            'YYYY-MM-DD HH24:MI'
+		        ) + n/24,
+		        'HH24:MI'
+		    ) 
+		    || ' ~ ' ||
+		    TO_CHAR(
+		        TO_DATE(
+		            TO_CHAR(TRUNC(SYSDATE), 'YYYY-MM-DD') || ' ' || C.CMMNTY_OPN_VWPOINT,
+		            'YYYY-MM-DD HH24:MI'
+		        ) + (n + 1)/24,
+		        'HH24:MI'
+		    ) AS TIME_RANGE
+		FROM CMMNTY C
+		JOIN num_seq N
+		  ON n < (
+		      CASE
+		        WHEN TO_DATE(
+		               TO_CHAR(TRUNC(SYSDATE), 'YYYY-MM-DD') || ' ' || C.CMMNTY_CLOS_VWPOINT,
+		               'YYYY-MM-DD HH24:MI'
+		             )
+		             < TO_DATE(
+		                 TO_CHAR(TRUNC(SYSDATE), 'YYYY-MM-DD') || ' ' || C.CMMNTY_OPN_VWPOINT,
+		                 'YYYY-MM-DD HH24:MI'
+		               )
+		        THEN TO_DATE(
+		               TO_CHAR(TRUNC(SYSDATE + 1), 'YYYY-MM-DD') || ' ' || C.CMMNTY_CLOS_VWPOINT,
+		               'YYYY-MM-DD HH24:MI'
+		             )
+		             - TO_DATE(
+		                 TO_CHAR(TRUNC(SYSDATE), 'YYYY-MM-DD') || ' ' || C.CMMNTY_OPN_VWPOINT,
+		                 'YYYY-MM-DD HH24:MI'
+		               )
+		        ELSE TO_DATE(
+		               TO_CHAR(TRUNC(SYSDATE), 'YYYY-MM-DD') || ' ' || C.CMMNTY_CLOS_VWPOINT,
+		               'YYYY-MM-DD HH24:MI'
+		             )
+		             - TO_DATE(
+		                 TO_CHAR(TRUNC(SYSDATE), 'YYYY-MM-DD') || ' ' || C.CMMNTY_OPN_VWPOINT,
+		                 'YYYY-MM-DD HH24:MI'
+		               )
+		      END
+		    ) * 24
+		WHERE C.CMMNTY_SN = #{cmmntySn}
+		ORDER BY n
+		]]>
+	</select>
+
+	<resultMap id="resveMap" type="kr.or.ddit.vo.ResveVO">
+	    <id property="resveSn" column="RESVE_SN"/>
+	    <result property="resveDt" column="RESVE_DT" javaType="java.time.LocalDate"/>
+	    <result property="beginVwpoint" column="BEGIN_VWPOINT"/>
+	    <result property="resveTime" column="RESVE_TIME"/>
+	    <result property="resveNmpr" column="RESVE_NMPR"/>
+	    <result property="resveSttus" column="RESVE_STTUS"/>
+	    <result property="mberId" column="MBER_ID"/>
+	    <result property="cmmntySn" column="R_CMMNTY_SN"/>
+	
+	    <association property="cmmntyVO" javaType="kr.or.ddit.vo.CmmntyVO">
+	        <id property="cmmntySn" column="C_CMMNTY_SN"/>
+	        <result property="cmmntyNm" column="C_CMMNTY_NM"/>
+	        <result property="totAceptncNmpr" column="C_TOT_ACEPTNC_NMPR"/>
+	        <result property="cmmntyOpnVwpoint" column="C_CMMNTY_OPN_VWPOINT"/>
+	        <result property="cmmntyClosVwpoint" column="C_CMMNTY_CLOS_VWPOINT"/>
+	        <result property="resveMxmmNmpr" column="C_RESVE_MXMM_NMPR"/>
+	        <result property="resveMxmmTime" column="C_RESVE_MXMM_TIME"/>
+	    </association>
+	</resultMap>
+
+	<select id="resveAvailable" parameterType="resveVO" resultMap="resveMap">
+		SELECT R.RESVE_SN
+			 , R.RESVE_DT
+			 , R.BEGIN_VWPOINT
+			 , R.RESVE_TIME
+			 , R.RESVE_NMPR
+			 , R.RESVE_STTUS
+			 , R.MBER_ID
+			 , R.CMMNTY_SN AS R_CMMNTY_SN
+			 , C.CMMNTY_SN AS C_CMMNTY_SN
+			 , C.CMMNTY_NM AS C_CMMNTY_NM
+			 , C.TOT_ACEPTNC_NMPR AS C_TOT_ACEPTNC_NMPR
+			 , C.CMMNTY_OPN_VWPOINT AS C_CMMNTY_OPN_VWPOINT
+			 , C.CMMNTY_CLOS_VWPOINT AS C_CMMNTY_CLOS_VWPOINT
+			 , C.RESVE_MXMM_NMPR AS C_RESVE_MXMM_NMPR
+			 , C.RESVE_MXMM_TIME AS C_RESVE_MXMM_TIME
+		FROM RESVE R
+		  JOIN CMMNTY C ON R.CMMNTY_SN = C.CMMNTY_SN
+		WHERE R.CMMNTY_SN = #{cmmntySn}
+		  AND R.RESVE_DT BETWEEN TRUNC(#{resveDt}) AND TRUNC(#{resveDt}) + 0.99999
+		  AND R.RESVE_STTUS = 1
+	</select>
+	
+	<!-- 
+	// 예약 실행
+	int resve(ResveVO resveVO)
+	-->
+	<insert id="resve" parameterType="resveVO">
+		INSERT INTO RESVE (
+			<selectKey resultType="int" order="BEFORE" keyProperty="resveSn">
+				SELECT NVL(MAX(RESVE_SN),0) + 1 FROM RESVE
+			</selectKey>
+			   RESVE_SN
+			 , RESVE_DT
+			 , BEGIN_VWPOINT
+			 , RESVE_TIME
+			 , RESVE_NMPR
+			 , RESVE_STTUS
+			 , REGIST_DT
+			 , MBER_ID
+			 , CMMNTY_SN
+		) VALUES (
+			   #{resveSn}
+			 , #{resveDt}
+			 , #{beginVwpoint}
+			 , #{resveTime}
+			 , #{resveNmpr}
+			 , 1
+			 , SYSDATE
+			 , #{mberId}
+			 , #{cmmntySn}
+		)
+	</insert>
+
+	<!-- 
+	//내 예약현황 리스트
+	List<String> resveMber(ResveVO resveVO)
+	-->
+	<select id="resveMber" parameterType="resveVO">
+		SELECT RESVE_SN
+	    	 , RESVE_DT
+	    	 , BEGIN_VWPOINT
+	    	 , RESVE_TIME
+	    	 , RESVE_NMPR
+	    	 , RESVE_STTUS
+	    	 , REGIST_DT
+	    	 , MBER_ID
+	    	 , CMMNTY_SN
+		  FROM RESVE
+	</select>
+	
+	<!-- 
+	//탭별 예약 상세
+	ResveVO resveMberDetail(int resveSn)
+	-->
+	<select id="resveMberDetail" parameterType="int" resultType="resveVO">
+		SELECT RESVE_SN
+	    	 , RESVE_DT
+	    	 , BEGIN_VWPOINT
+	    	 , RESVE_TIME
+	    	 , RESVE_NMPR
+	    	 , RESVE_STTUS
+	    	 , REGIST_DT
+	    	 , MBER_ID
+	    	 , CMMNTY_SN
+		  FROM RESVE
+		 WHERE RESVE_SN = #{resveSn}
+	</select>
+	
+	<!-- 
+	// 예약 취소 실행
+	int resveCancel(ResveVO resveVO)
+	-->
+	<update id="resveCancel" parameterType="resveVO">
+		UPDATE RESVE
+		   SET RESVE_STTUS = 2
+		 WHERE RESVE_SN = #{resveSn}
+	</update>
+</mapper>

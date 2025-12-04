@@ -1,0 +1,98 @@
+@charset "UTF-8";
+
+@charset "UTF-8";
+
+/* 민원 상세 모달 */
+#cvplDetailModal .modal-content {
+    border: 0;
+    border-radius: 14px;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
+    overflow: hidden;
+}
+
+#cvplDetailModal .modal-header {
+    background: rgba(100, 140, 164, 0.85);
+    color: white;
+    padding: 0.6rem 0.9rem;
+    border: 0;
+}
+
+#cvplDetailModal .modal-title {
+    font-size: 1rem;
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    margin: 0;
+    font-weight: 600;
+}
+
+#cvplDetailModal .modal-body {
+    padding: 0.9rem;
+}
+
+#cvplDetailModal .form-control-sm {
+    font-size: 0.9rem;
+    padding: 0.4rem 0.6rem;
+}
+
+#cvplDetailModal textarea.form-control-sm {
+    resize: none;
+}
+
+#cvplDetailModal h6 {
+    margin: 0 0 0.5rem 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #333;
+}
+
+#cvplDetailModal .modal-footer {
+    padding: 0.6rem 0.9rem;
+    background: #fff;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+#cvplDetailModal .btn-light {
+    padding: 0.35rem 0.7rem;
+    border-radius: 10px;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    color: #495057;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+#cvplDetailModal .btn-light:hover {
+    background-color: #e9ecef;
+    border-color: #adb5bd;
+}
+
+#cvplDetailModal .btn-info {
+    padding: 0.35rem 0.7rem;
+    border-radius: 10px;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+    #cvplDetailModal .modal-body {
+        padding: 0.8rem;
+    }
+
+    #cvplDetailModal .modal-header {
+        padding: 0.6rem 0.8rem;
+    }
+}
+
+@media (max-width: 576px) {
+    #cvplDetailModal .modal-title {
+        font-size: 0.9rem;
+    }
+
+    #cvplDetailModal .btn-light,
+    #cvplDetailModal .btn-info {
+        padding: 0.3rem 0.6rem;
+        font-size: 0.8rem;
+    }
+}

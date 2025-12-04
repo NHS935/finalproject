@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.NoticeMapper">
+
+	<select id="list" parameterType="map" resultType="noticeVO">
+		SELECT *
+		FROM
+		(
+		SELECT
+		ROW_NUMBER() OVER(ORDER BY notice_sn DESC) AS rnum
+		, n.notice_sn
+		, n.notice_sj
+		, n.notice_cn
+		, n.notice_writng_dt
+		, n.emp_id
+		, n.file_group_sn
+		, n.wnmpy_notice
+		, e.nm
+		FROM notice n
+		LEFT OUTER JOIN emp e ON n.emp_id = e.emp_id
+		WHERE 1=1
+		<if test="keyword != null and keyword != ''">
+			AND (
+			n.notice_sn LIKE '%' || #{keyword} || '%' OR
+			n.notice_sj LIKE '%' || #{keyword} || '%' OR
+			n.notice_cn LIKE '%' || #{keyword} || '%' OR
+			e.nm LIKE '%' || #{keyword} || '%'
+			)
+		</if>
+		)
+		WHERE rnum BETWEEN (#{currentPage} * 10) - (10 - 1) AND	(#{currentPage} * 10)
+	</select>
+
+	<select id="getTotal" parameterType="map" resultType="int">
+		SELECT COUNT(*)
+		FROM notice
+		WHERE 1=1
+		<if test="wnmpyNotice != null">
+			AND wnmpy_notice = #{wnmpyNotice}
+		</if>
+		<if test="keyword != null and keyword != ''">
+			AND (
+			notice_sn LIKE '%' || #{keyword} || '%' OR
+			notice_sj LIKE '%' || #{keyword} || '%' OR
+			notice_cn LIKE '%' || #{keyword} ||	'%' OR
+			emp_id LIKE '%' || #{keyword} || '%'
+			)
+		</if>
+	</select>
+
+	<!-- 상세 -->
+	<select id="findById" parameterType="int" resultType="noticeVO">
+		SELECT
+		  n.notice_sn
+		, n.notice_sj
+		, n.notice_cn
+		, n.notice_writng_dt
+		, n.emp_id
+		, n.file_group_sn
+		, n.wnmpy_notice
+		, e.nm
+		FROM notice n
+		LEFT OUTER JOIN emp e ON n.emp_id = e.emp_id
+		WHERE n.notice_sn = #{noticeSn}
+	</select>
+
+	<!-- 등록 -->
+	<insert id="register" parameterType="noticeVO">
+		<selectKey keyProperty="noticeSn" resultType="int"
+			order="BEFORE">
+			SELECT
+			NVL(MAX(notice_sn), 0)+1
+			FROM notice
+		</selectKey>
+		INSERT INTO notice (
+		notice_sn
+		, notice_sj
+		, notice_cn
+		, notice_writng_dt
+		, emp_id
+		, file_group_sn
+		, wnmpy_notice
+		)
+		VALUES (
+		#{noticeSn}
+		,#{noticeSj}
+		,#{noticeCn}
+		,SYSDATE
+		,#{empId}
+		,#{fileGroupSn}
+		,#{wnmpyNotice}
+		)
+	</insert>
+
+	<update id="edit" parameterType="noticeVO">
+		UPDATE notice
+		SET
+		notice_sj = #{noticeSj},
+		notice_cn = #{noticeCn},
+		notice_writng_dt = SYSDATE
+		WHERE notice_sn = #{noticeSn}
+	</update>
+
+	<delete id="delete" parameterType="int">
+		DELETE
+		FROM notice
+		WHERE notice_sn = #{noticeSn}
+	</delete>
+
+	<!-- 파일 상세 -->
+	<select id="getFileDetailVOList" parameterType="long"
+		resultType="fileDetailVO">
+		select *
+		from file_detail
+		where file_group_sn = #{fileGroupSn}
+	</select>
+
+
+	<select id="wnmpyNoticeList" parameterType="map" resultType="noticeVO">
+		SELECT * FROM (
+		SELECT
+		  ROW_NUMBER() OVER(ORDER BY n.notice_sn ASC) AS rnum
+		, n.notice_sn
+		, n.notice_sj
+		, n.notice_cn
+		, n.notice_writng_dt
+		, n.emp_id
+		, n.file_group_sn
+		, n.wnmpy_notice
+		, e.nm
+		, ROW_NUMBER() OVER(ORDER BY n.notice_sn DESC) AS row_num
+		FROM notice n
+		LEFT OUTER JOIN emp e ON n.emp_id = e.emp_id
+		WHERE n.wnmpy_notice = 1
+		<if test="keyword != null and keyword != ''">
+			<if test="searchField != null and searchField.length > 0">
+				AND (
+				<foreach collection="searchField" item="field"
+					separator=" OR ">
+					<if test="field == 'noticeSj'">n.notice_sj LIKE '%' || #{keyword} || '%'</if>
+					<if test="field == 'noticeCn'">n.notice_cn LIKE '%' || #{keyword} || '%'</if>
+					<if test="field == 'nm'">e.nm LIKE '%' || #{keyword} || '%'</if>
+				</foreach>
+				)
+			</if>
+		</if>
+		<if test="status != null and status != ''">
+			<choose>
+				<when test="status == '0'">AND n.wnmpy_notice = 0</when>
+				<when test="status == '1'">AND n.wnmpy_notice = 1</when>
+			</choose>
+		</if>
+		<if test="startDate != null and startDate != ''">
+			AND TRUNC(n.notice_writng_dt) &gt;= TO_DATE(#{startDate}, 'YYYY-MM-DD')
+		</if>
+		<if test="endDate != null and endDate != ''">
+			AND TRUNC(n.notice_writng_dt) &lt;= TO_DATE(#{endDate}, 'YYYY-MM-DD')
+		</if>
+		)
+		WHERE row_num BETWEEN (#{currentPage} * #{size}) - (#{size} - 1) AND
+		(#{currentPage} * #{size})
+	</select>
+
+
+	<!-- 정문페이지에 글3개 셀렉해오기(나혜선) -->
+   <select id="maingateselect" resultType="NoticeVO">
+      SELECT
+          notice_sn,
+          notice_sj,
+          notice_cn,
+          notice_writng_dt,
+          emp_id,
+          file_group_sn,
+          wnmpy_notice
+      FROM
+      (SELECT
+          notice_sn,
+          notice_sj,
+          notice_cn,
+          notice_writng_dt,
+          emp_id,
+          file_group_sn,
+          wnmpy_notice
+      FROM
+          notice
+      ORDER BY notice_writng_dt DESC)
+      WHERE ROWNUM <![CDATA[<=]]>5   
+   </select>
+   
+   <select id="findAll" resultType="NoticeVO">
+    SELECT * 
+    	FROM notice 
+    WHERE wnmpy_notice = 1
+    ORDER BY notice_sn DESC
+	</select>
+   
+</mapper>

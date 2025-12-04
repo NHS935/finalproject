@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.VoteMtrMapper">
+
+	<!-- 1 -->
+	<resultMap type="voteMtrVO" id="voteMtrMap">
+		<result property="voteMtrSn" column="VOTE_MTR_SN" />
+		<result property="mtrSj" column="MTR_SJ" />
+		<result property="mtrCn" column="MTR_CN" />
+		<result property="voteBeginDt" column="VOTE_BEGIN_DT" />
+		<result property="voteEndDt" column="VOTE_END_DT" />
+		<result property="empId" column="EMP_ID" />
+		<collection property="voteIemVOList" resultMap="voteIemMap" />
+	</resultMap>
+	<!-- N -->
+	<resultMap type="voteIemVO" id="voteIemMap">
+		<result property="voteMtrSn" column="VOTE_MTR_SN" />
+		<result property="voteIemNo" column="VOTE_IEM_NO" />
+		<result property="iemNm" column="IEM_NM" />
+		<result property="iemCn" column="IEM_CN" />
+<!-- 		<result property="cnt" column="CNT" /> -->
+	</resultMap>
+
+	<!-- //JOIN -->
+	<!-- public int voteDetail(VoteMtrVO voteMtrVO); -->
+	<select id="voteMtrList" parameterType="int" resultMap="voteMtrMap">
+		SELECT
+		A.VOTE_MTR_SN,A.MTR_SJ,A.MTR_CN,A.VOTE_BEGIN_DT,A.VOTE_END_DT,A.EMP_ID
+		,B.VOTE_MTR_SN, B.VOTE_IEM_NO, B.IEM_NM, B.IEM_CN
+
+		from VOTE_MTR A LEFT
+		OUTER JOIN VOTE_IEM B on(A.VOTE_MTR_SN =
+		B.VOTE_MTR_SN)
+
+		where
+		A.VOTE_MTR_SN = #{voteMtrSn} 
+		ORDER BY B.VOTE_IEM_NO
+	</select> 
+
+	<!-- //읽기 -->
+	<!-- public int voteDetail(VoteMtrVO voteMtrVO); -->
+	<select id="voteList" parameterType="voteMtrVO"
+		resultType="voteMtrVO">
+		SELECT * from VOTE_MTR
+	</select>
+
+	<!-- //투표글작성 -->
+	<!-- public int addVote(VoteMtrVO voteMtrVO); -->
+	<!-- 타입 alias를 쓰지 않는다면 FQCN로 바꿔: kr.or.ddit.vo.VoteMtrVO / kr.or.ddit.vo.VoteIemVO -->
+	<insert id="addVote" parameterType="voteMtrVO">
+		<selectKey resultType="int" order="BEFORE" keyProperty="voteMtrSn">
+			SELECT NVL(MAX(VOTE_MTR_SN), 0) + 1 FROM VOTE_MTR
+		</selectKey>
+		INSERT INTO VOTE_MTR (VOTE_MTR_SN, MTR_SJ, MTR_CN, VOTE_BEGIN_DT, VOTE_END_DT, EMP_ID) 
+		VALUES (#{voteMtrSn}, #{mtrSj}, #{mtrCn}, #{voteBeginDt}, #{voteEndDt}, #{empId})
+	</insert>
+
+	<insert id="addVoteIem" parameterType="voteIemVO">
+		<selectKey resultType="int" order="BEFORE" keyProperty="voteIemNo">
+			SELECT NVL(MAX(VOTE_IEM_NO), 0) + 1
+			FROM VOTE_IEM
+			WHERE VOTE_MTR_SN = #{voteMtrSn}
+		</selectKey>
+		INSERT INTO VOTE_IEM (VOTE_MTR_SN, VOTE_IEM_NO, IEM_NM, IEM_CN) 
+		VALUES (#{voteMtrSn}, #{voteIemNo}, #{iemNm}, #{iemCn})
+	</insert>
+
+
+
+</mapper>

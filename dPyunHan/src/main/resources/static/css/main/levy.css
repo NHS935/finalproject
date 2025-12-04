@@ -1,0 +1,219 @@
+
+/* ------------------------------------- */
+/* 관리비 조회 SECTION 커스텀 스타일 */
+/* ------------------------------------- */
+
+#levy .col-12,
+#levy .col-md-12 {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+/* 전체 관리비 컨테이너 (공지사항 카드 외곽 스타일 참고) */
+#levy .manage-container {
+    margin: 8px;
+    padding: 5px;
+    border: 3px solid rgba(100, 140, 164, 0.75); /* 푸른 계열 테두리 */
+    border-radius: 14px;
+    background: white; /* 내부 배경색 흰색 */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* 내부 카드 컨테이너 스타일 (service-item 대신 사용) */
+#levy .manage-card {
+    padding: 15px;
+}
+
+/* 조회 폼 스타일 */
+#levy .manage-wrapper form {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    border-bottom: 1px solid #e9ecef; /* 구분선 */
+    margin-bottom: 15px;
+}
+
+#levy .manage-wrapper label {
+    font-weight: 600;
+    color: #495057;
+    white-space: nowrap;
+}
+
+/* 조회 버튼 스타일 */
+#levy #searchBtn {
+    /* HTML 인라인 스타일을 CSS로 옮기거나, !important로 우선순위를 확보 */
+    background-color: rgba(135, 163, 179, 0.7) !important;
+    border: 2px solid rgb(135, 163, 179) !important;
+    color: white !important;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+/* 조회 연월 입력 필드 */
+#levy #searchYm {
+    max-width: 150px;
+}
+
+#levy .service-item {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+}
+
+
+/* 관리비 조회 버튼 (섹션 타이틀 아래) */
+.section-title .btn-success {
+    background-color: rgba(135, 163, 179, 0.7) !important;
+    border: 2px solid rgb(135, 163, 179) !important;
+    color: white !important;
+}
+
+/* 납부하기 버튼 (연한 오렌지 버전) */
+#levy .rqest-action .payBtn {
+    background-color: #FAD1BD !important;   /* 매우 연한 오렌지 */
+    border: 2px solid #F56314 !important;   /* 기존 진한 오렌지 */
+    color: #F56314 !important;              /* 텍스트는 테두리색으로 통일 */
+    font-weight: 700 !important;
+    border-radius: 8px !important;
+    box-shadow: none !important;
+    transition: none !important;
+}
+
+/* hover 제거 */
+#levy .rqest-action .payBtn:hover {
+    background-color: #FAD1BD !important;
+    border-color: #F56314 !important;
+    color: #F56314 !important;
+}
+
+
+#levy .rqest-action .showDetailBtn {
+    background-color: rgba(135, 163, 179, 0.7) !important;
+    border: 2px solid rgb(135, 163, 179) !important;
+    color: white !important;
+    font-weight: 600 !important;
+    border-radius: 8px !important;
+}
+/* 관리비 테이블 스타일 (카드 구조 유지, 표만 공지사항 테이블처럼) */
+#levy table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+    background-color: white;
+    table-layout: fixed;
+}
+
+#levy thead th {
+    font-weight: 600;
+    font-size: 0.95rem;
+    padding: 0.8rem;
+    background-color: #f9f9f9;
+    border-bottom: 2px solid #e0e0e0;
+    text-align: center;
+}
+
+#levy tbody tr {
+    border-bottom: 1px solid #e0e0e0;
+    transition: background-color 0.2s ease;
+}
+
+#levy tbody tr:last-child {
+    border-bottom: none;
+}
+
+#levy tbody tr:hover {
+    background-color: #f5f5f5;
+}
+
+#levy td {
+    padding: 0.8rem 0.5rem;
+    font-size: 0.9rem;
+    vertical-align: middle;
+    text-align: center;
+    border: none;
+}
+
+/* 납부월 컬럼 폭 고정 */
+.rqest-card td:nth-child(1), 
+.rqest-card th:nth-child(1) {
+    width: 50px;        /* 원하는 픽셀로 조정 */
+    text-align: center;  /* 중앙 정렬 */
+}
+
+/* 상태 컬럼 중앙 정렬 */
+.rqest-card td:nth-child(3), 
+.rqest-card th:nth-child(3) {
+    text-align: center;
+    vertical-align: middle;
+}
+
+/* 상세/납부 버튼 한 줄로 */
+.rqest-action {
+    display: flex;
+    gap: 3px;             /* 버튼 간격 */
+    justify-content: center;  /* 왼쪽 정렬, 가운데로 하고 싶으면 center */
+    flex-wrap: nowrap;      /* 한 줄 유지 */
+}
+
+.rqest-action .btn {
+    white-space: nowrap;    /* 버튼 텍스트 줄바꿈 방지 */
+    flex-shrink: 0;         /* 줄어들지 않게 */
+}
+#levy td:nth-child(3) {
+    text-align: center;
+    padding-right: 20px;
+}
+
+#levy .detail-wrapper {
+    background-color: #f9f9f9;
+    padding: 10px;
+    margin-top: 4px;
+    border-radius: 6px;
+}
+
+#levy .detail-wrapper table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+#levy .detail-wrapper th,
+#levy .detail-wrapper td {
+    padding: 6px;
+    border-bottom: 1px solid #e0e0e0;
+    text-align: center;
+}
+
+#levy .detail-wrapper th {
+    font-weight: 600;
+    background-color: #f1f1f1;
+}
+
+/* 상태 표시 */
+#levy .status-paid {
+    color: #28a745;
+    font-weight: 600;
+}
+
+#levy .status-unpaid {
+    color: #dc3545;
+    font-weight: 600;
+}
+
+/* 상세(#) 컬럼 좌측 정렬 */
+#levy .detail-wrapper td:nth-child(1),
+#levy .detail-wrapper th:nth-child(1) {
+     width: 30%;
+    text-align: left;
+    padding-left: 10px; /* 약간 들여쓰기 */
+}
+
+/* 금액 컬럼 우측 정렬 (마지막 컬럼 기준) */
+#levy .detail-wrapper td:last-child,
+#levy .detail-wrapper th:last-child {
+         width: 30%;
+    text-align: right;
+    padding-right: 10px;
+}

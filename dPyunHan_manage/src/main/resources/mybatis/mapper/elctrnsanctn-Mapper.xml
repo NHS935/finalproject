@@ -1,0 +1,508 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.ElctrncsanctnMapper">
+
+	<sql id="where">
+		<if test="keyword != null and keyword != ''">
+			and (drft_sj like '%' || #{keyword} || '%')
+		</if>
+	</sql>
+
+<!-- resultMap -->
+	<resultMap type="DrftDocVO" id="drftDocVOMap">
+		<result property="drftDocId" column="DRFT_DOC_ID"/>
+		<result property="drftDocNm" column="DRFT_DOC_NM"/>
+		<result property="validDudt" column="VALID_DUDT"/>
+		<result property="drftDocFormat" column="DRFT_DOC_FORMAT"/>
+		<result property="elctrnsanctnManageId" column="ELCTRNSANCTN_MANAGE_ID"/>
+		<association property="elctrnsanctnManageVO" resultMap="elctrnsanctnManageVOMap"></association>
+	</resultMap>
+	
+	<resultMap type="ElctrnsanctnManageVO" id="elctrnsanctnManageVOMap">
+		<result property="elctrnsanctnManageId" column="ELCTRNSANCTN_MANAGE_ID"/>
+		<result property="sanctnSecode" column="SANCTN_SECODE"/>
+	</resultMap>
+	
+	<resultMap type="DeptVO" id="deptVOMap">
+		<result property="deptCode" column="DEPT_CODE"/>
+		<result property="deptNm" column="DEPT_NM"/>
+		<result property="deptCttpc" column="DEPT_CTTPC"/>
+		<collection property="empVOList" resultMap="empVOMap"></collection>
+	</resultMap>	
+	
+	<resultMap type="EmpVO" id="empVOMap">
+		<result property="fileGroupSn" column="FILE_GROUP_SN"/>
+		<result property="telno" column="TELNO"/>
+		<result property="email" column="EMAIL"/>
+		<result property="adres" column="ADRES"/>
+		<result property="brthdy" column="BRTHDY"/>
+		<result property="salary" column="SALARY"/>
+		<result property="deptCode" column="DEPT_CODE"/>
+		<result property="suprrId" column="SUPRR_ID"/>
+		<result property="enabled" column="ENABLED"/>
+		<result property="empId" column="EMP_ID"/>
+		<result property="empPassword" column="EMP_PASSWORD"/>
+		<result property="clsf" column="CLSF"/>
+		<result property="nm" column="NM"/>
+	</resultMap>
+	
+	<resultMap type="BkmkSanctnlnVO" id="bkmkSanctnlnVOMap">
+		<result property="bkmkSanctnlnId" column="BKMK_SANCTNLN_ID"/>
+		<result property="empId" column="DRFT_EMP"/>
+		<result property="bkmkSanctnlnNm" column="BKMK_SANCTNLN_NM"/>
+		<collection property="bkmkSanctnlnDetailVOList" resultMap="bkmkSanctnlnDetailVOMap"></collection>
+	</resultMap>
+	
+	<resultMap type="BkmkSanctnlnDetailVO" id="bkmkSanctnlnDetailVOMap">
+		<result property="bkmkSanctnlnId" column="BKMK_SANCTNLN_ID"/>
+		<result property="empId" column="SANCTNLN_EMP"/>
+		<result property="sanctnOrdr" column="sanctn_ordr"/>
+		<result property="drftRefrnAt" column="DRFT_REFRN_AT"/>
+		<association property="empVO" resultMap="simpleEmpVOMap"></association>
+	</resultMap>
+	
+	<resultMap type="DeptVO" id="simpleDeptVOMap">
+		<result property="deptCode" column="DEPT_CODE"/>
+		<result property="deptNm" column="DEPT_NM"/>
+		<result property="deptCttpc" column="DEPT_CTTPC"/>
+	</resultMap>
+	
+	<resultMap type="EmpVO" id="simpleEmpVOMap">
+		<result property="fileGroupSn" column="FILE_GROUP_SN"/>
+		<result property="telno" column="TELNO"/>
+		<result property="email" column="EMAIL"/>
+		<result property="adres" column="ADRES"/>
+		<result property="brthdy" column="BRTHDY"/>
+		<result property="salary" column="SALARY"/>
+		<result property="deptCode" column="DEPT_CODE"/>
+		<result property="suprrId" column="SUPRR_ID"/>
+		<result property="enabled" column="ENABLED"/>
+		<result property="empId" column="EMP_ID"/>
+		<result property="empPassword" column="EMP_PASSWORD"/>
+		<result property="clsf" column="CLSF"/>
+		<result property="nm" column="NM"/>
+		<association property="deptVO" resultMap="simpleDeptVOMap"></association>
+	</resultMap>
+
+	<!-- resultMap -->
+	
+	<select id="getDrftDocList" resultMap="drftDocVOMap">
+		select 
+			a.DRFT_DOC_ID
+			, a.DRFT_DOC_NM
+			, a.VALID_DUDT
+			, a.DRFT_DOC_FORMAT
+			, a.ELCTRNSANCTN_MANAGE_ID
+			, b.SANCTN_SECODE
+			from DRFT_DOC a
+			left outer join ELCTRNSANCTN_MANAGE b on(a.ELCTRNSANCTN_MANAGE_ID=b.ELCTRNSANCTN_MANAGE_ID)
+			order by a.DRFT_DOC_ID		
+	</select>
+
+	<select id="getDrftDoc" resultMap="drftDocVOMap" parameterType="drftDocVO">
+		select 
+			a.DRFT_DOC_ID
+			, a.DRFT_DOC_NM
+			, a.VALID_DUDT
+			, a.DRFT_DOC_FORMAT
+			, a.ELCTRNSANCTN_MANAGE_ID
+			, b.SANCTN_SECODE
+			from DRFT_DOC a
+			left outer join ELCTRNSANCTN_MANAGE b on(a.ELCTRNSANCTN_MANAGE_ID=b.ELCTRNSANCTN_MANAGE_ID)
+			where DRFT_DOC_ID = #{drftDocId}
+	</select>
+	
+	<select id="getDeptList" resultMap="deptVOMap" parameterType="empVO">
+		select
+			a.DEPT_CODE
+			, a.DEPT_NM
+			, a.DEPT_CTTPC
+			, b.EMP_ID
+			, b.EMP_PASSWORD
+			, b.CLSF
+			, b.NM
+			, b.TELNO
+			, b.EMAIL
+			, b.ADRES
+			, b.BRTHDY
+			, b.SALARY
+			, b.SUPRR_ID
+			, b.ENABLED
+			, b.FILE_GROUP_SN
+			from dept a 
+			left outer join EMP b on(a.dept_CODE = b.dept_CODE)
+			<where>
+				<if test="empId != null">
+				b.emp_id != #{empId}
+				</if>
+			</where>
+			order by b.clsf desc
+	</select>
+	
+	<insert id="postElctrnsanctn" parameterType="elctrnsanctnVO">
+		<selectKey resultType="int" order="BEFORE" keyProperty="elctrnsanctnSn">
+			select NVL(MAX(elctrnsanctn_sn), 0)+1
+				from elctrnsanctn
+		</selectKey>
+		INSERT INTO elctrnsanctn (
+		    elctrnsanctn_sn,
+		    emp_id,
+		    drft_dt,
+		    creat_dt,
+		    updt_dt,
+		    drft_doc_id,
+		    drft_cn,
+		    upper_elctrnsanctn_id,
+		    file_group_sn,
+		    drft_sj,
+		    drft_tmprstre,
+		    elctrnsanctn_manage_id
+		) VALUES (
+		    #{elctrnsanctnSn}
+		    , #{empId}
+		    , sysdate
+		    , #{creatDt}
+		    , null
+		    , #{drftDocId}
+		    , #{drftCn}
+		    , null
+		    , #{fileGroupSn}
+		    , #{drftSj}
+		    , #{drftTmprstre}
+		    , #{elctrnsanctnManageId}
+		)
+	</insert>
+	
+	<insert id="postBkmkSanctnln" parameterType="bkmkSanctnlnVO">
+		<selectKey resultType="int" order="BEFORE" keyProperty="bkmkSanctnlnId">
+			select NVL(MAX(BKMK_SANCTNLN_ID), 0)+1
+				from BKMK_SANCTNLN
+		</selectKey>
+		INSERT INTO bkmk_sanctnln (
+		    bkmk_sanctnln_id,
+		    emp_id,
+		    bkmk_sanctnln_nm
+		) VALUES (
+			#{bkmkSanctnlnId}
+			, #{empId}
+			, #{bkmkSanctnlnNm}
+		)
+	</insert>
+	
+	<insert id="postBkmkSanctnlnDetail" parameterType="bkmkSanctnlnDetailVO">
+		INSERT INTO bkmk_sanctnln_detail (
+		    bkmk_sanctnln_id,
+		    emp_id,
+		    sanctn_ordr,
+		    drft_refrn_at
+		) VALUES (
+		    #{bkmkSanctnlnId}
+		    , #{empId}
+		    , #{sanctnOrdr}
+		    , #{drftRefrnAt}
+		)
+	</insert>
+	
+	<select id="getBkmkSanctnlnList" parameterType="empVO" resultMap="bkmkSanctnlnVOMap">
+		select 
+				a.BKMK_SANCTNLN_ID
+				, a.EMP_ID as DRFT_EMP
+				, a.BKMK_SANCTNLN_NM
+				, b.EMP_ID
+				, b.sanctn_ordr
+				, b.DRFT_REFRN_AT
+			from BKMK_SANCTNLN a
+			left outer join BKMK_SANCTNLN_DETAIL b on(a.BKMK_SANCTNLN_ID = b.BKMK_SANCTNLN_ID)
+			where a.EMP_ID = #{empId}
+	</select>
+	
+	<select id="getBkmkSanctnln" parameterType="bkmkSanctnlnVO" resultMap="bkmkSanctnlnVOMap">
+		select 
+				a.BKMK_SANCTNLN_ID
+				, a.EMP_ID as DRFT_EMP
+				, a.BKMK_SANCTNLN_NM
+				, b.EMP_ID as SANCTNLN_EMP
+				, b.sanctn_ordr
+				, b.DRFT_REFRN_AT
+				, c.EMP_PASSWORD
+				, c.CLSF
+				, c.NM
+				, c.TELNO
+				, c.EMAIL
+				, c.ADRES
+				, c.BRTHDY
+				, c.SALARY
+				, c.DEPT_CODE
+				, c.SUPRR_ID
+				, c.ENABLED
+				, c.FILE_GROUP_SN
+				, d.DEPT_NM
+				, d.DEPT_CTTPC
+			from BKMK_SANCTNLN a
+			left outer join BKMK_SANCTNLN_DETAIL b on(a.BKMK_SANCTNLN_ID = b.BKMK_SANCTNLN_ID)
+			left outer join EMP c on(b.EMP_ID = c.EMP_ID)
+			left outer join DEPT d on(c.DEPT_CODE = d.DEPT_CODE)
+			where a.BKMK_SANCTNLN_ID=#{bkmkSanctnlnId}
+			order by b.sanctn_ordr
+	</select>
+	
+	<insert id="postSanctnln" parameterType="sanctnlnVO">
+		<selectKey resultType="int" order="BEFORE" keyProperty="sanctnlnId">
+			select NVL(MAX(sanctnln_id), 0)+1
+				from sanctnln
+		</selectKey>
+		INSERT INTO sanctnln (
+		    sanctnln_id,
+		    sanctn_ordr,
+		    sanctn_sttus,
+		    sanctn_dt,
+		    return_prvonsh,
+		    elctrnsanctn_sn,
+		    emp_id,
+		    dcrbman_at
+		) VALUES (
+		    #{sanctnlnId}
+		    , #{sanctnOrdr}
+		    , 0
+		    , null
+		    , null
+		    , #{elctrnsanctnSn}
+		    , #{empId}
+		    , #{dcrbmanAt}
+		)
+	</insert>
+	
+	<insert id="postDrftRefrn" parameterType="drftRefrnVO">
+		<selectKey resultType="int" order="BEFORE" keyProperty="drftRefrnId">
+			select NVL(MAX(drft_refrn_id), 0)+1
+				from drft_refrn
+		</selectKey>
+	INSERT INTO drft_refrn (
+	    drft_refrn_id,
+	    elctrnsanctn_sn,
+	    emp_id
+	) VALUES (
+	    #{drftRefrnId}
+	    , #{elctrnsanctnSn}
+	    , #{empId}
+	)
+	</insert>
+	
+	<!-- resultMap -->
+	<resultMap type="ElctrnsanctnVO" id="elctrnsanctnVOMap">
+	    <id property="elctrnsanctnSn" column="ELCTRNSANCTN_SN"/>
+	    <result property="rnum" column="RNUM"/>
+	    <result property="elctrnsanctnManageId" column="ELCTRNSANCTN_MANAGE_ID"/>
+	    <result property="drftSj" column="DRFT_SJ"/>
+	    <result property="drftTmprstre" column="DRFT_TMPRSTRE"/>
+	    <result property="empId" column="EMP_ID"/>
+	    <result property="drftDt" column="DRFT_DT"/>
+	    <result property="creatDt" column="CREAT_DT"/>
+	    <result property="updtDt" column="UPDT_DT"/>
+	    <result property="drftDocId" column="DRFT_DOC_ID"/>
+	    <result property="drftCn" column="DRFT_CN"/>
+	    <result property="upperElctrnsanctnId" column="UPPER_ELCTRNSANCTN_ID"/>
+	    <result property="fileGroupSn" column="FILE_GROUP_SN"/>
+	    <association property="drftDocVO" resultMap="drftDocVOMap"></association>
+	    <collection property="sanctnlnVOList" select="getSanctnlnListByElctrnsanctnSn" column="ELCTRNSANCTN_SN"></collection>
+	    <collection property="drftRefrnVOList" select="getDrftRefrnListByElctrnsanctnSn" column="ELCTRNSANCTN_SN"></collection>
+	</resultMap>
+	
+	<resultMap type="EmpVO" id="sanctnlnEmpVOMap">
+		<id property="empId" column="S_EMP_ID"/>
+	    <result property="empPassword" column="S_EMP_PASSWORD"/>
+	    <result property="clsf" column="S_CLSF"/>
+	    <result property="nm" column="S_NM"/>
+	    <result property="telno" column="S_TELNO"/>
+	    <result property="email" column="S_EMAIL"/>
+	    <result property="adres" column="S_ADRES"/>
+	    <result property="brthdy" column="S_BRTHDY"/>
+	    <result property="salary" column="S_SALARY"/>
+	    <result property="deptCode" column="S_DEPT_CODE"/>
+	    <result property="suprrId" column="S_SUPRR_ID"/>
+	    <result property="enabled" column="S_ENABLED"/>
+	    <result property="fileGroupSn" column="S_FILE_GROUP_SN"/>
+	</resultMap>
+	
+	<resultMap type="SanctnlnVO" id="sanctnlnVOMap">
+	    <id property="sanctnlnId" column="SANCTNLN_ID"/>
+	    <result property="sanctnOrdr" column="SANCTN_ORDR"/>
+	    <result property="sanctnSttus" column="SANCTN_STTUS"/>
+	    <result property="sanctnDt" column="SANCTN_DT"/>
+	    <result property="returnPrvonsh" column="RETURN_PRVONSH"/>
+	    <result property="elctrnsanctnSn" column="ELCTRNSANCTN_SN"/>
+	    <result property="empId" column="SANCTNLN_EMP_ID"/>
+	    <result property="dcrbmanAt" column="DCRBMAN_AT"/>
+	    <association property="empVO" resultMap="sanctnlnEmpVOMap"></association>
+	</resultMap>
+	
+	<resultMap type="EmpVO" id="drftRefrnEmpVOMap">
+	 	<id property="empId" column="D_EMP_ID"/>
+	    <result property="empPassword" column="D_EMP_PASSWORD"/>
+	    <result property="clsf" column="D_CLSF"/>
+	    <result property="nm" column="D_NM"/>
+	    <result property="telno" column="D_TELNO"/>
+	    <result property="email" column="D_EMAIL"/>
+	    <result property="adres" column="D_ADRES"/>
+	    <result property="brthdy" column="D_BRTHDY"/>
+	    <result property="salary" column="D_SALARY"/>
+	    <result property="deptCode" column="D_DEPT_CODE"/>
+	    <result property="suprrId" column="D_SUPRR_ID"/>
+	    <result property="enabled" column="D_ENABLED"/>
+	    <result property="fileGroupSn" column="D_FILE_GROUP_SN"/>
+	</resultMap>
+	
+	<resultMap type="DrftRefrnVO" id="drftRefrnVOMap">
+	    <id property="drftRefrnId" column="DRFT_REFRN_ID"/>
+	    <result property="elctrnsanctnSn" column="ELCTRNSANCTN_SN"/>
+	    <result property="empId" column="DRFT_REFRN_EMP_ID"/>
+	    <association property="empVO" resultMap="drftRefrnEmpVOMap"></association>
+	</resultMap>	
+	<!-- resultMap -->
+	
+	<select id="getElctrnsanctnList" parameterType="hashMap" resultMap="elctrnsanctnVOMap">
+	    <include refid="commonMapper.pageHeader"></include>
+	    SELECT
+	        a.ELCTRNSANCTN_SN, a.EMP_ID, a.DRFT_DT, a.CREAT_DT, a.UPDT_DT,
+	        a.DRFT_SJ, a.DRFT_TMPRSTRE, a.DRFT_DOC_ID, a.DRFT_CN,
+	        a.UPPER_ELCTRNSANCTN_ID, a.FILE_GROUP_SN, a.ELCTRNSANCTN_MANAGE_ID
+	    FROM ELCTRNSANCTN a
+	    WHERE a.EMP_ID = #{empId}
+	    <if test="keyword != null and keyword != ''">
+    		and (DRFT_SJ like '%' || #{keyword} || '%')
+    	</if>
+	    order by a.ELCTRNSANCTN_SN desc
+	    <include refid="commonMapper.pageFooterSm"></include>
+	</select>
+	
+	<select id="getSanctnlnListByElctrnsanctnSn" parameterType="int" resultMap="sanctnlnVOMap">
+	    SELECT
+	        b.SANCTNLN_ID, b.SANCTN_ORDR, b.SANCTN_STTUS, b.SANCTN_DT,
+	        b.RETURN_PRVONSH, b.EMP_ID as SANCTNLN_EMP_ID, b.DCRBMAN_AT,
+	        c.EMP_ID as S_EMP_ID, c.EMP_PASSWORD as S_EMP_PASSWORD, c.CLSF as S_CLSF,
+	        c.NM as S_NM, c.TELNO as S_TELNO, c.EMAIL as S_EMAIL, c.ADRES as S_ADRES,
+	        c.BRTHDY as S_BRTHDY, c.SALARY as S_SALARY, c.DEPT_CODE as S_DEPT_CODE,
+	        c.SUPRR_ID as S_SUPRR_ID, c.ENABLED as S_ENABLED, c.FILE_GROUP_SN as S_FILE_GROUP_SN
+	    FROM SANCTNLN b
+	    LEFT OUTER JOIN EMP c ON (b.EMP_ID = c.EMP_ID)
+	    WHERE b.ELCTRNSANCTN_SN = #{elctrnsanctnSn}
+	</select>
+	
+	<select id="getTotal" parameterType="hashMap" resultType="int">
+		select	count(distinct a.ELCTRNSANCTN_SN)
+		     	FROM ELCTRNSANCTN a		     	
+		     	left outer join sanctnln b on(a.ELCTRNSANCTN_SN = b.ELCTRNSANCTN_SN)
+		     	left outer join EMP c on (b.EMP_ID = c. EMP_ID)
+		     	where a.EMP_ID = #{empId}
+	</select>
+	
+	<select id="getElctrnsanctn" parameterType="elctrnsanctnVO" resultMap="elctrnsanctnVOMap">
+	    SELECT
+	        a.ELCTRNSANCTN_SN, a.EMP_ID, a.DRFT_DT, a.CREAT_DT, a.UPDT_DT,
+	        a.DRFT_SJ, a.DRFT_TMPRSTRE, a.DRFT_DOC_ID, a.DRFT_CN,
+	        a.UPPER_ELCTRNSANCTN_ID, a.FILE_GROUP_SN, a.ELCTRNSANCTN_MANAGE_ID
+	    FROM ELCTRNSANCTN a
+	    WHERE a.ELCTRNSANCTN_SN = #{elctrnsanctnSn}	   
+	</select>
+	
+	<select id="getDrftRefrnListByElctrnsanctnSn" parameterType="int" resultMap="drftRefrnVOMap">
+	    SELECT
+	        d.DRFT_REFRN_ID, d.ELCTRNSANCTN_SN, d.EMP_ID as DRFT_REFRN_EMP_ID,
+	        e.EMP_ID as D_EMP_ID, e.EMP_PASSWORD as D_EMP_PASSWORD, e.CLSF as D_CLSF,
+	        e.NM as D_NM, e.TELNO as D_TELNO, e.EMAIL as D_EMAIL, e.ADRES as D_ADRES,
+	        e.BRTHDY as D_BRTHDY, e.SALARY as D_SALARY, e.DEPT_CODE as D_DEPT_CODE,
+	        e.SUPRR_ID as D_SUPRR_ID, e.ENABLED as D_ENABLED, e.FILE_GROUP_SN as D_FILE_GROUP_SN
+	    FROM DRFT_REFRN d
+	    LEFT OUTER JOIN EMP e ON (d.EMP_ID = e.EMP_ID)
+	    WHERE d.ELCTRNSANCTN_SN = #{elctrnsanctnSn}
+	</select>
+	
+	<select id="getDept" parameterType="empVO" resultType="DeptVO">
+		select *
+			from dept
+			where dept_code = #{deptCode}
+	</select>
+	<select id="getSign" parameterType="empVO" resultType="signVO">
+		select *
+			from sign
+			where emp_id = #{empId}
+	</select>
+	<!-- resultMap -->
+		
+	<!-- resultMap -->
+	<select id="getElctrnsanctnRcptList" parameterType="hashMap" resultMap="elctrnsanctnVOMap">
+		<include refid="commonMapper.pageHeader"></include>
+		select 	a.ELCTRNSANCTN_SN, a.EMP_ID, a.DRFT_DT, a.CREAT_DT, a.UPDT_DT, a.DRFT_DOC_ID, a.DRFT_CN, a.UPPER_ELCTRNSANCTN_ID
+				, a.FILE_GROUP_SN, a.DRFT_SJ, a.DRFT_TMPRSTRE, a.ELCTRNSANCTN_MANAGE_ID
+			from ELCTRNSANCTN a
+			where a.ELCTRNSANCTN_SN in (select b.ELCTRNSANCTN_SN
+										from SANCTNLN b
+										where b.emp_id = #{empId})
+				and a.DRFT_TMPRSTRE = 0
+				<if test="keyword != null and keyword != ''">
+    				and (DRFT_SJ like '%' || #{keyword} || '%')
+    			</if>
+			order by a.ELCTRNSANCTN_SN desc
+		<include refid="commonMapper.pageFooterSm"></include>
+	</select>
+	
+	<select id="getTotalRcpt" parameterType="hashMap" resultType="int">
+		select	count(distinct a.ELCTRNSANCTN_SN)
+		     	FROM ELCTRNSANCTN a
+		     	where a.ELCTRNSANCTN_SN in (select b.ELCTRNSANCTN_SN
+										from SANCTNLN b
+										where b.emp_id = #{empId}) 
+					and a.DRFT_TMPRSTRE = 0    	
+	</select>
+	
+	<select id="getEmp" parameterType="String" resultType="empVO">
+		select *
+			from EMP
+			where EMP_ID = #{empId}
+	</select>
+	
+	<update id="rejectElctrnsanctn" parameterType="hashMap">
+		 UPDATE SANCTNLN
+		    SET SANCTN_STTUS = 2,
+		    	RETURN_PRVONSH = #{returnPrvonsh} 
+		    WHERE EMP_ID = #{empId}
+		    	AND ELCTRNSANCTN_SN = #{elctrnsanctnSn}
+	</update>
+	
+	<update id="consentElctrnsanctn" parameterType="hashMap">
+		 UPDATE SANCTNLN
+		    SET SANCTN_STTUS = 1 
+		    WHERE EMP_ID = #{empId}
+		    	AND ELCTRNSANCTN_SN = #{elctrnsanctnSn}
+	</update>
+
+	<!-- kbh추가 5행씩 나오게 -->
+	<select id="getElctrnsanctnVOListSm" parameterType="hashMap" resultMap="elctrnsanctnVOMap">
+	    <include refid="commonMapper.pageHeader"/>
+		SELECT
+			  a.elctrnsanctn_sn
+			, a.emp_id
+			, a.drft_dt
+			, a.creat_dt
+			, a.updt_dt
+			, a.drft_doc_id
+			, a.drft_cn
+			, a.upper_elctrnsanctn_id
+		/*	, a.bkmk_sanctnln_id*/
+			, a.file_group_sn
+			, a.drft_sj
+			, a.drft_tmprstre
+			, a.elctrnsanctn_manage_id
+			, c.DRFT_DOC_NM
+			, d.SANCTN_SECODE
+		FROM elctrnsanctn a
+			LEFT OUTER JOIN DRFT_DOC c ON (a.drft_doc_id = c.drft_doc_id AND a.elctrnsanctn_manage_id = c.elctrnsanctn_manage_id)
+			LEFT OUTER JOIN ELCTRNSANCTN_MANAGE d ON (c.elctrnsanctn_manage_id = d.elctrnsanctn_manage_id)
+		WHERE 1=1
+	      	<if test="keyword != null and keyword != ''">
+    			and (DRFT_SJ like '%' || #{keyword} || '%')
+    		</if>
+	        ORDER BY a.elctrnsanctn_sn DESC
+	    <include refid="commonMapper.pageFooterSm"/>
+	</select>	
+</mapper>

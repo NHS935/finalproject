@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.AnswerMapper">
+
+	<!-- 댓글 목록 조회 (특정 게시글의 댓글들 - 최상위 댓글만) -->
+	<select id="getAnswerList" parameterType="long" resultType="answerVO">
+		SELECT ANSWER_NO, BBS_DETAIL_NO, BBS_GROUP_SN, CN, WRITNG_DT, UPPER_ANSWER_NO, MBER_ID
+		FROM ANSWER
+		WHERE BBS_DETAIL_NO = #{bbsDetailNo}
+		  AND UPPER_ANSWER_NO IS NULL
+		ORDER BY WRITNG_DT DESC
+	</select>
+	
+	<!-- 대댓글 목록 조회 (특정 댓글의 대댓글들) -->
+	<select id="getReplyList" parameterType="long" resultType="answerVO">
+		SELECT ANSWER_NO, BBS_DETAIL_NO, BBS_GROUP_SN, CN, WRITNG_DT, UPPER_ANSWER_NO, MBER_ID
+		FROM ANSWER
+		WHERE UPPER_ANSWER_NO = #{upperAnswerNo}
+		ORDER BY WRITNG_DT ASC
+	</select>
+	
+	<!-- 댓글 등록 -->
+	<insert id="insertAnswer" parameterType="answerVO">
+		<selectKey resultType="long" order="BEFORE" keyProperty="answerNo">
+			SELECT NVL(MAX(ANSWER_NO), 0) + 1 FROM ANSWER
+		</selectKey>
+		
+		INSERT INTO ANSWER(
+			ANSWER_NO, BBS_DETAIL_NO, BBS_GROUP_SN, CN, WRITNG_DT, UPPER_ANSWER_NO, MBER_ID
+		) VALUES (
+			#{answerNo}, #{bbsDetailNo}, #{bbsGroupSn}, #{cn}, SYSDATE, #{upperAnswerNo}, #{mberId}
+		)
+	</insert>
+	
+	<!-- 댓글 상세 조회 -->
+	<select id="getAnswer" parameterType="long" resultType="answerVO">
+		SELECT ANSWER_NO, BBS_DETAIL_NO, BBS_GROUP_SN, CN, WRITNG_DT, UPPER_ANSWER_NO, MBER_ID
+		FROM ANSWER
+		WHERE ANSWER_NO = #{answerNo}
+	</select>
+	
+	<!-- 댓글 수정 -->
+	<update id="updateAnswer" parameterType="answerVO">
+		UPDATE ANSWER
+		SET CN = #{cn}
+		WHERE ANSWER_NO = #{answerNo}
+	</update>
+	
+	<!-- 댓글 삭제 -->
+	<delete id="deleteAnswer" parameterType="long">
+		DELETE FROM ANSWER
+		WHERE ANSWER_NO = #{answerNo}
+	</delete>
+	
+	<!-- 댓글 개수 조회 -->
+	<select id="getAnswerCount" parameterType="long" resultType="int">
+		SELECT COUNT(*)
+		FROM ANSWER
+		WHERE BBS_DETAIL_NO = #{bbsDetailNo}
+	</select>
+	
+	<!-- 게시글의 모든 댓글 삭제 -->
+	<delete id="deleteAnswersByBbsDelte" parameterType="long">
+	    DELETE FROM ANSWER 
+	    WHERE BBS_DETAIL_NO = #{bbsDetailNo}
+	</delete>
+	
+	<!-- 게시판 삭제를 위한 포함 게시글 전체 댓글 삭제 -->
+	<delete id="deleteAnswersByBbsGroup" parameterType="long">
+	    DELETE FROM ANSWER 
+	    WHERE BBS_DETAIL_NO IN (
+	        SELECT BBS_DETAIL_NO 
+	        FROM BBS_DETAIL 
+	        WHERE BBS_GROUP_SN = #{bbsGroupSn}
+	    )
+	</delete>
+
+</mapper>

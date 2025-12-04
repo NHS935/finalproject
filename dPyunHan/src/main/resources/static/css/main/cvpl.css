@@ -1,0 +1,377 @@
+.cvpl-main-link {
+    color: #0066cc;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.cvpl-main-link:hover {
+    text-decoration: underline;
+}
+
+.cvpl-main-container {
+    margin: 8px;
+    border: 3px solid rgba(100, 140, 164, 0.75);
+    border-radius: 6px;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    overflow: hidden;
+}
+
+.cvpl-main-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #ffe8e8;
+    padding: 0.5rem;
+    border-bottom: 1px solid #ddd;
+}
+
+.cvpl-main-title {
+    margin: 0;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.cvpl-main-subtitle {
+    color: #6c757d;
+    font-size: 0.875rem;
+}
+
+.cvpl-main-body {
+    padding: 0;
+}
+
+.cvpl-main-table {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+    background-color: white;
+    table-layout: fixed;
+}
+
+.cvpl-main-thead {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.cvpl-main-header-row {
+    text-align: center;
+}
+
+.cvpl-main-header-row th {
+    font-size: 0.95rem;
+    font-weight: 600;
+    padding: 0.8rem;
+    background-color: #f9f9f9;
+    border: none;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.cvpl-main-col-number {
+    width: 70px;
+    text-align: left;  
+    padding-left: 0.5rem; 
+}
+
+.cvpl-main-col-title {
+    width: auto;
+    text-align: center;
+    padding-left: 7rem !important; 
+}
+
+.cvpl-main-col-date {
+    width: 180px;
+    text-align: right;
+}
+
+.cvpl-main-row {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    border: none;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.cvpl-main-row:last-child {
+    border-bottom: none;
+}
+
+.cvpl-main-row:hover {
+    background-color: #f5f5f5;
+}
+
+.cvpl-main-cell-number {
+    width: 100px;
+    text-align: left; 
+    padding: 0.8rem 0.5rem;
+    padding-left: 1rem;
+    font-size: 0.9rem;
+    border: none;
+    font-weight: 600;
+}
+
+.cvpl-main-cell-title {
+    width: auto;
+    text-align: left;
+    padding: 0.8rem 0.5rem;
+    font-size: 0.9rem;
+    border: none;
+}
+
+.cvpl-main-cell-date {
+    width: 180px;
+    text-align: right;
+    padding: 0.8rem 0.5rem;
+    font-size: 0.9rem;
+    border: none;
+}
+
+.cvpl-main-link-text {
+    color: inherit;
+    text-decoration: none;
+}
+
+.cvpl-main-link-text:hover {
+    color: #0066cc;
+}
+
+.cvpl-main-title-text {
+    display: inline-block;
+    max-width: 520px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+
+
+/* 반응형 */
+@media (max-width: 768px) {
+    .cvpl-main-col-number {
+        width: 60px;
+    }
+
+    .cvpl-main-col-date {
+        width: 120px;
+    }
+
+    .cvpl-main-cell-number,
+    .cvpl-main-cell-title,
+    .cvpl-main-cell-date {
+        padding: 0.6rem 0.3rem;
+        font-size: 0.85rem;
+    }
+
+    .cvpl-main-title-text {
+        max-width: 300px;
+    }
+     .cvpl-col-code {
+        width: 90px;
+    }
+
+    #cvplListTbody td.cvpl-cell-code {
+        width: 90px;
+        padding: 0.6rem 0.3rem;
+        font-size: 0.8rem;
+    }
+}
+
+/* cvpl/main.css 끝*/
+
+
+.cvpl-container {
+    margin: 0 8px;
+    border: 3px solid rgba(100, 140, 164, 0.75);
+    border-radius: 6px;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+/* 카드 본문 */
+.cvpl-card-body {
+    background-color: #ffe8e8;
+    padding: 0;
+    margin: 0;
+}
+
+/* 제목 */
+.cvpl-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    text-align: center;
+    line-height: 1.5;
+    padding: 0.6rem;
+    background-color:#ffe8e8;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+    gap: 1rem;
+    position: relative;
+}
+
+.cvpl-title .btn {
+    margin: 0;
+    flex-shrink: 0;
+    position: absolute;
+    right: 1rem;
+}
+/* 테이블 래퍼 */
+.cvpl-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+/* 테이블 */
+.cvpl-table {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    border-collapse: collapse;
+    font-size: 1rem;
+    background-color: white;
+}
+
+/* 테이블 헤더 */
+.cvpl-table-head {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.cvpl-header-row {
+    text-align: center;
+}
+
+.cvpl-header-row th {
+    font-size: 1.05rem;
+    font-weight: 600;
+    padding: 0.8rem;
+    background-color: #f9f9f9;
+    border: none;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+/* 테이블 컬럼 너비 */
+.cvpl-col-number {
+    width: 60px;
+}
+
+.cvpl-col-title {
+    width: auto;
+}
+
+.cvpl-col-date {
+    width: 110px;
+}
+
+/* 테이블 행 */
+.cvpl-table-row {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    border: none;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.cvpl-table-row:last-child {
+    border-bottom: none;
+}
+
+.cvpl-table-row:hover {
+    background-color: #f5f5f5;
+}
+
+/* 테이블 셀 */
+.cvpl-cell-number,
+.cvpl-cell-title,
+.cvpl-cell-date {
+    padding: 1rem 0.5rem;
+    font-size: 0.95rem;
+    vertical-align: middle;
+    border: none;
+}
+
+.cvpl-cell-number {
+    text-align: center;
+}
+
+.cvpl-cell-date {
+    text-align: right;
+    padding-right: 20px;
+}
+
+.cvpl-cell-title {
+    max-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* 카드 푸터 (페이징) */
+.cvpl-card-footer {
+    padding: 1rem;
+    text-align: center;
+    background: #f9f9f9;
+    border-top: 1px solid #ddd;
+    border-radius: 0 0 14px 14px;
+}
+
+/* 민원 신청하기 버튼 스타일 */
+.cvpl-card-body {
+    background-color: #ffe8e8;
+    padding: 0;
+    margin: 0;
+}
+
+
+/* 등록후 css 깨짐 방지 */
+#cvplListTbody tr.cvpl-table-row {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border: none;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+#cvplListTbody tr.cvpl-table-row:last-child {
+  border-bottom: none;
+}
+
+#cvplListTbody tr.cvpl-table-row:hover {
+  background-color: #f5f5f5;
+}
+
+#cvplListTbody td.cvpl-cell-number,
+#cvplListTbody td.cvpl-cell-title,
+#cvplListTbody td.cvpl-cell-date {
+  padding: 1rem 0.5rem;
+  font-size: 0.95rem;
+  vertical-align: middle;
+  border: none;
+}
+
+#cvplListTbody td.cvpl-cell-number {
+  width: 60px;
+  text-align: center;
+}
+
+#cvplListTbody td.cvpl-cell-date {
+  width: 110px;
+  text-align: right;
+  padding-right: 20px;
+}
+
+.cvpl-col-status {
+    width: 100px;
+    text-align: center;
+}
+
+#cvplListTbody td.cvpl-cell-status {
+    width: 100px;
+    text-align: center;
+    padding: 1rem 0.5rem;
+    font-size: 0.95rem;
+    vertical-align: middle;
+    border: none;
+    font-weight: 600;
+}

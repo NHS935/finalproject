@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.FileMapper">
+	
+	<insert id="insertFileGroup" parameterType="FileGroupVO">
+		<selectKey resultType="long" order="BEFORE" keyProperty="fileGroupSn">
+			SELECT NVL(max(FILE_GROUP_SN)+1, to_char(sysdate, 'YYYYMMDD')||'001') 
+				FROM FILE_GROUP
+				WHERE substr(FILE_GROUP_SN, 1, 8) = TO_CHAR(SYSDATE, 'YYYYMMDD')
+		</selectKey>		
+		INSERT INTO FILE_GROUP
+			VALUES (#{fileGroupSn}, SYSDATE)
+	</insert>
+	
+	<insert id="insertFileDetail" parameterType="kr.or.ddit.vo.FileDetailVO">
+      <!-- 
+      FILE_DETAIL 테이블의 마지막 FILE_SN 값 + 1을 구하기
+      단, FILE_SN는 주어진 FILE_GROUP_NO의 값을 조건으로 하기
+      단, FILE_SN 값이 NULL이면 NULL처리하기
+      파일을 업로드 했고, 오늘 첫번째 그룹으로써 업로드 함
+      상세 테이블에는 3개의 파일이 있더라
+      SELECT NVL(MAX(FILE_SN),0) + 1
+      FROM   FILE_DETAIL
+      WHERE  FILE_GROUP_NO = '20250619001';
+       -->
+      <selectKey resultType="int" order="BEFORE" keyProperty="fileNo">
+      	SELECT NVL(MAX(file_no),0) + 1
+      		FROM   FILE_DETAIL
+      		WHERE  file_group_sn = #{fileGroupSn}
+      </selectKey>
+   
+     INSERT INTO file_detail (
+	    file_group_sn,
+	    file_no,
+	    file_orginl_nm,
+	    file_stre_nm,
+	    file_strelc,
+	    file_mg,
+	    file_extsn,
+	    file_mime,
+	    file_fancysize,
+	    file_save_date,
+	    file_downcount,
+	    FILE_ABSLT_STRELC)
+      VALUES(#{fileGroupSn},#{fileNo},#{fileOrginlNm},#{fileStreNm},#{fileStrelc}
+           ,#{fileMg},#{fileExtsn},#{fileMime},#{fileFancysize},SYSDATE
+           ,#{fileDowncount},#{fileAbsltStrelc})
+   </insert>
+	
+	<select id="getFileDetailVOList" parameterType="long" resultType="FileDetailVO">
+		select * 
+			from FILE_DETAIL
+			where FILE_GROUP_SN = #{fileGroupSn}
+	</select>
+	
+	<select id="getFileDetail" parameterType="map" resultType="FileDetailVO">
+		select *
+			from FILE_DETAIL
+			where FILE_GROUP_SN = #{fileGroupSn} 
+				and File_NO = #{fileNo}
+	</select>	
+</mapper>

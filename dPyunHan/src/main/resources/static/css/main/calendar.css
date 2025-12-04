@@ -1,0 +1,114 @@
+#calendar {
+  max-width: 700px;  /* 전체 폭 줄이기 */
+  max-height: 600px;  /* 전체 폭 줄이기 */
+  
+  font-size: 0.8rem; /* 전체 글자 크기줄이기 */
+  margin: 0 auto;    /* 가운데 정렬 */
+}
+/* 헤더 버튼 공통 크기 조절 */
+#calendar .fc-toolbar .fc-button {
+  padding: 2px 3px !important;   /* 좌우/상하 여백 -> 버튼 크기 */
+  font-size: 0.75rem !important; /* 글자 크기 */
+  min-height: 24px !important;   /* 최소 높이 */
+  line-height: 1.2 !important;
+}
+/* Today 버튼 강조 */
+.fc .fc-today-button {
+  background: rgba(100,140,164,0.7) !important;
+  border-color: rgba(100,140,164,1) !important;
+  color: #fff !important;
+}
+/*날짜 숫자 색상*/
+.fc-daygrid-day-number {
+    color: gray;
+}
+/*요일 헤더 색상*/
+.fc-col-header-cell-cushion {
+    color: black;
+}
+/*오늘 날짜 배경색*/
+.fc-day-today {
+    background-color: beige;
+}
+/*이벤트 일정 스타일*/
+.fc-event {
+    background-color: plum;
+    color: blueviolet;
+    border-radius: 3px;
+}
+/* Week number 색상 */
+.fc .fc-daygrid-week-number {
+    color: #888888;
+}
+
+
+
+
+/*모달css*/
+/* ==== 캘린더 상세 모달 전용 (calendarModal) ==== */
+#calendarModal .task-panel {
+  padding: 0.75rem 1.25rem 1.00rem 1.25rem;
+}
+
+/* 큰 카드 박스 (제목/일시/장소, 내용) */
+#calendarModal .calendar-main-card {
+  background: #ffffff;
+  border-radius: 14.00px;
+  border: 1.00px solid rgba(100, 140, 164, 0.18);
+  padding: 0.85rem 1.00rem;
+  margin-bottom: 0.75rem;
+}
+
+/* 라벨 공통 */
+#calendarModal .calendar-field-label {
+  font-size: 0.75rem;
+  color: #6b7b86;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+/* 한 줄 안에 라벨 + 컨트롤 */
+#calendarModal .calendar-row {
+  margin-bottom: 0.75rem;
+}
+
+/* 마지막 줄 여백 제거 */
+#calendarModal .calendar-row:last-child {
+  margin-bottom: 0.00rem;
+}
+
+/* 시작/종료일시 2열 배치 */
+#calendarModal .calendar-field-inline-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+#calendarModal .calendar-field-inline-grid .calendar-field-label-sub {
+  font-size: 0.75rem;
+  color: #6b7b86;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  display: block;
+}
+
+/* 입력 폰트 사이즈 통일 */
+#calendarModal .form-control.form-control-sm {
+  font-size: 0.85rem;
+}
+
+/* 내용 카드 제목 (섹션 타이틀) */
+#calendarModal .calendar-section-title {
+  font-size: 0.80rem;
+  font-weight: 600;
+  color: #6b7280;
+  margin-bottom: 0.40rem;
+}
+
+/* 푸터 */
+#calendarModal .modal-footer {
+  border-top: none;
+  padding: 0.50rem 1.25rem 1.00rem;
+  background: #ffffff;
+}
+/*모달css끝*/

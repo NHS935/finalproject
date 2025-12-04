@@ -1,0 +1,405 @@
+/* ---------------------------------------------------- */
+/* 방문차량 예약 섹션 및 모달 CSS (통합 및 수정) */
+/* ---------------------------------------------------- */
+
+/* === A. 예약 탭 및 카드 스타일 (참조용, visitVhcle에선 직접 사용 안 함) === */
+#resveTabs {
+    gap: 10px;
+}
+#resveTabs .nav-link {
+    border-radius: 50px;
+    padding: 8px 20px;
+    background-color: #f1f1f1;
+    color: #333;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+}
+#resveTabs .nav-link.active {
+    background-color: #4caf50;
+    color: white;
+    border-color: #388e3c;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+/* 카드 호버 효과 */
+#resve1 .col-md-4:hover .js-resve-card, #resve1 .col-12:hover .js-resve-card {
+    transform: scale(1.03);
+    transition: 0.3s ease;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+    border-color: #66bb6a;
+}
+/* 카드 공통 스타일 */
+#resve1 .js-resve-card {
+    border-radius: 14px;
+    overflow: hidden;
+    color: #fff;
+    position: relative;
+    display: block;
+    min-height: 140px;
+    background-size: cover;
+    background-position: center;
+}
+#resve1 .js-resve-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+}
+#resve1 .js-resve-card > div {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    width: 100%;
+    padding: 0 10px;
+    z-index: 3;
+}
+#resve1 .js-resve-card h4, #resve1 .js-resve-card p {
+    margin: 0;
+}
+#resve1 .js-resve-card .title {
+    color: #FF4A17 !important;
+}
+.card-title.text-center {
+    font-size: 30px !important;
+    font-weight: 700 !important;
+}
+
+/* === B. 방문 차량 섹션 정보 스타일 === */
+#visitVhcle .visit-time-card {
+    background-color: #ffffff; 
+    border: 3px solid rgba(100, 140, 164, 0.75);
+    border-radius: 14px; 
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    padding: 5px !important;
+    margin: 8px !important;
+}
+.visit-time-info {
+    font-family: 'Noto Sans KR', sans-serif;
+    color: #495057;
+    line-height: 1.6;
+    margin: 1rem 0;
+    text-align: center;
+}
+.visit-time-info .monthly-limit {
+    font-size: 0.95rem;
+    color: #6c757d;
+}
+.visit-time-info .remaining-time {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #212529; 
+}
+.visit-time-info .highlight {
+    color: #1976d2; 
+    font-weight: 700;
+}
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    font-size: 15px;
+    color: #444;
+}
+.info-row > div:first-child {
+    margin-left: auto;
+    text-align: right;
+}
+
+/* === C. 주간 달력 스타일 (모달 내부) === */
+.week-calendar {
+    margin-bottom: 18px;
+}
+.week-header {
+    display: flex;
+    justify-content: center !important; /* 중앙 정렬 */
+    align-items: center;
+    gap: 20px !important; 
+    text-align: center;
+    padding: 0 12px;
+}
+.week-header button {
+    border: none;
+    background: #e9eef2;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.15s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.week-header button:hover {
+    background: #d5dde4;
+}
+.week-header button:active {
+    background: #364E5D;
+    color: #fff;
+}
+.week-title {
+    font-size: 18px;
+    font-weight: 600;
+}
+.week-grid {
+    display: flex;
+    justify-content: center !important; /* 중앙 정렬 */
+    gap: 10px !important; 
+    margin-top: 10px;
+}
+.day-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 42px;
+    gap: 4px;
+}
+.day-label {
+    font-size: 14px !important; 
+    font-weight: 700 !important;
+    color: #666;
+}
+.week-date-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 8px;
+    border: 1px solid #d0d0d0;
+    background: #fafafa;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease-in-out;
+    font-size: 14px;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.week-date-btn:hover:not(.disabled) {
+    background: #f0f0f0;
+}
+.week-date-btn.active,
+.week-date-btn.selected {
+    background: #364E5D !important;
+    color: #fff !important;
+    border-color: #364E5D !important;
+}
+.week-date-btn:disabled {
+    opacity: 0.35;
+    text-decoration: line-through;
+    cursor: default;
+    z-index: 1;
+}
+
+/* === D. 모달 내 2열 그리드 스타일 === */
+.resve-grid {
+    display: flex;
+    gap: 12px;
+    position: relative;
+    align-items: stretch;
+    flex-wrap: nowrap !important;
+    flex-direction: row !important;
+    margin-top: 15px; /* 달력과의 간격 */
+}
+
+/* 2열이므로 grid-center, grid-right만 사용하고 width를 50%로 조정 */
+.grid-center,
+.grid-right { 
+    width: 50%; /* 50%씩 균등 분할 */
+    display: flex;
+    flex-direction: column;
+}
+
+/* 구분선 제거 (2열이므로 중앙선 하나만 필요) */
+.resve-grid::before,
+.resve-grid::after {
+    display: none;
+}
+
+/* 2열 중앙선 (선택 사항: 2열이라도 구분선이 필요하면 사용) */
+.resve-grid::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 1px; /* 더 얇게 */
+    background: #d3d3d3;
+    display: block;
+    transform: translateX(-50%);
+}
+
+/* 그리드 제목 */
+.grid-center h6,
+.grid-right h6 {
+    text-align: center;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+/* === E. 시간/선택 버튼 스타일 === */
+.time-slot,
+.nmpr-btn,
+.length-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid #d0d0d0;
+    padding: 10px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    background: #fff;
+    border-radius: 8px;
+    transition: all 0.15s ease;
+    font-size: 14px;
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box;
+}
+.time-slot:hover,
+.nmpr-btn:hover,
+.length-btn:hover {
+    background: #f5f5f5;
+}
+/* 선택된 상태 */
+.time-slot.selected,
+.nmpr-btn.selected,
+.length-btn.selected {
+    background: #364E5D !important;
+    border-color: #364E5D !important;
+    color: #fff !important;
+    font-weight: 600;
+}
+/* 비활성화 */
+.time-slot.disabled {
+    opacity: 0.35;
+    pointer-events: none;
+    background: #f1f1f1;
+}
+
+/* 시간대 리스트 스크롤 */
+#timeContainer, #endTimeSlotsContainer {
+    max-height: 350px; 
+    overflow-y: auto;
+    padding-right: 4px;
+}
+#timeContainer::-webkit-scrollbar,
+#endTimeSlotsContainer::-webkit-scrollbar {
+    width: 8px;
+}
+#timeContainer::-webkit-scrollbar-track,
+#endTimeSlotsContainer::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 8px;
+}
+#timeContainer::-webkit-scrollbar-thumb,
+#endTimeSlotsContainer::-webkit-scrollbar-thumb {
+    background: #F66214;
+    border-radius: 8px;
+}
+#timeContainer::-webkit-scrollbar-thumb:hover,
+#endTimeSlotsContainer::-webkit-scrollbar-thumb:hover {
+    background: #e06626;
+}
+
+/* === F. 모달 버튼 스타일 === */
+#reserveModal .btn-cancel,
+#resveMberDetailModal .btn-cancel {
+    background-color: rgba(135, 163, 179, 0.7) !important;
+    border: 2px solid rgb(135, 163, 179) !important;
+    color: white !important;
+    font-weight: 600 !important;
+    border-radius: 8px !important;
+    padding: 8px 18px !important;
+    box-shadow: none !important;
+    all: unset; /* Bootstrap 기본 스타일 재정의 */
+    display: inline-block;
+    cursor: pointer;
+}
+#reserveModal .btn-cancel:hover,
+#reserveModal .btn-cancel:focus,
+#reserveModal .btn-cancel:active {
+    background-color: rgba(135, 163, 179, 0.7) !important;
+    border: 2px solid rgb(135, 163, 179) !important;
+    color: white !important;
+    box-shadow: none !important;
+}
+
+#reserveModal .btn-reserve,
+#resveMberDetailModal .btn-reserve {
+    background-color: #FAD1BD !important;
+    border: 2px solid #F56314 !important;
+    color: #F56314 !important;
+    font-weight: 700 !important;
+    border-radius: 8px !important;
+    padding: 8px 18px !important;
+    box-shadow: none !important;
+    all: unset; /* Bootstrap 기본 스타일 재정의 */
+    display: inline-block;
+    cursor: pointer;
+}
+#reserveModal .btn-reserve:hover,
+#reserveModal .btn-reserve:focus,
+#reserveModal .btn-reserve:active {
+    background-color: #FAD1BD !important;
+    border: 2px solid #F56314 !important;
+    color: #F56314 !important;
+    box-shadow: none !important;
+}
+/* ---------------------------------------------------------------- */
+/* A. 시간 선택 컨테이너에 스크롤 적용 */
+/* ---------------------------------------------------------------- */
+
+/* 시작 시간 (timeSlots)과 끝나는 시간 (endTimeSlots) 컨테이너에 스크롤 적용 */
+#timeSlots,
+#endTimeSlots {
+    /* 💡 필수: 컨테이너의 최대 높이 지정 */
+    max-height: 350px; 
+    /* 💡 필수: 세로 스크롤을 필요한 경우에만 표시 */
+    overflow-y: auto; 
+    /* 스크롤바가 내용과 겹치지 않도록 오른쪽 패딩 추가 */
+    padding-right: 8px; 
+    /* 버튼이 화면 끝까지 늘어나도록 flex-grow 설정 */
+    flex-grow: 1; 
+}
+
+/* ---------------------------------------------------------------- */
+/* B. 스크롤바 스타일 (미적 요소) */
+/* ---------------------------------------------------------------- */
+
+/* 스크롤바 전체 */
+#timeSlots::-webkit-scrollbar,
+#endTimeSlots::-webkit-scrollbar {
+    width: 8px;
+}
+
+/* 스크롤 트랙(배경) */
+#timeSlots::-webkit-scrollbar-track,
+#endTimeSlots::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 8px;
+}
+
+/* 스크롤 thumb(움직이는 부분) */
+#timeSlots::-webkit-scrollbar-thumb,
+#endTimeSlots::-webkit-scrollbar-thumb {
+    background: #F66214;
+    border-radius: 8px;
+}
+
+/* hover 시 색 진하게 */
+#timeSlots::-webkit-scrollbar-thumb:hover,
+#endTimeSlots::-webkit-scrollbar-thumb:hover {
+    background: #e06626;
+}
+
+/* ---------------------------------------------------------------- */
+/* C. 버튼 간격 정리 (선택 사항: 버튼이 붙어있으면 간격 추가) */
+/* ---------------------------------------------------------------- */
+
+/* 내부 버튼 간격 조정 */
+#timeSlots .list-group-item,
+#endTimeSlots .list-group-item {
+    margin-bottom: 5px; /* 버튼 간격 */
+}

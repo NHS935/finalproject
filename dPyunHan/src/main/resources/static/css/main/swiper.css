@@ -1,0 +1,77 @@
+#testimonials {
+  background-color: transparent;
+  padding: 15px 0;
+  display: flex;
+  justify-content: center;
+}
+
+#testimonials .container {
+  overflow: visible !important;
+}
+
+.testimonial-swiper {
+  width: 95%;
+  margin: 0 auto;
+  position: relative;
+  overflow: visible !important;
+}
+
+.swiper-wrapper {
+  margin-bottom: 0 !important;
+}
+
+.swiper-slide {
+  flex-shrink: 0;
+  width: 475px;
+  height: 250px;
+  transition: transform 0.4s ease, opacity 0.4s ease;
+}
+
+.swiper-slide-prev,
+.swiper-slide-next,
+.swiper-slide-duplicate {
+  transform: scale(0.96);
+  opacity: 0.85;
+}
+
+/* 카드 */
+.testimonial-item {
+  aspect-ratio: 19 / 10;
+  width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+  background-color: #fff;
+}
+
+/* 페이지네이션을 이미지 내부로 완전히 고정 */
+.testimonial-swiper .swiper-pagination {
+  position: absolute;
+  bottom: 15px; /* 배너 하단 내부로 올림 */
+  left: 0;
+  right: 0;
+  text-align: center;
+  z-index: 10;
+}
+
+/* 불릿 디자인 */
+.swiper-pagination-bullet {
+  width: 8px;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.7);
+  margin: 0 4px;
+  opacity: 1;
+  transition: background 0.3s;
+}
+
+.swiper-pagination-bullet-active {
+  background: #ff6600;
+}
+
+/* 일반 이미지 슬라이드용 */
+.testimonial-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+

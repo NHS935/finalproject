@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.FcltyMapper">
+
+<!-- 나혜선 추가 시작 -->
+<resultMap id="empMap" type="EmpVO">
+ <result property="empId" column="EMP_ID" />
+ <result property="nm" column="NM" />
+ <result property="deptCode" column="DEPT_CODE" />
+</resultMap>
+<!-- 나혜선 추가 끝 -->
+
+<!-- DB에서 시설 리스트 조회 -->
+
+<sql id="where">
+  <if test="keyword != null and keyword != ''">
+    AND (
+         FCLTY_CL LIKE '%' || #{keyword} || '%'
+      OR FCLTY_NM LIKE '%' || #{keyword} || '%'
+      OR FCLTY_LC LIKE '%' || #{keyword} || '%'
+      OR FCLTY_STTUS LIKE '%' || #{keyword} || '%'
+    )
+  </if>
+</sql>
+
+
+<!-- db로부터 시설점검 결과 목록 -->
+
+<select id="list" resultType="FcltyVO">
+  WITH T AS(
+     SELECT ROW_NUMBER() OVER(ORDER BY FCLTY_SN ASC) AS ruw_num,
+      FCLTY_SN, FCLTY_CL, FCLTY_NM, FCLTY_LC, FCLTY_STTUS, FCLTY_CHCK_DT
+      FROM FCLTY
+     WHERE 1 = 1
+   <include refid="where"></include>
+  )
+  SELECT T.FCLTY_SN, T.FCLTY_CL, T.FCLTY_NM, T.FCLTY_LC, T.FCLTY_STTUS, T.FCLTY_CHCK_DT
+    FROM T
+ WHERE T.FCLTY_SN BETWEEN ((#{currentPage}*10) - (10 - 1)) AND (#{currentPage} * 10)
+</select>
+
+
+<!-- 전체 행의 수 -->
+<select id="getTotal" resultType="int">
+ SELECT COUNT(*)
+   FROM FCLTY
+  WHERE 1 =1
+  <include refid="where"></include>
+</select>
+
+
+<!-- 모달 변경 상태값 db 전달 
+
+ FcltyVO(fcltySn=0, fcltyCl=0, fcltyClStr=null, fcltyNm=null, 
+ fcltyLc=0, fcltyLcStr=null, fcltySttus=4, fcltySttusStr=null, 
+ fcltyChckDt=Tue Sep 16 09:00:00 KST 2025)
+ 
+ -->
+ 
+<!-- 모달 상태 변경 값 db 저장 -->
+<update id="updatePost" parameterType="FcltyVO">
+UPDATE FCLTY 
+ SET FCLTY_STTUS = #{fcltySttus},
+     FCLTY_CHCK_DT = #{fcltyChckDt}     
+WHERE FCLTY_SN = #{fcltySn}
+</update>
+
+<!-- 모달 상태값 변경 전 db값 조회 -->
+<select id="detail" resultType="FcltyVO">
+SELECT FCLTY_SN, FCLTY_NM, FCLTY_LC, FCLTY_STTUS, FCLTY_CHCK_DT
+FROM FCLTY
+WHERE FCLTY_SN = #{fcltySn}
+</select>
+
+<!-- 시설관리리스트 행의 갯수 조회 -->
+<select id="selectManageCount" resultType="int"> 
+  SELECT  COUNT(*)
+  FROM FCLTY_MANAGE
+  WHERE FCLTY_SN = #{fcltySn}
+</select>
+
+
+<!-- 시설관리리스트 행의 갯수가 2개 이상일때 -->
+<update id="updateManage" parameterType="FcltyVO">
+UPDATE FCLTY_MANAGE A
+SET A.FCLTYMANAGE_CHCKSTTUS = '점검완료'
+WHERE A.FCLTY_MANAGE_SN IN (
+  SELECT FCLTY_MANAGE_SN
+  FROM FCLTY_MANAGE B
+  WHERE B.FCLTY_SN = #{fcltySn}
+  AND B.FCLTY_MANAGE_SN <![CDATA[<]]> (
+      SELECT MAX(C.FCLTY_MANAGE_SN)
+      FROM FCLTY_MANAGE C
+      WHERE C.FCLTY_SN = #{fcltySn}
+  )
+)
+</update>
+
+<!-- 시설관리리스트 행의 갯수가 2개 이상일 때 마지막 행 시설상태 동기화처리 -->
+<update id="updateManageRecent" parameterType="FcltyVO"> 
+
+UPDATE FCLTY_MANAGE A
+SET A.FCLTYMANAGE_CHCKSTTUS = (
+   SELECT C.FCLTY_STTUS
+   FROM FCLTY C
+   WHERE C.FCLTY_SN = A.FCLTY_SN
+   )
+WHERE A.FCLTY_MANAGE_SN=(
+  SELECT MAX(B.FCLTY_MANAGE_SN)
+  FROM FCLTY_MANAGE B
+  WHERE A.FCLTY_SN = B.FCLTY_SN
+)
+AND A.FCLTY_SN = #{fcltySn}
+</update>
+
+
+<!-- 시설관리리스트 행의 갯수가 2개 미만일때 -->
+<update id="updateManage2" parameterType="FcltyVO">
+UPDATE FCLTY_MANAGE A
+SET A.FCLTYMANAGE_CHCKSTTUS = (
+    SELECT B.FCLTY_STTUS
+    FROM FCLTY B
+    WHERE B.FCLTY_SN = A.FCLTY_SN
+)
+WHERE(
+ SELECT COUNT(*)
+ FROM FCLTY_MANAGE C
+ WHERE C.FCLTY_SN = A.FCLTY_SN
+) <![CDATA[<]]> 2
+AND A.FCLTY_SN = #{fcltySn}
+</update>
+
+<!-- 나혜선 추가 시작-->
+<!-- 담당자 정보 조회 -->
+<select id="empList" resultMap="empMap">
+
+SELECT
+    emp_id,
+    nm,
+    dept_code
+FROM
+    emp
+where dept_code=2 
+
+</select>
+<!-- 나혜선 추가 끝-->
+
+<!-- 나혜선 추가 -->
+<!-- 행 10개 이상 조회해오기 -->
+<select id="selectAll" parameterType="FcltyVO">
+SELECT
+    fclty_sn,
+    fclty_cl,
+    fclty_nm,
+    fclty_lc,
+    fclty_sttus,
+    fclty_chck_dt
+FROM
+    fclty
+ORDER BY fclty_sn asc  
+</select>
+
+<!-- 나혜선 추가 끝 -->
+</mapper>

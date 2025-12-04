@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.NtcnMapper">
+
+	<insert id="insertNtcn" parameterType="ntcnVO">
+    	<selectKey resultType="int" keyProperty="ntcnSn" order="BEFORE">
+	        SELECT NVL(MAX(NTCN_SN),0) + 1 FROM NTCN
+	    </selectKey>
+	    INSERT INTO NTCN (
+	        NTCN_SN, DSPTCHMAN_ID, RCVER_ID, NTCN_TY, NTCN_CN, NTCN_URL, REDNG_AT, REGIST_DT
+	    ) VALUES (
+	        #{ntcnSn}, #{dsptchmanId}, #{rcverId}, #{ntcnTy}, #{ntcnCn}, #{ntcnUrl}, 'N', SYSDATE
+	    )
+	</insert>
+	
+	<!-- 읽지 않은 알림 조회 -->
+	<select id="getUnreadList" parameterType="string" resultType="NtcnVO">
+	    SELECT NTCN_SN, 
+	    	   DSPTCHMAN_ID,
+	    	   RCVER_ID, 
+	    	   NTCN_TY, 
+	    	   NTCN_CN, 
+	    	   NTCN_URL, 
+	    	   REDNG_AT, 
+	    	   REGIST_DT
+	    FROM NTCN
+	    WHERE RCVER_ID = #{userId}
+	    AND REDNG_AT = 'N'
+	    ORDER BY REGIST_DT DESC
+	</select>
+	
+	<!-- 알림 읽음 처리 -->
+	<update id="updateRedngAt" parameterType="int">
+	    UPDATE NTCN
+	    SET redng_at = 'Y'
+	    WHERE ntcn_sn = #{ntcnSn}
+	</update>
+	
+	<!--
+    //fcltyManageVO 조회(수신자, 알림 제목)
+    public FcltyManageVO selectAptcmplFcltyClFcltyNm(int fcltyManageSn)
+    -->
+    <select id="selectAptcmplFcltyClFcltyNm" parameterType="int" resultType="fcltyVO">
+        SELECT 
+		      FM.FCLTY_MANAGE_SN
+		    , FM.EMP_ID
+		    , FM.CMMNTY_SN
+		    , F.FCLTY_SN
+		    , F.FCLTY_NM
+		    , F.FCLTY_CL
+		    , F.FCLTY_LC
+		    , F.FCLTY_STTUS
+		    , H.HSHLD_ID
+		    , H.ADRES
+		    , H.APTCMPL
+		    , H.HO
+		    , HMM.MBER_ID
+		FROM FCLTY_MANAGE FM, FCLTY F, HSHLD H, HSHLD_MBER_MANAGE HMM
+		WHERE FM.FCLTY_SN = F.FCLTY_SN
+		AND H.APTCMPL = TO_NUMBER(REGEXP_SUBSTR(F.FCLTY_LC, '[0-9]+'))
+		AND H.HSHLD_ID = HMM.HSHLD_ID
+		AND FM.FCLTY_MANAGE_SN = #{fcltyManageSn}
+    </select>
+    
+    <select id="selectCmmntySnCmmntyNm" parameterType="int" resultType="fcltyManageVO">
+        SELECT /* kr.or.ddit.mapper.NtcnMapper.selectCmmntySnCmmntyNm */
+              FM.FCLTY_MANAGE_SN
+            , FM.EMP_ID           
+            , C.CMMNTY_SN
+            , C.CMMNTY_NM
+        FROM FCLTY_MANAGE FM, CMMNTY C
+        WHERE FM.CMMNTY_SN = C.CMMNTY_SN
+        AND FM.FCLTY_MANAGE_SN = #{fcltyManageSn}
+    </select>
+    
+    <select id="selectAptcmplFcltyClFcltyNm1" parameterType="int" resultType="fcltyVO">
+        SELECT 
+              F.FCLTY_SN
+            , F.FCLTY_NM
+            , F.FCLTY_CL
+            , F.FCLTY_LC
+            , F.FCLTY_STTUS
+            , FM.FCLTY_SN
+            , FM.EMP_ID
+            , H.HSHLD_ID
+            , H.ADRES
+            , H.APTCMPL
+            , H.HO
+            , HMM.MBER_ID
+        FROM FCLTY F, FCLTY_MANAGE FM, HSHLD H, HSHLD_MBER_MANAGE HMM
+        WHERE F.FCLTY_SN = FM.FCLTY_SN
+        AND H.APTCMPL = TO_NUMBER(REGEXP_SUBSTR(F.FCLTY_LC, '[0-9]+'))
+        AND H.HSHLD_ID = HMM.HSHLD_ID
+        AND F.FCLTY_SN = #{fcltyManageSn}
+    </select>
+</mapper>

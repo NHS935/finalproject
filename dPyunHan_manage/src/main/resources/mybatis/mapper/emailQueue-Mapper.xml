@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.EmailQueueMapper">
+	<!-- 메일 큐에 추가 -->
+	<insert id="insertEmailQueue" parameterType="emailQueueVO">
+		<selectKey resultType="int" order="BEFORE"
+			keyProperty="emailId">
+			SELECT NVL(MAX(EMAIL_ID), 0)+1
+			from EMAIL_QUEUE
+		</selectKey>
+		INSERT INTO EMAIL_QUEUE
+		(EMAIL_ID, RECIPIENT, SUBJECT, BODY, EMAIL_TYPE, STATUS, CREATED_AT)
+		VALUES
+		(#{emailId}, #{recipient}, #{subject}, #{body}, #{emailType},
+		'PENDING', SYSDATE)
+	</insert>
+
+	<!-- 대기 메일 조회 -->
+	<select id="selectPendingEmails" resultType="emailQueueVO">
+		SELECT *
+		FROM EMAIL_QUEUE
+		WHERE STATUS = 'PENDING'
+		AND RETRY_COUNT &lt; 3
+		ORDER BY CREATED_AT ASC FETCH FIRST 10 ROWS ONLY
+	</select>
+
+	<!-- 발송 성공 -->
+	<update id="updateEmailSent" parameterType="int">
+		UPDATE EMAIL_QUEUE
+		SET STATUS = 'SENT', SENT_AT = SYSDATE WHERE EMAIL_ID =
+		#{emailId}
+	</update>
+
+	<!-- 발송 실패 -->
+	<update id="updateEmailFailed"
+		parameterType="kr.or.ddit.vo.EmailQueueVO">
+		UPDATE EMAIL_QUEUE SET STATUS = #{status}, RETRY_COUNT =
+		RETRY_COUNT+1,
+		ERROR_MSG = #{errorMsg} WHERE EMAIL_ID = #{emailId}
+	</update>
+
+	<select id="countPendingEmails" resultType="int">
+		SELECT COUNT(*)
+		FROM EMAIL_QUEUE
+		WHERE STATUS = 'PENDING'
+	</select>
+
+</mapper>

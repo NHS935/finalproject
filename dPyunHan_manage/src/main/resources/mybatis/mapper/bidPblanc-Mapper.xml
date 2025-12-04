@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.BidPblancMapper">
+
+	<insert id="postBidPblanc" parameterType="bidPblancVO">
+		<selectKey resultType="int" order="BEFORE"
+			keyProperty="bidPblancSn">
+			SELECT NVL(MAX(BID_PBLANC_SN), 0)+1 FROM BID_PBLANC
+		</selectKey>
+		INSERT INTO BID_PBLANC (
+				BID_PBLANC_SN,
+				BID_SJ,
+				SCSB_MTH,
+				BID_CN,
+				PBLANC_DT,
+				BID_CLOS_DT,
+				BID_STTUS,
+				ELCTRNSANCTN_SN,
+				CDLT_PRESENTN_AT,
+				ACMSLTPROOF_PRESENTN_AT,
+				FILE_GROUP_SN,
+				SPTDC_AT,
+				SPTDC_DT,
+				SPTDC_PLACE,
+				BID_GTN_RT
+			) VALUES (
+				#{bidPblancSn},
+				#{bidSj},
+				#{scsbMth},
+				#{bidCn},
+				SYSDATE,
+				#{bidClosDt},
+				0,
+				NULLIF(#{elctrnsanctnSn},
+				0),
+				#{cdltPresentnAt},
+				#{acmsltproofPresentnAt},
+				#{fileGroupSn},
+				#{sptdcAt},
+				#{sptdcDt},
+				#{sptdcPlace},
+				#{bidGtnRt}
+			)
+	</insert>
+
+	<select id="getBidPblancList" resultType="bidPblancVO"
+		parameterType="hashMap">
+		<include refid="commonMapper.pageHeader"></include>
+		SELECT BID_PBLANC_SN
+			, BID_SJ
+			, SCSB_MTH
+			, BID_CN
+			, PBLANC_DT
+			, BID_CLOS_DT
+			, BID_STTUS
+			, ELCTRNSANCTN_SN
+			, CDLT_PRESENTN_AT
+			, ACMSLTPROOF_PRESENTN_AT
+			, FILE_GROUP_SN
+			, SPTDC_AT
+			, SPTDC_DT
+			, SPTDC_PLACE
+			, BID_GTN_RT
+		FROM bid_pblanc		
+		WHERE 1=1
+		<!-- 입찰 상태 검색 -->
+		<if test="bidSttus != null and bidSttus != ''">
+			AND BID_STTUS = #{bidSttus}
+		</if>
+		<!-- 입찰 제목 검색 (LIKE) -->
+		<if test="keyword != null and keyword != ''">
+			AND BID_SJ LIKE '%' || #{keyword} || '%'
+		</if>
+		<!-- 낙찰 방법 검색 -->
+		<if test="scsbMth != null and scsbMth != ''">
+			AND SCSB_MTH = #{scsbMth}
+		</if>
+		<!-- 신용평가등급확인서 필수 제출 -->
+		<if test="cdltPresentnAt != null and cdltPresentnAt != ''">
+			AND CDLT_PRESENTN_AT = #{cdltPresentnAt}
+		</if>
+		<!-- 관리실적증명서 필수 제출 -->
+		<if test="acmsltproofPresentnAt != null and acmsltproofPresentnAt != ''">
+			AND ACMSLTPROOF_PRESENTN_AT = #{acmsltproofPresentnAt}
+		</if>
+		<!-- 날짜 검색 (공고시작일 또는 입찰마감일 기준) -->
+		<if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
+			<choose>
+				<!-- 공고시작일 기준 -->
+				<when test="dateType == 'pblancDt'">
+					AND PBLANC_DT BETWEEN TO_DATE(#{startDate},
+					'YYYY-MM-DD')
+					AND TO_DATE(#{endDate}, 'YYYY-MM-DD') + INTERVAL '1'
+					DAY - INTERVAL
+					'1' SECOND
+				</when>
+				<!-- 입찰마감일 기준 -->
+				<when test="dateType == 'bidClosDt'">
+					AND BID_CLOS_DT BETWEEN TO_TIMESTAMP(#{startDate}
+					|| ' 00:00:00',
+					'YYYY-MM-DD HH24:MI:SS')
+					AND TO_TIMESTAMP(#{endDate}
+					|| ' 23:59:59', 'YYYY-MM-DD HH24:MI:SS')
+				</when>
+			</choose>
+		</if> 
+		ORDER BY
+		<choose>
+			<when test="sortField == 'bidGtnRt'">
+				BID_GTN_RT
+			</when>
+			<when test="sortField == 'pblancDt'">
+				PBLANC_DT
+			</when>
+			<when test="sortField == 'bidClosDt'">
+				BID_CLOS_DT
+			</when>
+			<otherwise>
+				BID_PBLANC_SN
+			</otherwise>
+		</choose>
+		<choose>
+			<when test="sortDirection == 'asc'">
+				ASC
+			</when>
+			<otherwise>
+				DESC
+			</otherwise>
+		</choose>
+		<include refid="commonMapper.pageFooter"></include>
+	</select>
+
+	<!-- getTotal 쿼리 -->
+	<select id="getTotal" parameterType="hashMap" resultType="int">
+		SELECT COUNT(*)
+		FROM bid_pblanc		
+		WHERE 1=1
+		<!-- 입찰 상태 검색 -->
+		<if test="bidSttus != null and bidSttus != ''">
+			AND BID_STTUS = #{bidSttus}
+		</if>
+
+		<!-- 입찰 제목 검색 (LIKE) -->
+		<if test="keyword != null and keyword != ''">
+			AND BID_SJ LIKE '%' || #{keyword} || '%'
+		</if>
+
+		<!-- 낙찰 방법 검색 -->
+		<if test="scsbMth != null and scsbMth != ''">
+			AND SCSB_MTH = #{scsbMth}
+		</if>
+
+		<!-- 신용평가등급확인서 필수 제출 -->
+		<if test="cdltPresentnAt != null and cdltPresentnAt != ''">
+			AND CDLT_PRESENTN_AT = #{cdltPresentnAt}
+		</if>
+
+		<!-- 관리실적증명서 필수 제출 -->
+		<if
+			test="acmsltproofPresentnAt != null and acmsltproofPresentnAt != ''">
+			AND ACMSLTPROOF_PRESENTN_AT = #{acmsltproofPresentnAt}
+		</if>
+
+		<!-- 날짜 검색 (공고시작일 또는 입찰마감일 기준) -->
+		<if
+			test="startDate != null and startDate != '' and endDate != null and endDate != ''">
+			<choose>
+				<!-- 공고시작일 기준 -->
+				<when test="dateType == 'pblancDt'">
+					AND PBLANC_DT BETWEEN TO_DATE(#{startDate},
+					'YYYY-MM-DD')
+					AND TO_DATE(#{endDate}, 'YYYY-MM-DD') + INTERVAL '1'
+					DAY - INTERVAL
+					'1' SECOND
+				</when>
+				<!-- 입찰마감일 기준 -->
+				<when test="dateType == 'bidClosDt'">
+					AND BID_CLOS_DT BETWEEN TO_TIMESTAMP(#{startDate}
+					|| ' 00:00:00',
+					'YYYY-MM-DD HH24:MI:SS')
+					AND TO_TIMESTAMP(#{endDate}
+					|| ' 23:59:59', 'YYYY-MM-DD HH24:MI:SS')
+				</when>
+			</choose>
+		</if>
+	</select>
+
+
+	<select id="getBidPblancListAsEmp" resultType="bidPblancVO"
+		parameterType="hashMap">
+		<include refid="commonMapper.pageHeader"></include>
+		SELECT BID_PBLANC_SN
+		, BID_SJ
+		, SCSB_MTH
+		, BID_CN
+		, PBLANC_DT
+		, BID_CLOS_DT
+		, BID_STTUS
+		, ELCTRNSANCTN_SN
+		, CDLT_PRESENTN_AT
+		, ACMSLTPROOF_PRESENTN_AT
+		, FILE_GROUP_SN
+		, SPTDC_AT
+		, SPTDC_DT
+		, SPTDC_PLACE
+		, BID_GTN_RT
+		FROM bid_pblanc
+		WHERE 1=1
+		<!-- 입찰 상태 검색 -->
+		<if test="bidSttus != null and bidSttus != ''">
+			AND BID_STTUS = #{bidSttus}
+		</if>
+
+		<!-- 입찰 제목 검색 (LIKE) -->
+		<if test="keyword != null and keyword != ''">
+			AND BID_SJ LIKE '%' || #{keyword} || '%'
+		</if>
+
+		<!-- 낙찰 방법 검색 -->
+		<if test="scsbMth != null and scsbMth != ''">
+			AND SCSB_MTH = #{scsbMth}
+		</if>
+
+		<!-- 신용평가등급확인서 필수 제출 -->
+		<if test="cdltPresentnAt != null and cdltPresentnAt != ''">
+			AND CDLT_PRESENTN_AT = #{cdltPresentnAt}
+		</if>
+
+		<!-- 관리실적증명서 필수 제출 -->
+		<if
+			test="acmsltproofPresentnAt != null and acmsltproofPresentnAt != ''">
+			AND ACMSLTPROOF_PRESENTN_AT = #{acmsltproofPresentnAt}
+		</if>
+
+		<!-- 날짜 검색 (공고시작일 또는 입찰마감일 기준) -->
+		<if
+			test="startDate != null and startDate != '' and endDate != null and endDate != ''">
+			<choose>
+				<!-- 공고시작일 기준 -->
+				<when test="dateType == 'pblancDt'">
+					AND PBLANC_DT BETWEEN TO_DATE(#{startDate},
+					'YYYY-MM-DD')
+					AND TO_DATE(#{endDate}, 'YYYY-MM-DD') + INTERVAL '1'
+					DAY - INTERVAL
+					'1' SECOND
+				</when>
+				<!-- 입찰마감일 기준 -->
+				<when test="dateType == 'bidClosDt'">
+					AND BID_CLOS_DT BETWEEN TO_TIMESTAMP(#{startDate}
+					|| ' 00:00:00',
+					'YYYY-MM-DD HH24:MI:SS')
+					AND TO_TIMESTAMP(#{endDate}
+					|| ' 23:59:59', 'YYYY-MM-DD HH24:MI:SS')
+				</when>
+			</choose>
+		</if>
+
+		ORDER BY BID_PBLANC_SN DESC
+		<include refid="commonMapper.pageFooter"></include>
+	</select>
+
+
+	<select id="getBidPblancVO" parameterType="bidPblancVO"
+		resultType="bidPblancVO">
+		select *
+		from bid_pblanc
+		where bid_pblanc_sn = #{bidPblancSn}
+	</select>
+
+	<!-- 정문페이지에 글3개 셀렉해오기(나혜선) 2025-11-17 (김우현) 신규공고만 나오도록 수정 -->
+	<select id="maingateget" resultType="BidPblancVO">
+		SELECT
+				bid_pblanc_sn,
+				bid_sj,
+				scsb_mth,
+				bid_cn,
+				pblanc_dt,
+				bid_clos_dt,
+				bid_sttus,
+				elctrnsanctn_sn,
+				cdlt_presentn_at,
+				acmsltproof_presentn_at,
+				file_group_sn,
+				sptdc_at,
+				sptdc_dt,
+				sptdc_place,
+				bid_gtn_rt
+			FROM
+				(
+				SELECT 
+						bid_pblanc_sn,
+						bid_sj,
+						scsb_mth,
+						bid_cn,
+						pblanc_dt,
+						bid_clos_dt,
+						bid_sttus,
+						elctrnsanctn_sn,
+						cdlt_presentn_at,
+						acmsltproof_presentn_at,
+						file_group_sn,
+						sptdc_at,
+						sptdc_dt,
+						sptdc_place,
+						bid_gtn_rt
+					FROM bid_pblanc
+					WHERE bid_sttus=0
+					ORDER BY pblanc_dt DESC
+				)
+			WHERE ROWNUM <![CDATA[<=]]> 5
+	</select>
+
+	<update id="putBidPblanc" parameterType="bidPblancVO">
+		update BID_PBLANC
+		set BID_STTUS = 2
+		where BID_PBLANC_SN = #{bidPblancSn}
+	</update>
+	
+	<select id="getBdderList" parameterType="bidPblancVO" resultType="bdderVO">
+		select 
+				BDDER_SN
+				, BID_SPORT_DT
+				, BID_AMOUNT
+				, BID_PBLANC_SN
+				, BID_AT
+				, BID_GTN
+				, CCPY_MANAGE_ID
+				, FILE_GROUP_SN
+			from BDDER
+			where BID_PBLANC_SN = #{bidPblancSn}
+	</select>
+</mapper>

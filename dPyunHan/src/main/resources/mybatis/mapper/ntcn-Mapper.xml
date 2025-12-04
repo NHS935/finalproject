@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.NtcnMapper">
+
+	<insert id="insertNtcn" parameterType="ntcnVO">
+    	<selectKey resultType="int" keyProperty="ntcnSn" order="BEFORE">
+	        SELECT NVL(MAX(NTCN_SN),0) + 1 FROM NTCN
+	    </selectKey>
+	    INSERT INTO NTCN (
+	        NTCN_SN, DSPTCHMAN_ID, RCVER_ID, NTCN_TY, NTCN_CN, NTCN_URL, REDNG_AT, REGIST_DT
+	    ) VALUES (
+	        #{ntcnSn}, #{dsptchmanId}, #{rcverId}, #{ntcnTy}, #{ntcnCn}, #{ntcnUrl}, 'N', SYSDATE
+	    )
+	</insert>
+	
+	<!-- 읽지 않은 알림 조회 -->
+	<select id="getUnreadList" parameterType="string" resultType="NtcnVO">
+	    SELECT NTCN_SN, 
+	    	   DSPTCHMAN_ID,
+	    	   RCVER_ID, 
+	    	   NTCN_TY, 
+	    	   NTCN_CN, 
+	    	   NTCN_URL, 
+	    	   REDNG_AT, 
+	    	   REGIST_DT
+	    FROM NTCN
+	    WHERE RCVER_ID = #{userId}
+	    AND REDNG_AT = 'N'
+	    ORDER BY REGIST_DT DESC
+	</select>
+	
+	<!-- 알림 읽음 처리 -->
+	<update id="updateRedngAt" parameterType="int">
+	    UPDATE NTCN
+	    SET redng_at = 'Y'
+	    WHERE ntcn_sn = #{ntcnSn}
+	</update>
+</mapper>
