@@ -71,7 +71,7 @@ html, body {
 }
 
 .side-btn:hover {
-	transform: scaleX(1.1); /* 왼족으로 쭈욱 늘어나는정도 */
+	transform: scaleX(1.1); /* 왼쪽으로 쭈욱 늘어나는정도 */
 	background: #ff6a00;
 	color: #fff;
 }
@@ -442,16 +442,6 @@ main.landing {
 </style>
 
 
-
-
-
-
-
-
-
-
-
-
 </head>
 
 <body>
@@ -492,10 +482,21 @@ main.landing {
 		<div class="list">
 			<c:forEach var="noticeVO" items="${noticeVOList}">
 				<div class="item">
-					<span class="badge notice">공지</span> <span class="title"><a
-						href="/notice/wnmpy_notice">${noticeVO.noticeSj}</a></span> <span
-						class="date"><fmt:formatDate
-							value="${noticeVO.noticeWritngDt}" pattern="MM/dd" /></span>
+					<span class="badge notice">공지</span> 
+					  <span class="title">
+
+                    <c:choose>
+					  <c:when test="${isgetauth}">
+                        <a href="/notice/wnmpy_notice">${noticeVO.noticeSj}</a>
+					  </c:when>
+                    <c:otherwise>
+                         <a href="#" class="needlogin">${noticeVO.noticeSj}</a>
+					</c:otherwise>
+					</c:choose>
+                      </span>
+				        <span class="date">
+						   <fmt:formatDate value="${noticeVO.noticeWritngDt}" pattern="MM/dd" />
+					    </span>
 				</div>
 			</c:forEach>
 		</div>
@@ -510,16 +511,18 @@ main.landing {
 			<c:forEach var="bidPblancVO" items="${bidPblancVOList}">
 				<div class="item">
 					<span class="badge bid">${bidPblancVO.bidSttusAsStr}</span>
-					<span
-						class="title"> <a href="/bidPblanc/getBidPblancList"
-						title="${bidPblancVO.bidSj}"> ${fn:length(bidPblancVO.bidSj) > 20 ? fn:substring(bidPblancVO.bidSj, 0, 20).concat('...') : bidPblancVO.bidSj}
-					</a>
+					<span class="title">
+					  <a href="/bidPblanc/getBidPblancList"
+					     title="${bidPblancVO.bidSj}"> ${fn:length(bidPblancVO.bidSj) > 20 ? fn:substring(bidPblancVO.bidSj, 0, 20).concat('...') : bidPblancVO.bidSj}
+					  </a>
 					</span> 
-					<span class="date"><fmt:formatDate
-							value="${bidPblancVO.pblancDt}" pattern="MM/dd" /></span>
+					<span class="date">
+						<fmt:formatDate value="${bidPblancVO.pblancDt}" pattern="MM/dd" />
+					</span>
 				</div>
 			</c:forEach>
 		</div>
+		
 		<div class="more-links">
 			<a href="/bidPblanc/getBidPblancList">더보기 ></a>
 		</div>
@@ -527,7 +530,7 @@ main.landing {
 
 	<footer>ⓒ D-편한세상. All rights reserved.</footer>
 
-	<script>
+  <script>
 		const buttons = document.querySelectorAll('.side-btn');
 		const panels = document.querySelectorAll('.side-panel');
 		
@@ -549,38 +552,30 @@ main.landing {
 		    sessionStorage.removeItem('initialNtcnShown');
 		    sessionStorage.removeItem('lastLoggedInUser');
 		});
-		</script>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	</script>
 
 
 	<script>
-document.addEventListener('DOMContentLoaded', () => {
+ //관리자 랜딩페이지 공지사항 접근권한
+ document.addEventListener('DOMContentLoaded',()=>{
+    const confirm =  document.querySelectorAll('.needlogin');
+
+    confirm.forEach(el=>{
+		el.addEventListener('click',(e)=>{
+			e.preventDefault();
+        Swal.fire({
+          icon:'info',
+		  title: '로그인 필요',
+		  text: '로그인 후 이용 가능합니다.',
+		  confirmButtonColor:'#ff6a00',
+		  confirmButtonText:'확인'
+	    });
+	  })
+	})
+  });
+	
+
+ document.addEventListener('DOMContentLoaded', () => {
   // 1) reveal 애니메이션
   const reveals = document.querySelectorAll('.reveal');
   const io = new IntersectionObserver((entries) => {
@@ -641,12 +636,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 </script>
-
-
-
-
-
-
 
 
 	<main class="landing" id="landing">
