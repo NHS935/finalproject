@@ -31,7 +31,7 @@ public class FcltyServiceImpl implements FcltyService {
 	
 	@Autowired
 	NtcnMapper ntcnMapper;
-
+	
 	//시설점검 결과 등록	
 	/*
 	 * @Override public int registerPost(FcltyVO fcltyVO) { return
@@ -112,6 +112,23 @@ public class FcltyServiceImpl implements FcltyService {
 	public List<FcltyVO> selectAll() {
 		return this.fcltymapper.selectAll();
 	}
+
+	//체크박스 선택항목 삭제	
+	@Transactional
+	@Override
+	public int delete(List<Integer> ids) {
+		
+		if(ids==null || ids.isEmpty()) {
+			return 0;
+		}
+		
+		int result=0;
+		result += fcltymapper.delete(ids);
+		
+        return result;
+	}
+
+	
 
 
 

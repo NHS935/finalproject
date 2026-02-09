@@ -34,6 +34,11 @@ public interface FcltyService {
 	//10개 이상 행 보이게 조회
 	public List<FcltyVO> selectAll();
 
+	//체크박스 선택항목 삭제
+	public int delete(List<Integer> ids);
+
+
+
 
 
 	

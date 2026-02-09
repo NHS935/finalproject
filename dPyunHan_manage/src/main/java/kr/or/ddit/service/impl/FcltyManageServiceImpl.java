@@ -12,7 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 
 import kr.or.ddit.enums.NtcnType;
+import kr.or.ddit.mapper.CmmntyMapper;
 import kr.or.ddit.mapper.FcltyManageMapper;
+import kr.or.ddit.mapper.FcltyMapper;
 import kr.or.ddit.mapper.FxMapper;
 import kr.or.ddit.mapper.NtcnMapper;
 import kr.or.ddit.service.FcltyManageService;
@@ -45,6 +47,13 @@ public class FcltyManageServiceImpl implements FcltyManageService {
 	
 	@Autowired
 	FxService fxService;
+	
+	@Autowired
+	FcltyMapper fcltyMapper;
+	
+	@Autowired
+	CmmntyMapper cmmntyMapper;
+	
 
 	//직원 아이디 조회
 	@Override
@@ -77,6 +86,15 @@ public class FcltyManageServiceImpl implements FcltyManageService {
 		
 		int result = fcltyManagemapper.registerPost(fcltyManageVO);
 		
+		
+		if(result>0) {
+			if(fcltyManageVO.getFcltySn() !=0) {
+				fcltyManagemapper.updatePrefclty(fcltyManageVO);
+			}else if(fcltyManageVO.getCmmntySn() != 0){
+				fcltyManagemapper.updatePrecmmnty(fcltyManageVO);
+			}
+		}
+			
 		FxVO fxVO = null;
 		
 		if(result>0) {

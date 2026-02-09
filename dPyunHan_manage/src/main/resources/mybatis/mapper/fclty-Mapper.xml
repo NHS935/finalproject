@@ -10,7 +10,6 @@
 </resultMap>
 <!-- 나혜선 추가 끝 -->
 
-<!-- DB에서 시설 리스트 조회 -->
 
 <sql id="where">
   <if test="keyword != null and keyword != ''">
@@ -23,20 +22,25 @@
   </if>
 </sql>
 
+<sql id="notDeleted">
+ AND NVL(DEL_YN,'N')='N'              <!--NVL(컬럼,대체값)으로 컬럼값이  NULL이면 대신 이 값을 써라, 삭제된 것은(Y)은 제외, N와 null은 포함의 의미 -->
+</sql>
+
 
 <!-- db로부터 시설점검 결과 목록 -->
 
 <select id="list" resultType="FcltyVO">
   WITH T AS(
-     SELECT ROW_NUMBER() OVER(ORDER BY FCLTY_SN ASC) AS ruw_num,
+     SELECT ROW_NUMBER() OVER(ORDER BY FCLTY_SN ASC) AS row_num,
       FCLTY_SN, FCLTY_CL, FCLTY_NM, FCLTY_LC, FCLTY_STTUS, FCLTY_CHCK_DT
       FROM FCLTY
      WHERE 1 = 1
+   <include refid="notDeleted"></include>   <!-- 빼먹으면 삭제된 데이터가 화면에 노출됨 -->
    <include refid="where"></include>
   )
   SELECT T.FCLTY_SN, T.FCLTY_CL, T.FCLTY_NM, T.FCLTY_LC, T.FCLTY_STTUS, T.FCLTY_CHCK_DT
     FROM T
- WHERE T.FCLTY_SN BETWEEN ((#{currentPage}*10) - (10 - 1)) AND (#{currentPage} * 10)
+ WHERE T.row_num BETWEEN ((#{currentPage}*10) - (10 - 1)) AND (#{currentPage} * 10)
 </select>
 
 
@@ -44,7 +48,8 @@
 <select id="getTotal" resultType="int">
  SELECT COUNT(*)
    FROM FCLTY
-  WHERE 1 =1
+  WHERE 1 = 1
+  <include refid="notDeleted"></include>              <!-- 빼먹으면 삭제된 데이터가 화면에 노출됨 -->
   <include refid="where"></include>
 </select>
 
@@ -63,13 +68,15 @@ UPDATE FCLTY
  SET FCLTY_STTUS = #{fcltySttus},
      FCLTY_CHCK_DT = #{fcltyChckDt}     
 WHERE FCLTY_SN = #{fcltySn}
+ AND NVL(DEL_YN,'N')='N'
 </update>
 
 <!-- 모달 상태값 변경 전 db값 조회 -->
 <select id="detail" resultType="FcltyVO">
-SELECT FCLTY_SN, FCLTY_NM, FCLTY_LC, FCLTY_STTUS, FCLTY_CHCK_DT
-FROM FCLTY
-WHERE FCLTY_SN = #{fcltySn}
+ SELECT FCLTY_SN, FCLTY_NM, FCLTY_LC, FCLTY_STTUS, FCLTY_CHCK_DT
+  FROM FCLTY
+ WHERE FCLTY_SN = #{fcltySn}
+   <include refid="notDeleted"></include>  <!-- 빼먹으면 삭제된 데이터가 화면에 노출됨 -->
 </select>
 
 <!-- 시설관리리스트 행의 갯수 조회 -->
@@ -98,19 +105,21 @@ WHERE A.FCLTY_MANAGE_SN IN (
 
 <!-- 시설관리리스트 행의 갯수가 2개 이상일 때 마지막 행 시설상태 동기화처리 -->
 <update id="updateManageRecent" parameterType="FcltyVO"> 
-
 UPDATE FCLTY_MANAGE A
-SET A.FCLTYMANAGE_CHCKSTTUS = (
-   SELECT C.FCLTY_STTUS
-   FROM FCLTY C
-   WHERE C.FCLTY_SN = A.FCLTY_SN
-   )
-WHERE A.FCLTY_MANAGE_SN=(
-  SELECT MAX(B.FCLTY_MANAGE_SN)
-  FROM FCLTY_MANAGE B
-  WHERE A.FCLTY_SN = B.FCLTY_SN
-)
-AND A.FCLTY_SN = #{fcltySn}
+SET A.FCLTYMANAGE_CHCKSTTUS = 
+   (SELECT CASE
+        WHEN C.FCLTY_STTUS IN ('정상','점검완료') THEN '점검완료'
+         ELSE C.FCLTY_STTUS
+        END
+     FROM FCLTY C          
+   WHERE C.FCLTY_SN = A.FCLTY_SN)
+
+WHERE A.FCLTY_SN = #{fcltySn}
+  AND A.FCLTY_MANAGE_SN=(
+             SELECT MAX(B.FCLTY_MANAGE_SN)
+              FROM FCLTY_MANAGE B
+             WHERE A.FCLTY_SN = B.FCLTY_SN
+             )              
 </update>
 
 
@@ -130,7 +139,7 @@ WHERE(
 AND A.FCLTY_SN = #{fcltySn}
 </update>
 
-<!-- 나혜선 추가 시작-->
+
 <!-- 담당자 정보 조회 -->
 <select id="empList" resultMap="empMap">
 
@@ -143,9 +152,8 @@ FROM
 where dept_code=2 
 
 </select>
-<!-- 나혜선 추가 끝-->
 
-<!-- 나혜선 추가 -->
+
 <!-- 행 10개 이상 조회해오기 -->
 <select id="selectAll" parameterType="FcltyVO">
 SELECT
@@ -160,5 +168,17 @@ FROM
 ORDER BY fclty_sn asc  
 </select>
 
-<!-- 나혜선 추가 끝 -->
+<!-- 체크박스 선택항목 삭제 -->
+<update id="delete" parameterType="List">
+
+ UPDATE fclty
+   SET DEL_YN = 'Y'
+ WHERE FCLTY_SN IN
+  <foreach collection="list" item="id" open="(" separator="," close=")">   <!-- List를 in 조건을 사용할땐 foreach를 사용한다 -->
+  #{id}  
+  </foreach>
+
+</update>
+
+
 </mapper>

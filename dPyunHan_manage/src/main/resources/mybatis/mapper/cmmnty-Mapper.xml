@@ -15,19 +15,35 @@
 <!-- DB에서 시설 리스트 조회 -->
 
 <sql id="where2">
-  <if test="keyword != null and keyword != ''">
-    AND (
-         CMMNTY_NM LIKE '%' || #{keyword} || '%'
-      OR CMMNTY_CHCKSTTUS LIKE '%' || #{keyword} || '%'
-    )
-</if>
+ <if test="keyword != null and keyword != ''">  <!-- 커뮤니티명 검색 -->
+     AND CMMNTY_NM LIKE '%' || #{keyword} || '%'
+ </if>
+ 
+ <if test="status != null and status !=''">  <!-- 점검 상태 필터 -->
+     AND CMMNTY_CHCKSTTUS = #{status}
+ </if>
+
+ <if test="startDate != null and startDate != ''">  <!-- 사작 날짜 -->
+     AND TRUNC(CMMNTY_CHCK_DT) <![CDATA[>=]]> TO_DATE(#{startDate}, 'YYYY-MM-DD')
+ </if>
+
+ <if test="endDate != null and endDate != ''">  <!-- 종료 날짜 -->
+     AND TRUNC(CMMNTY_CHCK_DT) <![CDATA[<=]]> TO_DATE(#{endDate}, 'YYYY-MM-DD')  
+ </if>
 </sql>
 
 
 <!-- db로부터 커뮤니티 리스트 목록 조회 -->
-<select id="cmmntylist" resultType="CmmntyVO">
+<select id="cmmntylist" parameterType="map" resultType="CmmntyVO">
 WITH T AS(
-SELECT ROW_NUMBER() OVER(ORDER BY cmmnty_sn ASC) AS row_num,
+SELECT 
+   ROW_NUMBER() OVER(
+    ORDER BY cmmnty_chck_dt
+     <choose>
+       <when test="sortOrder == 'asc'">ASC NULLS LAST</when>
+       <otherwise>DESC NULLS LAST</otherwise>
+     </choose>
+    ) AS row_num,
     cmmnty_sn,
     cmmnty_nm,
     tot_aceptnc_nmpr,
@@ -42,15 +58,20 @@ FROM
 WHERE 1 = 1
 <include refid="where2"></include>
 )
-SELECT T.cmmnty_sn, T.cmmnty_nm, T.cmmnty_chcksttus, T.cmmnty_chck_dt, T.cmmnty_opn_vwpoint, T.cmmnty_clos_vwpoint
+SELECT 
+  T.cmmnty_sn, 
+  T.cmmnty_nm, 
+  T.cmmnty_chcksttus, 
+  T.cmmnty_chck_dt, 
+  T.cmmnty_opn_vwpoint, 
+  T.cmmnty_clos_vwpoint
 FROM T
-WHERE T.row_num BETWEEN ((#{currentPage}*10) - (10 - 1)) AND (#{currentPage} * 10)
-
+WHERE T.row_num BETWEEN (#{offset} + 1) AND (#{offset} + #{size})  <!-- 시작행, 끝행 -->
 </select>
 
 
 <!-- 전체 행의 수 -->
-<select id="getTotal2" resultType="int">
+<select id="getTotal2" parameterType="map" resultType="int">
  SELECT COUNT(*)
    FROM CMMNTY
   WHERE 1 =1
@@ -98,19 +119,21 @@ WHERE A.FCLTY_MANAGE_SN IN (
 
 <!-- 커뮤니티 리스트 행이 2개 이상 시 마지막 행 커뮤니티 상태 동기화 -->
 <update id="updateManageRecent" parameterType="CmmntyVO">
-
 UPDATE FCLTY_MANAGE A
-SET A.FCLTYMANAGE_CHCKSTTUS = (
-   SELECT C.CMMNTY_CHCKSTTUS
-   FROM CMMNTY C
-   WHERE C.CMMNTY_SN = A.CMMNTY_SN
-   )
-WHERE A.FCLTY_MANAGE_SN=(
-  SELECT MAX(B.FCLTY_MANAGE_SN)
-  FROM FCLTY_MANAGE B
-  WHERE A.CMMNTY_SN = B.CMMNTY_SN
-)
-AND A.CMMNTY_SN = #{cmmntySn}
+SET A.FCLTYMANAGE_CHCKSTTUS = 
+   (SELECT CASE
+     WHEN C.CMMNTY_CHCKSTTUS IN ('정상','점검완료') THEN '점검완료'
+      ELSE C.CMMNTY_CHCKSTTUS
+      END
+     FROM CMMNTY C       
+    WHERE C.CMMNTY_SN = A.CMMNTY_SN)
+    
+WHERE A.CMMNTY_SN = #{cmmntySn}
+  AND A.FCLTY_MANAGE_SN=(
+            SELECT MAX(B.FCLTY_MANAGE_SN)
+             FROM FCLTY_MANAGE B
+            WHERE A.CMMNTY_SN = B.CMMNTY_SN
+            )
 </update>
 
 <!-- 커뮤니티 리스트 행의 갯수 2개 미만 시 -->
@@ -130,10 +153,7 @@ WHERE(
 AND A.CMMNTY_SN = #{cmmntySn}
 </update>
 
-<!-- 나혜선 끝 -->
-
-<!-- 나혜선 추가 시작-->
-
+<!-- 직원 목록 조회 -->
 <select id="empList" resultMap="empMap">
 
 SELECT
@@ -147,7 +167,31 @@ where dept_code=2
 </select>
 
 
-<!-- 나혜선 추가 끝-->
+<!-- 엑셀 다운로드 목록 조회(페이징 미처리) -->
+
+<select id="cmmntyexcel" parameterType="map" resultType="CmmntyVO">
+SELECT
+    cmmnty_sn,
+    cmmnty_nm,
+    cmmnty_opn_vwpoint,
+    cmmnty_clos_vwpoint,
+    cmmnty_chcksttus,
+    cmmnty_chck_dt
+FROM
+    cmmnty
+WHERE 1 = 1     
+  <include refid="where2"></include>
+     
+ORDER BY cmmnty_chck_dt   
+
+<choose>
+<when test="sortOrder == 'asc'">ASC NULLS LAST</when>  <!-- 오름차순으로 하지만, 공백은 가장 마지막으로 / 기본은 최신순으로 -->
+<otherwise>DESC NULLS LAST</otherwise> 
+</choose>
+,cmmnty_sn ASC
+    
+</select>
+
 
 
 </mapper>

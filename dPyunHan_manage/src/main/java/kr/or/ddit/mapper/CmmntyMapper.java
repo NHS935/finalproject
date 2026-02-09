@@ -38,4 +38,7 @@ public interface CmmntyMapper {
 	//담당자 정보 조회
 	public List<EmpVO> empList();
 
+	//엑셀 다운로드 목록 조회
+	public List<CmmntyVO> cmmntyexcel(Map<String, Object> map);
+
 }

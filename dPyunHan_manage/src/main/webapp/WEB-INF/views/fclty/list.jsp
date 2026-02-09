@@ -376,10 +376,39 @@ $(".openmodal").on("click",function(e){
     	 
      });
 
-	
+ //선택 삭제 기능
+ 	
 	const deleteBtn =  document.querySelector("#remove");
 	
 	deleteBtn.addEventListener("click",function(){ //삭제버튼을 누르면
+		
+	    const checked = document.querySelectorAll(".row-check:checked");
+		let ids=[];
+		
+		
+		for(let i=0; i<checked.length; i++){
+			ids.push(checked[i].value);
+		}
+		
+		console.log("checked count",checked.length);
+		console.log("ids 확인",ids);
+
+
+		if(ids.length===0){
+			Swal.fire({
+               icon:'info',
+			   title:'선택된 항목이 없습니다',
+			   text: '삭제할 항목을 체크해주세요',
+			   confirmButtonText:'확인',
+			   showCancelButton:true,
+			   cancelButtonText:'취소',
+			   width: 400,
+               allowOutsideClick: false,
+               allowEscapeKey: false 	
+			});
+			return;
+		}
+				
 		 Swal.fire({
 			icon:'warning', 
 			title:'삭제 확인 요청',
@@ -388,12 +417,85 @@ $(".openmodal").on("click",function(e){
             width: 400,
             allowOutsideClick: false,
             allowEscapeKey: false 			 
-		 });
+		 }).then((result)=>{
+			if(!result.isConfirmed) return;                             // result 안에 사용자의 선택 결과가 담김, inConfirmed 확인 버튼을 눌렀을때 true
+		
+		    fetch("/fclty/delete",{
+                method:"post",
+				headers:{"Content-Type":"application/json;charset=utf-8"},
+				body:JSON.stringify(ids)
+			})
+			.then(response=>{
+				return response.json();
+			})
+		    .then(data=>{
+				if(data>0){
+					Swal.fire({
+                      icon:'success', 
+			          title:'삭제 완료',
+			          text:`${data}건 삭제되었습니다.`, 
+			          confirmButtonText: '확인',
+                      width: 400,
+                      allowOutsideClick: false,
+                      allowEscapeKey: false
+					}).then(()=>location.reload());
+				}else{
+                    Swal.fire({
+                      icon:'error', 
+			          title:'삭제 실패',
+			          text:'삭제에 실패했습니다.', 
+			          confirmButtonText: '확인',
+                      width: 400,
+                      allowOutsideClick: false,
+                      allowEscapeKey: false
+					})
+				}
+			})
+			.catch(err=>{
+				console.log(err);
+                Swal.fire({
+                      icon:'error', 
+			          title:'오류',
+			          text:'오류가 발생했습니다', 
+			          confirmButtonText: '확인',
+                      width: 400,
+                      allowOutsideClick: false,
+                      allowEscapeKey: false
+					})
+			})
+		});
 	});
 	
 	
-	
+  //체크박스 선택 시 한페이지 목록 전체 선택
+  
+  const chekall = document.querySelector("#checkAll");
+  
+  chekall.addEventListener("click",function(){
+	  
+	const rows = document.querySelectorAll(".row-check");
+	  
+	  rows.forEach(checkbox=>{
+		 checkbox.checked = chekall.checked;
+	  })   
+  });
 
+    const rows = document.querySelectorAll(".row-check");
+
+	  rows.forEach(checkbox=>{
+         
+		checkbox.addEventListener("click",function(){
+		   const checked = document.querySelectorAll(".row-check:checked");
+
+           if(row.length===checked.length){
+			   chekall.checked=true;
+		   }else{
+			   chekall.checked=false;
+		   }
+		})
+	  })
+
+    
 });// 전체 끝
 
 </script>
@@ -519,7 +621,7 @@ $(".openmodal").on("click",function(e){
  
  <!-- body 시작 -->
  
-  <button type="button" style="background-color:mediumseagreen;color:white;border-radius: 4px;border: 0;height: 26px; margin-left:1450px; margin-bottom:15px;">시설/보안 등록 </button>    <!-- 작동안해요 보여주기식 -->
+  <button type="button" style="background-color:mediumseagreen;color:white;border-radius: 4px;border: 0;height: 26px; margin-left:1670px; margin-bottom:15px;">시설/보안 등록 </button>    <!-- 작동안해요 보여주기식 -->
   <button type="button" id="insertBtn" style="background-color:mediumseagreen;color:white;border-radius: 4px;border: 0;height: 26px; margin-bottom:10px;">점검일정 등록</button>    <!-- 작동안해요 보여주기식 --> 
   <button type="button" id="remove" style="background-color:mediumseagreen;color:white;border-radius: 4px;border: 0;height: 26px; margin-bottom:10px;">선택 삭제</button>    <!-- 작동안해요 보여주기식 --> 
   <button type="button" style="background-color:mediumseagreen;color:white;border-radius: 4px;border: 0;height: 26px; margin-bottom:10px;">Excel 다운로드</button>    <!-- 작동안해요 보여주기식 --> 
@@ -528,7 +630,7 @@ $(".openmodal").on("click",function(e){
         <table class="table tight-table" style="border-top: 2px solid #e6e6e6;">   <!-- 기능 지정 -->
                   <thead>
                     <tr>  <!-- 색상 지정 -->
-                      <th></th>
+                      <th style="width:40px;"><input type="checkbox" id="checkAll"/></th>
                       <th class="col-1">순번</th>
                       <th class="col-2">시설 분류</th>
                       <th class="col-2">시설 이름</th>
@@ -540,7 +642,7 @@ $(".openmodal").on("click",function(e){
                   <tbody id="rowlist">
                    <c:forEach items="${fcltyVOList}" var="fcltyVO" varStatus="status">
                     <tr>
-                      <td style="vertical-align: middle;"><input type="checkbox" style="margin-left:3px;"/></td>
+                      <td style="vertical-align: middle;"><input type="checkbox" class="row-check" value="${fcltyVO.fcltySn}" style="margin-left:3px;"/></td>
                       <td>${(articlePage.currentPage - 1)*10 + status.index + 1}</td>  <!-- (articlePage.currentPage - 1)*10 : 이전 페이지에 있던 글의 수 -->
                       <td>${fcltyVO.fcltyCl}</td>
                       <td>${fcltyVO.fcltyNm}</td>

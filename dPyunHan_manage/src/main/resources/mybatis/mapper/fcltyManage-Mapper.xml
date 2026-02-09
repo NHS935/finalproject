@@ -233,5 +233,23 @@ WHERE FCLTY_MANAGE_SN = #{fcltyManageSn}
 </update>
 
 
+<!-- 점검이력 연동 -->
+<update id="updatePrefclty" parameterType="FcltyManageVO">
+  UPDATE FCLTY_MANAGE
+   SET FCLTYMANAGE_CHCKSTTUS= '점검완료'
+  WHERE FCLTY_SN = #{fcltySn}
+    AND FCLTY_MANAGE_SN <![CDATA[<]]> #{fcltyManageSn}
+</update>
+
+<update id="updatePrecmmnty" parameterType="FcltyManageVO">
+  UPDATE FCLTY_MANAGE
+   SET FCLTYMANAGE_CHCKSTTUS= '점검완료'
+  WHERE CMMNTY_SN = #{cmmntySn}
+    AND FCLTY_MANAGE_SN <![CDATA[<]]> #{fcltyManageSn}
+</update>
+
+
+
+
 
 </mapper>

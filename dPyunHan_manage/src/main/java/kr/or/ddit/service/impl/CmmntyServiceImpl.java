@@ -1,5 +1,6 @@
 package kr.or.ddit.service.impl;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,7 +26,7 @@ public class CmmntyServiceImpl implements CmmntyService {
 	@Autowired
 	NtcnUtil ntcnUtil;
 	
-	//커뮤니티 리스트 목록 조회
+	//커뮤니티 리스트 목록 조회(페이징 처리)
 	@Override
 	public List<CmmntyVO> cmmntylist(Map<String, Object> map) {		
 		return this.cmmntymapper.cmmntylist(map);		
@@ -84,5 +85,26 @@ public class CmmntyServiceImpl implements CmmntyService {
 	public List<EmpVO> empList() {
 		return this.cmmntymapper.empList();
 	}
+
+	//엑셀 다운로드 목록 조회(페이징 미처리)
+	@Override
+	public List<CmmntyVO> cmmntyexcel(String keyword, String sortOrder, String status, String startDate,
+			String endDate) {
+
+        Map<String,Object> map = new HashMap<>();
+    	
+    	map.put("keyword", keyword == null ? "" : keyword.trim());
+    	map.put("sortOrder", (sortOrder == null || sortOrder.isBlank()) ? "desc" : sortOrder);
+    	map.put("status", status == null ? "" : status);
+    	map.put("startDate", startDate == null ? "" : startDate);
+    	map.put("endDate", endDate == null ? "" : endDate);
+				
+		return cmmntymapper.cmmntyexcel(map);
+	}
+	
+	
+
+
+
 
 }

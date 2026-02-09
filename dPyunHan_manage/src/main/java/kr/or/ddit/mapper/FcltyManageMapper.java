@@ -45,6 +45,13 @@ public interface FcltyManageMapper {
 	//시설관리 점검 상태 업데이트 
 	public void updatefclmanageChcksttus(FcltyManageVO fcltyManageVO);
 
+	//시설점검이력 연동
+	public void updatePrefclty(FcltyManageVO fcltyManageVO);
+
+	//시설점검이력 연동(커뮤니티)
+	public void updatePrecmmnty(FcltyManageVO fcltyManageVO);
+
+
 
 	
 }

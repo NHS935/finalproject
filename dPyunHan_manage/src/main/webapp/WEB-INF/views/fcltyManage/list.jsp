@@ -330,19 +330,18 @@ fetch("/fx/schdul",{
                      </c:choose> 
                                       
                                       
-                 <%--   <c:choose>
-						<c:when test="${ohoh.fcltymanageChcksttus eq '점검예정' or ohoh.fcltymanageChcksttus eq '점검중'}">
-						 <td style="vertical-align: middle;">
-						     <input type="checkbox" style="margin-left:5px;" />
-						 </td>
-						</c:when>
-						<c:otherwise>
-						 <td style="vertical-align: middle;">
-						     <input type="checkbox" style="margin-left:5px; display:none;" />
-						 </td>
-						</c:otherwise>
-					</c:choose>   --%>           
-                                 
+					  <!--  <c:choose>
+					 	<c:when test="${ohoh.fcltymanageChcksttus eq '점검예정' or ohoh.fcltymanageChcksttus eq '점검중'}">
+					 	 <td style="vertical-align: middle;">
+					 	     <input type="checkbox" style="margin-left:5px;" />
+					 	 </td>
+					 	</c:when>
+					 	<c:otherwise>
+					 	 <td style="vertical-align: middle;">
+					 	     <input type="checkbox" style="margin-left:5px; display:none;" />
+					 	 </td>
+					 	</c:otherwise>
+					 </c:choose>      -->     
                                                                                                                   
                        <td style="display:none;">              <!-- 화면에 칸 노출 안시키고 일정에 상태값을 전달하기 위한 방법 -->
 	                      <input type="hidden" class="fcltyManageSn" value="${ohoh.fcltyManageSn}" >	                     
@@ -371,14 +370,10 @@ fetch("/fx/schdul",{
                         </c:choose>
                         
                         
-                      <c:choose>
-                         <c:when test="${not empty ohoh.fcltyVO.fcltySn}">  <!-- 점검 상태 -->
-                            <td><input type="hidden" class="fcltySttus" value="${ohoh.fcltySn}" />${ohoh.fcltyVO.fcltySttus}</td>
-                         </c:when>
-                         <c:otherwise>
-                            <td><input type="hidden" class="cmmntyChcksttus" value="${ohoh.cmmntySn}" />${ohoh.cmmntyVO.cmmntyChcksttus}</td>
-                         </c:otherwise>                    
-                      </c:choose>  
+						<td>
+						  <input type="hidden" class="chckSttus" value="${ohoh.fcltymanageChcksttus}" />   <!--점검상태-->
+						  ${ohoh.fcltymanageChcksttus}
+						</td>  
                         
                        
                        <td>
@@ -397,9 +392,9 @@ fetch("/fx/schdul",{
                         <td><fmt:formatNumber value="${ohoh.fcltymanagePrearngePd}" pattern="#"/>일</td>   <!-- 총 예정 기간 -->
                        
                      
-	                     <td style="display:none;">              <!-- 화면에 칸 노출 안시키고 일정에 상태값을 전달하기 위한 방법 -->
+	      <!--               <td style="display:none;">               화면에 칸 노출 안시키고 일정에 상태값을 전달하기 위한 방법 
 	                      <input type="hidden" class="chckSttus" value="${ohoh.fcltymanageChcksttus}" >	                     
-	                     </td>  
+	                     </td>  -->
 	                                          
                       <td>
                                            

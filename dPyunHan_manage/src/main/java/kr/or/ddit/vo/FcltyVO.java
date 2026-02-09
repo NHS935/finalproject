@@ -18,12 +18,16 @@ public class FcltyVO {
 	
 	private String fcltySttus;   //시설상태
 		
+	
 	@DateTimeFormat(pattern="yyyy-MM-dd")
 	private Date fcltyChckDt;   //시설점검일시
 
+	private String delYn;    //삭제여부
+	
 	private String empId;
 
 	private String aptcmpl;
+	
 
 	
 }

@@ -23,6 +23,11 @@ public interface CmmntyService {
 	//담당자 정보 조회
 	public List<EmpVO> empList();
 
+
+	//엑셀 다운로드 목록 조회
+	public List<CmmntyVO> cmmntyexcel(String keyword, String sortOrder, String status, String startDate,
+			String endDate);
+
 	
 
 

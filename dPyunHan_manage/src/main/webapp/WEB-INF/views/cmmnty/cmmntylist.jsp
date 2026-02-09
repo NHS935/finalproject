@@ -297,6 +297,8 @@ $(".openmodal").on("click",function(e){  //점검 상태를 누르면
 	 	const ok = document.querySelector("#okBtn");   //등록 버튼
 
 	 	ok.addEventListener("click",function(){  //등록 버튼을 누르면
+			
+			
 
 	 		const empId = document.querySelector("#empId").value;
 	         const fcltySn = document.querySelector("#fcltySnId").value;
@@ -408,7 +410,7 @@ $(".openmodal").on("click",function(e){  //점검 상태를 누르면
               <div class="card-body" style="overflow-x:hidden;">
               
       <!-- 검색필터 시작 -->
-	 <form action="/" method="get" class="filter-form">
+	 <form action="/cmmnty/cmmntylist" method="get" class="filter-form">
 		 <div class="filter-card">
 		   <div class="filter-card-header">
 		     <h3 class="filter-card-title">검색 필터</h3>
@@ -422,7 +424,7 @@ $(".openmodal").on("click",function(e){  //점검 상태를 누르면
 		     <!-- Row 1 -->
 		     <div class="filter-row">
 		       
-		       <!-- 검색 필드 셀 -->
+		    <!--    검색 필드 셀 
 		       <div class="filter-cell">
 		         <div class="filter-cell-label">검색 필드</div>
 		         <div class="filter-cell-content">
@@ -433,7 +435,7 @@ $(".openmodal").on("click",function(e){  //점검 상태를 누르면
 		             </label>
 		           </div>
 		         </div>
-		       </div>
+		       </div>-->
 		       
 		       <!-- 정렬 셀 -->
 		       <div class="filter-cell">
@@ -486,11 +488,11 @@ $(".openmodal").on("click",function(e){  //점검 상태를 누르면
 		   <div class="filter-search-footer">
 		     <div class="filter-search-wrapper">
 		       <input type="text" name="keyword" class="filter-input" 
-		              placeholder="검색어..." 
-		              value="${keyword}" />
+		              placeholder="커뮤니티 이름 검색" 
+		              value="${param.keyword}" />
 		      </div>
 		      <button type="submit" class="filter-btn filter-btn-primary">검색</button>
-		      <a href="/" class="filter-btn filter-btn-secondary">초기화</a>		           
+		      <a href="/cmmnty/cmmntylist" class="filter-btn filter-btn-secondary">초기화</a>           
 		    </div>
 		  </div>
 	</form>
@@ -509,10 +511,20 @@ $(".openmodal").on("click",function(e){  //점검 상태를 누르면
  
  <!-- body 시작 -->
  <div>
- <button type="button" style="background-color:mediumseagreen;color:white;border-radius: 4px;border: 0;height: 26px; margin-left:1450px; margin-bottom:15px;">커뮤니티 등록 </button>    <!-- 작동안해요 보여주기식 --> 
+ <button type="button" style="background-color:mediumseagreen;color:white;border-radius: 4px;border: 0;height: 26px; margin-left:1670px; margin-bottom:15px;">커뮤니티 등록 </button>    <!-- 작동안해요 보여주기식 --> 
  <button type="button" id="insertBtn" style="background-color:mediumseagreen;color:white;border-radius: 4px;border: 0;height: 26px; margin-bottom:10px;">점검일정 등록</button>    <!-- 작동안해요 보여주기식 --> 
  <button type="button" id="remove" style="background-color:mediumseagreen;color:white;border-radius: 4px;border: 0;height: 26px; margin-bottom:10px;">선택 삭제</button>    <!-- 작동안해요 보여주기식 --> 
- <button type="button" style="background-color:mediumseagreen;color:white;border-radius: 4px;border: 0;height: 26px; margin-bottom:10px;">Excel 다운로드</button>    <!-- 작동안해요 보여주기식 --> 
+ 
+ <form action="/cmmnty/excel" method="get" style="display: inline;">
+    <input type="hidden" name="keyword" value="${param.keyword}">
+    <input type="hidden" name="sortOrder" value="${param.sortOrder}">
+    <input type="hidden" name="status" value="${param.status}">
+    <input type="hidden" name="startDate" value="${param.startDate}">
+    <input type="hidden" name="endDate" value="${param.endDate}">
+	
+	<button type="submit" style="background-color:mediumseagreen;color:white;border-radius: 4px;border: 0;height: 26px; margin-bottom:10px;">Excel 다운로드</button>    
+ </form>
+ 
  </div>  
              
                 <table class="table tight-table" style="border-top: 2px solid #e6e6e6;">   <!-- 기능 지정 -->

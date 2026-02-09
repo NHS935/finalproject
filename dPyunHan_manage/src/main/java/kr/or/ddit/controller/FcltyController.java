@@ -112,6 +112,14 @@ public class FcltyController {
    }
     
     
+   //체크박스 삭제
+   @ResponseBody
+   @PostMapping("/delete")
+   public int delete(@RequestBody List<Integer> ids){
+	    
+	    return fcltyService.delete(ids);
+	   
+   }
    
    
    
