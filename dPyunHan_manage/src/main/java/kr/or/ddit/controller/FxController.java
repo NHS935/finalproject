@@ -49,10 +49,7 @@ public class FxController {
 		
 		log.info("start : {} ",start);
 		log.info("end : {} ",end);
-		if(start == null ) {
-			 start = "1970-10-01";  //땜빵
-			 end="2999-10-31";
-		}		
+
 		return fxService.list(start,end);			
 	}
 	

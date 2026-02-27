@@ -129,6 +129,10 @@
                  contentType : "application/json",
                  type: 'get',
                  dataType: 'json',
+				 data: {
+					start: info.startStr.substring(0,10),
+					end: info.endStr.substring(0,10)
+				 },
                  success: function(param){
                     var events = [];
                     console.log("param : ", param);
@@ -426,7 +430,7 @@
         <span class="legend-color legend-personal"></span> 개인일정
     </div>
     
-  <button type="button" id="registerBtn" style="background-color:mediumseagreen; color:white; border-radius: 4px; border: 0; height: 26px; margin-bottom:10px; margin-left:1430px">일정 등록</button>  
+  <button type="button" id="registerBtn" style="background-color:mediumseagreen; color:white; border-radius: 4px; border: 0; height: 26px; margin-bottom:10px; margin-left:1650px">일정 등록</button>  
 </div> 
   
 <!-- 실제 화면을 담을 영역 -->

@@ -21,7 +21,13 @@
     B.NM 
 	FROM FX A
     LEFT JOIN  EMP B ON A.EMP_ID = B.EMP_ID
-	WHERE A.FX_BEGIN_DT BETWEEN to_date(#{fxBeginDt},'yyyy-MM-dd') AND to_date(#{fxEndDt},'yyyy-MM-dd')
+    
+    <where>
+    <if test="fxBeginDt !=null and fxEndDt != null">
+      A.FX_BEGIN_DT BETWEEN to_date(#{fxBeginDt},'yyyy-MM-dd') AND to_date(#{fxEndDt},'yyyy-MM-dd')     
+    </if>
+    </where>
+    	
 	ORDER BY A.FX_BEGIN_DT ASC
 	</select>
 	
